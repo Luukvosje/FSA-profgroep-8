@@ -1,13 +1,15 @@
 package com.profgroep8.Config
 
+import com.profgroep8.Controller.Car.CarController
+import com.profgroep8.Controller.Car.carRoutes
+import com.profgroep8.Data.Repositories.CarRepository
+import com.profgroep8.Service.CarService
 import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 
 fun Application.configureRouting() {
-    routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-    }
+    val carRepository = CarRepository()
+    val carService = CarService(carRepository)
+    val carController = CarController(carService)
+    carRoutes(carController)
+
 }
