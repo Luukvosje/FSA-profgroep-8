@@ -1,5 +1,6 @@
 package com.profgroep8.repositories
 
+import com.profgroep8.interfaces.repositories.CarRepository
 import com.profgroep8.interfaces.repositories.DatabaseFactory
 import com.profgroep8.interfaces.repositories.GenericRepository
 import com.profgroep8.interfaces.repositories.UserRepository
@@ -33,6 +34,6 @@ object DatabaseFactoryImpl : DatabaseFactory {
         }
     }
 
-    override val carRepository : GenericRepository<Car> = GenericRepositoryImpl(Car)
+    override val carRepository : CarRepository by lazy { CarRepositoryImpl(GenericRepositoryImpl(Car)) }
     override val userRepository: UserRepository<User> = UserServiceImpl()
 }
