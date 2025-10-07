@@ -25,6 +25,8 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages:3.3.0")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    implementation("org.mindrot:jbcrypt:0.4")
+
 
     val exposedVersion = "0.56.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
