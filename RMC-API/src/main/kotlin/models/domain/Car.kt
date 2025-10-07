@@ -1,7 +1,7 @@
 package com.profgroep8.models.domain
 
 import com.profgroep8.models.dto.CarDTO
-import com.profgroep8.models.entity.Cars
+import com.profgroep8.models.entity.CarEntity
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -14,15 +14,15 @@ enum class FuelType(val value: Int) {
 }
 
 class Car(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<Car>(Cars)
+    companion object : IntEntityClass<Car>(CarEntity)
 
-    var licensePlate by Cars.licensePlate
-    var brand by Cars.brand
-    var model by Cars.model
-    var year by Cars.year
-    var fuelType by Cars.fuelType
-    var price by Cars.price
-    var userId by Cars.userId
+    var licensePlate by CarEntity.licensePlate
+    var brand by CarEntity.brand
+    var model by CarEntity.model
+    var year by CarEntity.year
+    var fuelType by CarEntity.fuelType
+    var price by CarEntity.price
+    var userId by CarEntity.userId
 }
 
 fun Car.toCarDTO() = CarDTO(

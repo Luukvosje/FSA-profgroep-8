@@ -7,8 +7,8 @@ import com.profgroep8.models.domain.FuelType
 import com.profgroep8.models.domain.toCarDTO
 import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.dto.CreateCarDTO
-import com.profgroep8.models.entity.Cars
-import com.profgroep8.models.entity.Users
+import com.profgroep8.models.entity.CarEntity
+import com.profgroep8.models.entity.UserEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -26,7 +26,7 @@ class CarRepository() {
 
     fun createCar(car: CreateCarDTO, userId: Int): CarDTO  = transaction {
         // Car already exists
-        if (Car.find { Cars.licensePlate eq car.licensePlate }.any()) {
+        if (Car.find { CarEntity.licensePlate eq car.licensePlate }.any()) {
             throw ConflictException()
         }
 

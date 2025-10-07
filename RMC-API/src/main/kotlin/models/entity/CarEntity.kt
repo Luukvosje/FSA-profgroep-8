@@ -3,7 +3,6 @@ package com.profgroep8.models.entity
 import com.profgroep8.models.domain.FuelType
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
 
 object CarEntity : IntIdTable("Car") {
     val licensePlate = varchar("LicencePlate", 10).uniqueIndex()
