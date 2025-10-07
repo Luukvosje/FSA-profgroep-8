@@ -15,7 +15,7 @@ object Rentals : Table("Rental") {
     )
 
     val CarId = integer("CarID").references(
-        Cars.carId,
+        Cars.id,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE
     )
