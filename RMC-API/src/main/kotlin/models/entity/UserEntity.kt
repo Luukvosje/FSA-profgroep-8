@@ -3,7 +3,7 @@ package com.profgroep8.models.entity
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Table
 
-object UserEntity : IntIdTable("User") {
+object UserEntity : IntIdTable("user") {
     val fullName = varchar("FullName", 255)
     val email = varchar("Email", 255)
     val password = varchar("Password", 255)
