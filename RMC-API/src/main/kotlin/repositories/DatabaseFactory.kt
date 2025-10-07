@@ -11,10 +11,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object DatabaseFactory {
     fun init() {
         Database.connect(
-            url = "jdbc:postgresql://localhost:5432/RentMyCar",
+            url = "jdbc:postgresql://foxtrek.nl:5432/RMC_API",
             driver = "org.postgresql.Driver",
-            user = "postgres",
-            password = "8520"
+            user = "RMCApi",
+            password = "bBvt65nT1L70ii7r8aM9CM"
         )
 
         transaction {
