@@ -1,9 +1,9 @@
 package com.profgroep8.repositories
 
-import com.profgroep8.models.entity.Cars
-import com.profgroep8.models.entity.RentalLocations
-import com.profgroep8.models.entity.Rentals
-import com.profgroep8.models.entity.Users
+import com.profgroep8.models.entity.CarEntity
+import com.profgroep8.models.entity.RentalEntity
+import com.profgroep8.models.entity.RentalLocationsEntity
+import com.profgroep8.models.entity.UserEntity
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -19,10 +19,10 @@ object DatabaseFactory {
 
         transaction {
             SchemaUtils.create(
-                Cars,
-                Users,
-                Rentals,
-                RentalLocations
+                CarEntity,
+                UserEntity,
+                RentalEntity,
+                RentalLocationsEntity
             )
         }
     }

@@ -2,7 +2,6 @@ package com.profgroep8.models.entity
 
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object RentalEntity : IntIdTable("Rental") {
@@ -20,13 +19,13 @@ object RentalEntity : IntIdTable("Rental") {
     )
 
     val startRentalLocationId = integer("StartRentalLocationID").references(
-        RentalLocations.id,
+        RentalLocationsEntity.id,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE
     )
 
     val endRentalLocationId = integer("EndRentalLocationID").references(
-        RentalLocations.id,
+        RentalLocationsEntity.id,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE
     )
@@ -34,8 +33,7 @@ object RentalEntity : IntIdTable("Rental") {
     val state = integer("State")
 }
 
-object RentalLocations : IntIdTable("RentalLocation") {
-
+object RentalLocationsEntity : IntIdTable("RentalLocation") {
     val date = datetime("Date")
     val longitude = float("Longitude")
     val latitude = float("Latitude")
