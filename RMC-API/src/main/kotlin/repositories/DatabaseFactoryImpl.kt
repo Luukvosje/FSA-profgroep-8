@@ -21,6 +21,13 @@ object DatabaseFactoryImpl : DatabaseFactory {
         )
 
         transaction {
+            SchemaUtils.createMissingTablesAndColumns(
+                CarEntity,
+                UserEntity,
+                RentalEntity,
+                RentalLocationsEntity
+            )
+
             SchemaUtils.create(
                 CarEntity,
                 UserEntity,
@@ -30,5 +37,5 @@ object DatabaseFactoryImpl : DatabaseFactory {
         }
     }
 
-    override val carRepository : GenericRepository<Car> = GenericRepositoryImpl(Car)
+    override val carRepository: GenericRepository<Car> = GenericRepositoryImpl(Car)
 }

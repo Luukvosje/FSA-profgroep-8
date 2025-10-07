@@ -4,7 +4,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object RentalEntity : IntIdTable("Rental") {
+object RentalEntity : IntIdTable("Rental", "RentalID") {
 
     val UserId = integer("UserID").references(
         UserEntity.id,
@@ -33,7 +33,7 @@ object RentalEntity : IntIdTable("Rental") {
     val state = integer("State")
 }
 
-object RentalLocationsEntity : IntIdTable("RentalLocation") {
+object RentalLocationsEntity : IntIdTable("RentalLocation", "RentalLocationID") {
     val date = datetime("Date")
     val longitude = float("Longitude")
     val latitude = float("Latitude")
