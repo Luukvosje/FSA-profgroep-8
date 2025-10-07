@@ -6,14 +6,14 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
-enum class FuelType(val value: Int) {
-    GASOLINE(0),
-    DIESEL(1),
-    ELECTRIC(2),
-    HYBRID(3)
+enum class FuelType {
+    GASOLINE,
+    DIESEL,
+    ELECTRIC,
+    HYBRID
 }
 
-class Car(id: EntityID<Int>) : IntEntity(id) {
+class Car(carId: EntityID<Int>) : IntEntity(carId) {
     companion object : IntEntityClass<Car>(CarEntity)
 
     var licensePlate by CarEntity.licensePlate

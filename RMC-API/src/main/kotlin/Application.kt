@@ -1,5 +1,6 @@
 package com.profgroep8
 
+import com.profgroep8.exceptions.configureStatusPages
 import com.profgroep8.repositories.DatabaseFactory
 import com.profgroep8.plugins.JwtConfig
 import com.profgroep8.plugins.configureRouting
@@ -19,4 +20,5 @@ fun Application.module() {
 
     configureSerialization()
     configureRouting()
+    configureStatusPages()
 }

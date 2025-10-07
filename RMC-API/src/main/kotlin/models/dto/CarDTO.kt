@@ -1,14 +1,15 @@
 package com.profgroep8.models.dto
 
-import com.profgroep8.models.domain.FuelType
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CarDTO(
-    val id: Int,
+    val carId: Int,
     val licensePlate: String,
     val brand: String,
     val model: String,
     val year: Int,
-    val fuelType: FuelType,
+    val fuelType: Int,
     val price: Int,
     val userId: Int
 )
@@ -18,6 +19,6 @@ data class CreateCarDTO(
     val brand: String,
     val model: String,
     val year: Int,
-    val fuelType: FuelType,
+    val fuelType: Int,
     val price: Int,
 )

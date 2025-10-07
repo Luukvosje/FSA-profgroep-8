@@ -1,28 +1,19 @@
 package com.profgroep8.Controller.Car
 
+import com.profgroep8.exceptions.NotFoundException
+import com.profgroep8.repositories.CarRepository
 import io.ktor.server.application.*
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 
 fun Application.carRoutes() {
     routing {
         route("/cars") {
-            get {
-                call.respondText("Hello World!")
+            get() {
+                val cars = CarRepository().getAll()
+                call.respond(cars)
             }
-
-//            get("{id}") {
-//                carController.getCarById(call)
-//            }
-//            post {
-//                carController.createCar(call)
-//            }
-//            put("{id}") {
-//                carController.updateCar(call)
-//            }
-//            delete("{id}") {
-//                carController.deleteCar(call)
-//            }
         }
     }
 }
