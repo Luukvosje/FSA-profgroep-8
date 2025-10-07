@@ -14,6 +14,7 @@ data class CarDTO(
     val userId: Int
 )
 
+@Serializable
 data class CreateCarDTO(
     val licensePlate: String,
     val brand: String,

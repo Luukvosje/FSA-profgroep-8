@@ -5,16 +5,13 @@ import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 
-object CarEntity : IdTable<Int>("Car") {
-    override val id = integer("CarID").entityId()
-
+object CarEntity : IntIdTable(name = "Car", columnName = "CarID") {
     val licensePlate = varchar("LicencePlate", 10).uniqueIndex()
     val brand = varchar("Brand", 100)
     val model = varchar("Model", 100)
     val year = integer("Year")
     val fuelType = integer("FuelType")
-    val price = integer("PriceInCents")
-
+    val price = integer("Price")
     val userId = integer("UserID").references(
         UserEntity.id,
         onDelete = ReferenceOption.CASCADE,

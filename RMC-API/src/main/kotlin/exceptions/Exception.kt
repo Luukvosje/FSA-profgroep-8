@@ -22,8 +22,7 @@ fun Application.configureStatusPages() {
         }
 
         exception<ConflictException> { call, cause ->
-            call.respond(
-                status = HttpStatusCode.Conflict,
+            call.respond(HttpStatusCode.Conflict,
                 message = mapOf(
                     "error" to "Conflict detected",
                     "details" to (cause.message ?: "The request could not be completed due to a conflict.")

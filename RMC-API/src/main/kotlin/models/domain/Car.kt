@@ -23,15 +23,18 @@ class Car(carId: EntityID<Int>) : IntEntity(carId) {
     var fuelType by CarEntity.fuelType
     var price by CarEntity.price
     var userId by CarEntity.userId
+
+    fun toCarDTO(): CarDTO {
+        return CarDTO(
+        this.id.value,
+        this.licensePlate,
+        this.brand,
+        this.model,
+        this.year,
+        this.fuelType,
+        this.price,
+        this.userId
+        )
+    }
 }
 
-fun Car.toCarDTO() = CarDTO(
-    this.id.value,
-    this.licensePlate,
-    this.brand,
-    this.model,
-    this.year,
-    this.fuelType,
-    this.price,
-    this.userId
-)

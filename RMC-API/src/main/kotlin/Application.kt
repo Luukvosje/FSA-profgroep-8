@@ -1,10 +1,11 @@
 package com.profgroep8
 
 import com.profgroep8.exceptions.configureStatusPages
-import com.profgroep8.repositories.DatabaseFactory
+import com.profgroep8.repositories.DatabaseFactoryImpl
 import com.profgroep8.plugins.JwtConfig
 import com.profgroep8.plugins.configureRouting
 import com.profgroep8.plugins.configureSerialization
+import com.profgroep8.services.ServiceFactoryImpl
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
@@ -13,12 +14,14 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val appConfig = environment.config
-    DatabaseFactory.init()
+    DatabaseFactoryImpl.init()
+
+    val serviceFactory = ServiceFactoryImpl(DatabaseFactoryImpl)
 
     JwtConfig.init(appConfig)
     JwtConfig.configureSecurity(this)
 
     configureSerialization()
-    configureRouting()
+    configureRouting(serviceFactory)
     configureStatusPages()
 }
