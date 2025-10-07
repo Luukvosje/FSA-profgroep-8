@@ -17,8 +17,20 @@ class GenericRepositoryImpl<T : IntEntity>(
         entity.findById(id)
     }
 
-    override fun create(init: T.() -> Unit): T = transaction {
-        entity.new(init)
+    override fun create(createBlock: T.() -> Unit): T? = transaction {
+        try {
+            entity.new(createBlock)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override fun update(id: Int, updateBlock: T.() -> Unit): T? = transaction {
+        try {
+            entity.findById(id)?.apply(updateBlock)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     override fun delete(id: Int) = transaction {

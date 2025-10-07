@@ -23,3 +23,13 @@ data class CreateCarDTO(
     val fuelType: Int,
     val price: Int,
 )
+
+@Serializable
+data class UpdateCarDTO(
+    val licensePlate: String,
+    val brand: String,
+    val model: String,
+    val year: Int,
+    val fuelType: Int,
+    val price: Int,
+)
