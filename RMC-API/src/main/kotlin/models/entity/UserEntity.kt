@@ -1,11 +1,9 @@
 package com.profgroep8.models.entity
 
+import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Table
 
-object Users : Table("User") {
-    val UserId = integer("UserID").autoIncrement()
-    override val primaryKey = PrimaryKey(UserId)
-
+object UserEntity : IntIdTable("User") {
     val fullName = varchar("FullName", 255)
     val email = varchar("Email", 255)
     val password = varchar("Password", 255)
