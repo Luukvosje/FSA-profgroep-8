@@ -1,9 +1,9 @@
 package com.profgroep8
 
-import com.profgroep8.Config.DatabaseConfig
-import com.profgroep8.Config.JwtConfig
-import com.profgroep8.Config.configureRouting
-import com.profgroep8.Config.configureSerialization
+import com.profgroep8.repositories.DatabaseFactory
+import com.profgroep8.plugins.JwtConfig
+import com.profgroep8.plugins.configureRouting
+import com.profgroep8.plugins.configureSerialization
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val appConfig = environment.config
-    DatabaseConfig.init()
+    DatabaseFactory.init()
 
     JwtConfig.init(appConfig)
     JwtConfig.configureSecurity(this)

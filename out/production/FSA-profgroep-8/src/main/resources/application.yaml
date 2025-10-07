@@ -1,0 +1,11 @@
+ktor:
+  application:
+    modules:
+      - com.profgroep8.ApplicationKt.module
+  deployment:
+    port: 8080
+  jwt:
+    secret: "2c6490797647f171adb1b66e5de0ac31"
+    issuer:  "com.profgroep8.carrental"
+    audience: "car_rental_users"
+    realm: "CarRentalAPI"
