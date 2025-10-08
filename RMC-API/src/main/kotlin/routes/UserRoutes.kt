@@ -2,6 +2,7 @@ package com.profgroep8.Controller.User
 
 import com.profgroep8.interfaces.services.ServiceFactory
 import com.profgroep8.models.dto.CreateUserDTO
+import com.profgroep8.models.dto.LoginUserDTO
 import io.ktor.server.application.*
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.*
@@ -29,6 +30,12 @@ fun Application.userRoutes(serviceFactory: ServiceFactory) {
                 } catch (e: Exception) {
                     call.respondText("Unexpected error during registration")
                 }
+            }
+
+            post("/login") {
+                val loginUserDTO = call.receive<LoginUserDTO>()
+                val user = serviceFactory.userService.login(loginUserDTO)
+                call.respond(user)
             }
 
         }

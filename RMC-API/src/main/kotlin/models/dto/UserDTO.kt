@@ -12,7 +12,7 @@ data class UserDTO(
     val zipcode: String,
     val city: String,
     val countryISO: String,
-    val points: Int
+    val points: Int,
 )
 
 @Serializable
@@ -24,5 +24,17 @@ data class CreateUserDTO(
     val address: String,
     val zipcode: String,
     val city: String,
-    val countryISO: String
+    val countryISO: String,
+)
+
+@Serializable
+data class LoginUserDTO(
+    val email: String,
+    val password: String,
+)
+
+@Serializable
+data class LoginResponseDTO(
+    val user: UserDTO,
+    val token: String
 )

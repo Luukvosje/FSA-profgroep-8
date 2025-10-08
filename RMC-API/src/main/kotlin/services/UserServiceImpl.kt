@@ -4,11 +4,17 @@ import com.profgroep8.interfaces.repositories.UserRepository
 import com.profgroep8.interfaces.services.UserService
 import com.profgroep8.models.domain.User
 import com.profgroep8.models.dto.CreateUserDTO
+import com.profgroep8.models.dto.LoginUserDTO
 import com.profgroep8.models.dto.UserDTO
 import io.ktor.server.plugins.BadRequestException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import com.profgroep8.models.dto.LoginResponseDTO
+import java.util.*
 import com.profgroep8.models.entity.UserEntity
+import com.profgroep8.plugins.JwtConfig.generateToken
 
 class UserServiceImpl : UserService, UserRepository<User> {
 
@@ -37,5 +43,21 @@ class UserServiceImpl : UserService, UserRepository<User> {
             countryISO = user.countryISO
             points = 0
         }
+    }
+
+    override fun login(item: LoginUserDTO): LoginResponseDTO {
+        val user = transaction {
+            User.find { UserEntity.email eq item.email }.singleOrNull()
+        } ?: throw BadRequestException("Invalid email or password")
+
+        val validPassword = BCrypt.checkpw(item.password, user.password)
+        if (!validPassword) throw BadRequestException("Invalid email or password")
+
+        val token = generateToken(user.id.value.toString(), user.email)
+
+        return LoginResponseDTO(
+            user = user.toUserDTO(),
+            token = token
+        )
     }
 }
