@@ -41,6 +41,6 @@ object DatabaseFactoryImpl : DatabaseFactory {
         }
     }
 
-    override val carRepository : CarRepository by lazy { CarRepositoryImpl(GenericRepositoryImpl(Car)) }
+    override val carRepository : CarRepository by lazy { CarRepositoryImpl() }
     override val userRepository: UserRepository<User> = UserServiceImpl()
 }
