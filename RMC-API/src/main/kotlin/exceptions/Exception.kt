@@ -5,22 +5,12 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.http.*
 import io.ktor.server.response.*
 import com.profgroep8.exceptions.*
+import io.ktor.server.plugins.NotFoundException
 
-class NotFoundException : Exception() // 404 NOT_FOUND
 class ConflictException : Exception() // 409 CONFLICT
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
-        exception<NotFoundException> { call, cause ->
-            call.respond(
-                status = HttpStatusCode.NotFound,
-                message = mapOf(
-                    "error" to "Resource not found",
-                    "details" to (cause.message ?: "The requested resource could not be found.")
-                )
-            )
-        }
-
         exception<ConflictException> { call, cause ->
             call.respond(HttpStatusCode.Conflict,
                 message = mapOf(
