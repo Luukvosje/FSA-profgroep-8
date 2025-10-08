@@ -6,7 +6,6 @@ import com.profgroep8.models.domain.Car
 
 class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepositoryImpl(Car) {
     override fun findLicense() {
-
         TODO("Not yet implemented")
     }
 }

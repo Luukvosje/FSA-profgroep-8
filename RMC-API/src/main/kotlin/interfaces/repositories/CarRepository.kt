@@ -1,5 +1,7 @@
 package com.profgroep8.interfaces.repositories
 
-interface CarRepository {
+import com.profgroep8.models.domain.Car
+
+interface CarRepository: GenericRepository<Car> {
     fun findLicense()
 }
