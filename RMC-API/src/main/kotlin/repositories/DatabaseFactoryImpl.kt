@@ -25,13 +25,6 @@ object DatabaseFactoryImpl : DatabaseFactory {
         )
 
         transaction {
-            SchemaUtils.createMissingTablesAndColumns(
-                CarEntity,
-                UserEntity,
-                RentalEntity,
-                RentalLocationsEntity
-            )
-
             SchemaUtils.create(
                 CarEntity,
                 UserEntity,
