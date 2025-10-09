@@ -60,4 +60,13 @@ class UserServiceImpl : UserService, UserRepository<User> {
             token = token
         )
     }
+
+    override fun getByEmail(email: String): UserDTO? {
+        val user = transaction {
+            User.find { UserEntity.email eq email }.singleOrNull()
+        } ?: return null
+
+        return user.toUserDTO()
+    }
+
 }

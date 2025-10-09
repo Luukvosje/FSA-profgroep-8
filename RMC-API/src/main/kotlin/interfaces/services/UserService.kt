@@ -8,5 +8,6 @@ import com.profgroep8.models.dto.UserDTO
 interface UserService {
     fun register(item: CreateUserDTO): UserDTO
     fun login(item: LoginUserDTO): LoginResponseDTO
+    fun getByEmail(email: String): UserDTO?
 
 }
