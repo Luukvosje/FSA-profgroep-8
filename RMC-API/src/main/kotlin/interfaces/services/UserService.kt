@@ -9,5 +9,7 @@ interface UserService {
     fun register(item: CreateUserDTO): UserDTO
     fun login(item: LoginUserDTO): LoginResponseDTO
     fun getByEmail(email: String): UserDTO?
+    fun getBonusPoints(userId: Int): Int
+    fun updateBonusPoints(userId: Int, points: Int): UserDTO
 
 }

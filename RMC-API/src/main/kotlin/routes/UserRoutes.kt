@@ -33,15 +33,26 @@ fun Application.userRoutes(serviceFactory: ServiceFactory) {
             // New route: check if logged in
             authenticate("jwt") {
                 get("/me") {
-                    val principal = call.principal<JWTPrincipal>()
-                    val email = principal!!.payload.getClaim("email").asString()
-
+                    val principal = call.principal<JWTPrincipal>()!!
+                    val email = principal.payload.getClaim("email").asString()
                     val user = serviceFactory.userService.getByEmail(email)
-                    if (user == null) {
-                        call.respondText("User not found", status = io.ktor.http.HttpStatusCode.NotFound)
-                    } else {
-                        call.respond(user)
-                    }
+                    call.respond(user ?: throw BadRequestException("User not found"))
+                }
+
+                get("/{id}/bonuspoints") {
+                    val userId = call.parameters["id"]?.toIntOrNull()
+                        ?: throw BadRequestException("Invalid user ID")
+                    val points = serviceFactory.userService.getBonusPoints(userId)
+                    call.respond(mapOf("bonusPoints" to points))
+                }
+
+                put("/{id}/bonuspoints") {
+                    val userId = call.parameters["id"]?.toIntOrNull()
+                        ?: throw BadRequestException("Invalid user ID")
+                    val body = call.receive<Map<String, Int>>()
+                    val points = body["points"] ?: throw BadRequestException("Missing points field")
+                    val updatedUser = serviceFactory.userService.updateBonusPoints(userId, points)
+                    call.respond(updatedUser)
                 }
             }
 

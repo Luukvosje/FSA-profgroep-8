@@ -69,4 +69,22 @@ class UserServiceImpl : UserService, UserRepository<User> {
         return user.toUserDTO()
     }
 
+    override fun getBonusPoints(userId: Int): Int {
+        val user = transaction {
+            User.findById(userId)
+        } ?: throw BadRequestException("User not found")
+        return user.points
+    }
+
+    override fun updateBonusPoints(userId: Int, points: Int): UserDTO {
+        val user = transaction {
+            User.findById(userId)
+        } ?: throw BadRequestException("User not found")
+
+        transaction {
+            user.points = points
+        }
+
+        return user.toUserDTO()
+    }
 }
