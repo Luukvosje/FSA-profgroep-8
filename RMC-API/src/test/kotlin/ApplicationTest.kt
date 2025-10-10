@@ -1,20 +1,36 @@
 package com.profgroep8
 
 import com.profgroep8.models.dto.CreateCarDTO
+import com.profgroep8.models.dto.CreateUserDTO
+import com.profgroep8.models.dto.LoginUserDTO
+import com.profgroep8.plugins.JwtConfig
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.server.config.MapApplicationConfig
 import io.ktor.server.testing.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import java.util.UUID
 
 class ApplicationTest {
 
+    private fun initJwtForTest() {
+        val testConfig = MapApplicationConfig(
+            "ktor.jwt.secret" to "testsecret",
+            "ktor.jwt.issuer" to "testissuer",
+            "ktor.jwt.audience" to "testaudience",
+            "ktor.jwt.realm" to "testrealm"
+        )
+        JwtConfig.init(testConfig)
+    }
+
     @Test
     fun testRoot() = testApplication {
+        initJwtForTest()
         application {
             module()
         }
@@ -25,11 +41,9 @@ class ApplicationTest {
 
     @Test
     fun testCreateCar() = testApplication {
-        application {
-            module()
-        }
+        initJwtForTest()
+        application { module() }
 
-        // Prepare a sample DTO
         val carDTO = CreateCarDTO(
             licensePlate = "TEST-123",
             brand = "Tesla",
@@ -39,16 +53,180 @@ class ApplicationTest {
             price = 75000
         )
 
-        // Send POST request
         val response: HttpResponse = client.post("/cars") {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(carDTO))
         }
 
-        // Check response
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody = response.bodyAsText()
         assertNotNull(responseBody)
-        // Optionally, you can deserialize to CarDTO and check fields
+    }
+
+    // ==================== USER ROUTE TESTS ====================
+
+    @Test
+    fun testRegisterUser() = testApplication {
+        environment {
+            config = MapApplicationConfig(
+                "ktor.jwt.secret" to "testsecret",
+                "ktor.jwt.issuer" to "testissuer",
+                "ktor.jwt.audience" to "testaudience",
+                "ktor.jwt.realm" to "testrealm"
+            )
+        }
+        application { module() }
+
+        val randomEmail = "paul_" + UUID.randomUUID().toString() + "@example.com"
+        val createUserDTO = CreateUserDTO(
+            fullName = "Paul De Mast",
+            email = randomEmail,
+            password = "test123",
+            phone = "+31687654321",
+            address = "456 Street",
+            zipcode = "2000CD",
+            city = "Rotterdam",
+            countryISO = "NL"
+        )
+
+        val response: HttpResponse = client.post("/users/register") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(createUserDTO))
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val responseBody = response.bodyAsText()
+        assertNotNull(responseBody)
+        assert(responseBody.contains("Paul De Mast"))
+        assert(responseBody.contains(randomEmail))
+    }
+
+    @Test
+    fun testLoginUser() = testApplication {
+        environment {
+            config = MapApplicationConfig(
+                "ktor.jwt.secret" to "testsecret",
+                "ktor.jwt.issuer" to "testissuer",
+                "ktor.jwt.audience" to "testaudience",
+                "ktor.jwt.realm" to "testrealm"
+            )
+        }
+        application { module() }
+        // Register user before login
+        val createUserDTO = CreateUserDTO(
+            fullName = "Paul De Mast",
+            email = "pauldm@example.com",
+            password = "test123",
+            phone = "+31687654321",
+            address = "456 Street",
+            zipcode = "2000CD",
+            city = "Rotterdam",
+            countryISO = "NL"
+        )
+        client.post("/users/register") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(createUserDTO))
+        }
+        val loginUserDTO = LoginUserDTO(
+            email = "pauldemast@example.com",
+            password = "test123"
+        )
+        val response: HttpResponse = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(loginUserDTO))
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        val responseBody = response.bodyAsText()
+        assertNotNull(responseBody)
+        assert(responseBody.contains("token"))
+    }
+
+    @Test
+    fun testGetLoggedInUser() = testApplication {
+        environment {
+            config = MapApplicationConfig(
+                "ktor.jwt.secret" to "testsecret",
+                "ktor.jwt.issuer" to "testissuer",
+                "ktor.jwt.audience" to "testaudience",
+                "ktor.jwt.realm" to "testrealm"
+            )
+        }
+        JwtConfig.init(
+            MapApplicationConfig(
+                "ktor.jwt.secret" to "testsecret",
+                "ktor.jwt.issuer" to "testissuer",
+                "ktor.jwt.audience" to "testaudience",
+                "ktor.jwt.realm" to "testrealm"
+            )
+        )
+        application { module() }
+        val token = JwtConfig.generateToken("1", "pauldemast@example.com")
+        val response: HttpResponse = client.get("/users/me") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        val responseBody = response.bodyAsText()
+        assertNotNull(responseBody)
+        assert(responseBody.contains("pauldemast@example.com"))
+    }
+
+    @Test
+    fun testGetBonusPoints() = testApplication {
+        environment {
+            config = MapApplicationConfig(
+                "ktor.jwt.secret" to "testsecret",
+                "ktor.jwt.issuer" to "testissuer",
+                "ktor.jwt.audience" to "testaudience",
+                "ktor.jwt.realm" to "testrealm"
+            )
+        }
+        JwtConfig.init(
+            MapApplicationConfig(
+                "ktor.jwt.secret" to "testsecret",
+                "ktor.jwt.issuer" to "testissuer",
+                "ktor.jwt.audience" to "testaudience",
+                "ktor.jwt.realm" to "testrealm"
+            )
+        )
+        application { module() }
+        val token = JwtConfig.generateToken("1", "pauldemast@example.com")
+        val response: HttpResponse = client.get("/users/1/bonuspoints") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        val responseBody = response.bodyAsText()
+        assertNotNull(responseBody)
+        assert(responseBody.contains("bonusPoints"))
+    }
+
+    @Test
+    fun testUpdateBonusPoints() = testApplication {
+        environment {
+            config = MapApplicationConfig(
+                "ktor.jwt.secret" to "testsecret",
+                "ktor.jwt.issuer" to "testissuer",
+                "ktor.jwt.audience" to "testaudience",
+                "ktor.jwt.realm" to "testrealm"
+            )
+        }
+        JwtConfig.init(
+            MapApplicationConfig(
+                "ktor.jwt.secret" to "testsecret",
+                "ktor.jwt.issuer" to "testissuer",
+                "ktor.jwt.audience" to "testaudience",
+                "ktor.jwt.realm" to "testrealm"
+            )
+        )
+        application { module() }
+        val token = JwtConfig.generateToken("1", "pauldemast@example.com")
+        val response: HttpResponse = client.put("/users/1/bonuspoints") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody("""{ "points": 200 }""")
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        val responseBody = response.bodyAsText()
+        assertNotNull(responseBody)
+        assert(responseBody.contains("200"))
     }
 }
