@@ -10,4 +10,5 @@ interface CarService {
     fun create(item: CreateCarDTO): CarDTO
     fun update(carId: Int, item: UpdateCarDTO): CarDTO
     fun delete(carId: Int): Boolean
+   suspend fun findByLicense(licensePlate: String): CreateCarDTO?
 }

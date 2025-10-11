@@ -4,10 +4,9 @@ import com.profgroep8.interfaces.services.CarService
 import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.dto.CreateCarDTO
 import com.profgroep8.models.dto.UpdateCarDTO
-import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.plugins.NotFoundException
+import io.ktor.server.plugins.*
 
-class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl): CarService {
+class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
     override fun getAll() =
         serviceFactoryImpl.databaseFactory.carRepository.getAll().map { it.toCarDTO() }
 
@@ -46,4 +45,7 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl): CarService {
 
     override fun delete(carId: Int): Boolean =
         serviceFactoryImpl.databaseFactory.carRepository.delete(carId)
+
+    override suspend fun findByLicense(licensePlate: String): CreateCarDTO? =
+        serviceFactoryImpl.rdwService.getCar(licensePlate)
 }

@@ -57,6 +57,16 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
                 call.respond(true)
             }
+
+            //check for getting licenseplate
+            get("/license/{plate}"){
+                val licensePlate = call.parameters["plate"] ?: throw NotFoundException()
+
+                val car = serviceFactory.carService.findByLicense(licensePlate)
+                if (car === null) throw BadRequestException("Car could not be found")
+
+                call.respond(car)
+            }
         }
     }
 }

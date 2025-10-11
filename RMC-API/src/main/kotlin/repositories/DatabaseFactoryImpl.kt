@@ -1,5 +1,6 @@
 package com.profgroep8.repositories
 
+import com.profgroep8.Util.RdwImpl
 import com.profgroep8.interfaces.repositories.CarRepository
 import com.profgroep8.interfaces.repositories.DatabaseFactory
 import com.profgroep8.interfaces.repositories.GenericRepository
@@ -11,11 +12,13 @@ import com.profgroep8.models.entity.RentalEntity
 import com.profgroep8.models.entity.RentalLocationsEntity
 import com.profgroep8.models.entity.UserEntity
 import com.profgroep8.services.UserServiceImpl
+import io.ktor.server.config.ApplicationConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseFactoryImpl : DatabaseFactory {
+
     fun init() {
         Database.connect(
             url = "jdbc:postgresql://foxtrek.nl:5432/RMC_API",
@@ -32,7 +35,9 @@ object DatabaseFactoryImpl : DatabaseFactory {
                 RentalLocationsEntity
             )
         }
+
     }
+
 
     override val carRepository : CarRepository by lazy { CarRepositoryImpl() }
     override val userRepository: UserRepository<User> = UserServiceImpl()

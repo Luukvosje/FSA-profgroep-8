@@ -9,3 +9,5 @@ ktor:
     issuer:  "com.profgroep8.carrental"
     audience: "car_rental_users"
     realm: "CarRentalAPI"
+  rdw:
+    apiKey: "VsT54OpwkTy0axBGITaLnuLUP"
