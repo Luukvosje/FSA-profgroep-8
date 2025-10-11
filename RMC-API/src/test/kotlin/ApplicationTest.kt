@@ -63,8 +63,6 @@ class ApplicationTest {
         assertNotNull(responseBody)
     }
 
-    // ==================== USER ROUTE TESTS ====================
-
     @Test
     fun testRegisterUser() = testApplication {
         environment {
