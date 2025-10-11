@@ -1,13 +1,15 @@
 package com.profgroep8.Util
 
 import com.profgroep8.interfaces.utils.RdwFuel
+import com.profgroep8.interfaces.utils.RdwFuelTypes
 import com.profgroep8.interfaces.utils.RdwVehicle
 import com.profgroep8.models.dto.CreateCarDTO
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.http.HttpStatusCode
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
 import kotlinx.serialization.json.Json
@@ -20,7 +22,6 @@ class RdwImpl(config: ApplicationConfig) {
             json(Json {
                 ignoreUnknownKeys = true
                 isLenient = true
-                prettyPrint = true
             })
         }
     }
@@ -41,7 +42,7 @@ class RdwImpl(config: ApplicationConfig) {
                 header("Accept", "application/json")
             }
 
-            if(response.status != HttpStatusCode.OK) {
+            if (response.status != HttpStatusCode.OK) {
                 throw Error("Call missing")
             }
 
@@ -49,14 +50,13 @@ class RdwImpl(config: ApplicationConfig) {
                 header("X-App-Token", apiKey)
                 header("Accept", "application/json")
             }
-
             val cars: Array<RdwVehicle> = response.body()
             val car = cars.firstOrNull()
 
-            val fuelInfo: Array<RdwFuel> = response.body()
+            val fuelInfo: Array<RdwFuel> = fuelResponse.body()
             val fuel = fuelInfo.firstOrNull()
 
-            if(car == null || fuel == null) {
+            if (car == null || fuel == null) {
                 throw Error("Car missing")
             }
 
@@ -64,7 +64,7 @@ class RdwImpl(config: ApplicationConfig) {
             val year = try {
                 java.time.LocalDateTime.parse(car.datum_eerste_toelating_dt, formatter).year
             } catch (e: Exception) {
-                0
+                -1
             }
 
             return CreateCarDTO(
@@ -72,7 +72,7 @@ class RdwImpl(config: ApplicationConfig) {
                 brand = car.merk,
                 model = car.handelsbenaming,
                 year = year,
-                fuelType = fuel.brandstof_volgnummer.toInt(),
+                fuelType = RdwFuelTypes.fromString(fuel.brandstof_omschrijving) ?: 0,
                 price = 0,
             )
         } catch (e: Exception) {

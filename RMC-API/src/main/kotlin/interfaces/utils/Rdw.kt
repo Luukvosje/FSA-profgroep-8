@@ -5,77 +5,28 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RdwVehicle(
     val kenteken: String,
-    val voertuigsoort: String,
     val merk: String,
     val handelsbenaming: String,
-    val vervaldatum_apk: String,
-    val datum_tenaamstelling: String,
-    val bruto_bpm: String,
-    val inrichting: String,
-    val aantal_zitplaatsen: String,
-    val eerste_kleur: String,
-    val tweede_kleur: String,
-    val aantal_cilinders: String,
-    val cilinderinhoud: String,
-    val massa_ledig_voertuig: String,
-    val toegestane_maximum_massa_voertuig: String,
-    val massa_rijklaar: String,
-    val maximum_massa_trekken_ongeremd: String,
-    val maximum_trekken_massa_geremd: String,
-    val datum_eerste_toelating: String,
-    val datum_eerste_tenaamstelling_in_nederland: String,
-    val wacht_op_keuren: String,
-    val catalogusprijs: String,
-    val wam_verzekerd: String,
-    val maximale_constructiesnelheid: String,
-    val aantal_deuren: String,
-    val aantal_wielen: String,
-    val lengte: String,
-    val breedte: String,
-    val europese_voertuigcategorie: String,
-    val technische_max_massa_voertuig: String,
-    val type: String,
-    val typegoedkeuringsnummer: String,
-    val variant: String,
-    val uitvoering: String,
-    val volgnummer_wijziging_eu_typegoedkeuring: String,
-    val vermogen_massarijklaar: String,
-    val wielbasis: String,
-    val export_indicator: String,
-    val openstaande_terugroepactie_indicator: String,
-    val taxi_indicator: String,
-    val maximum_massa_samenstelling: String,
-    val jaar_laatste_registratie_tellerstand: String,
-    val tellerstandoordeel: String,
-    val code_toelichting_tellerstandoordeel: String,
-    val tenaamstellen_mogelijk: String,
-    val vervaldatum_apk_dt: String,
-    val datum_tenaamstelling_dt: String,
     val datum_eerste_toelating_dt: String,
-    val datum_eerste_tenaamstelling_in_nederland_dt: String,
-    val hoogte_voertuig: String,
-    val api_gekentekende_voertuigen_assen: String,
-    val api_gekentekende_voertuigen_brandstof: String,
-    val api_gekentekende_voertuigen_carrosserie: String,
-    val api_gekentekende_voertuigen_carrosserie_specifiek: String,
-    val api_gekentekende_voertuigen_voertuigklasse: String
 )
 
 @Serializable
 data class RdwFuel(
     val kenteken: String,
-    val brandstof_volgnummer: String,
     val brandstof_omschrijving: String,
-    val brandstofverbruik_gecombineerd: String,
-    val co2_uitstoot_gecombineerd: String,
-    val geluidsniveau_rijdend: String,
-    val geluidsniveau_stationair: String,
-    val emissiecode_omschrijving: String,
-    val milieuklasse_eg_goedkeuring_licht: String,
-    val nettomaximumvermogen: String,
-    val toerental_geluidsniveau: String,
-    val emis_deeltjes_type1_wltp: String,
-    val emissie_co2_gecombineerd_wltp: String,
-    val brandstof_verbruik_gecombineerd_wltp: String,
-    val uitlaatemissieniveau: String,
 )
+
+enum class RdwFuelTypes(val code: Int) {
+    Unknown(0),
+    Elektriciteit(1),
+    Diesel(2),
+    Benzine(3),
+    Lpg(4),
+    Waterstof(5);
+
+    companion object {
+        fun fromString(value: String): Int? {
+            return values().find { it.name.equals(value, ignoreCase = true) }?.code
+        }
+    }
+}
