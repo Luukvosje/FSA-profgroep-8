@@ -23,7 +23,8 @@ class ApplicationTest {
             "ktor.jwt.secret" to "testsecret",
             "ktor.jwt.issuer" to "testissuer",
             "ktor.jwt.audience" to "testaudience",
-            "ktor.jwt.realm" to "testrealm"
+            "ktor.jwt.realm" to "testrealm",
+            "ktor.rdw.apiKey" to "testapikey"
         )
         JwtConfig.init(testConfig)
     }
@@ -70,7 +71,8 @@ class ApplicationTest {
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "testapikey"
             )
         }
         application { module() }
@@ -106,7 +108,8 @@ class ApplicationTest {
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "testapikey"
             )
         }
         application { module() }
@@ -146,7 +149,8 @@ class ApplicationTest {
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "testapikey"
             )
         }
         JwtConfig.init(
@@ -154,7 +158,8 @@ class ApplicationTest {
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "testapikey"
             )
         )
         application { module() }
@@ -175,7 +180,8 @@ class ApplicationTest {
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "testapikey"
             )
         }
         JwtConfig.init(
@@ -183,7 +189,8 @@ class ApplicationTest {
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "testapikey"
             )
         )
         application { module() }
@@ -204,7 +211,8 @@ class ApplicationTest {
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "testapikey"
             )
         }
         JwtConfig.init(
@@ -212,7 +220,8 @@ class ApplicationTest {
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "testapikey"
             )
         )
         application { module() }

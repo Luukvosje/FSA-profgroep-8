@@ -1,9 +1,9 @@
 package com.profgroep8.interfaces.services
 
-//import com.profgroep8.Util.RdwImpl
+import com.profgroep8.Util.RdwImpl
 
 interface ServiceFactory {
-    //val rdwService: RdwImpl
+    val rdwService: RdwImpl
 
     val carService: CarService
     val userService: UserService

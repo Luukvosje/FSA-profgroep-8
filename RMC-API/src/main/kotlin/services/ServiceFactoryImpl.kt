@@ -11,7 +11,7 @@ open class ServiceFactoryImpl(
     val databaseFactory: DatabaseFactory,
     config: ApplicationConfig,
 ) : ServiceFactory {
-    val rdwService: RdwImpl = RdwImpl(config)
+    override val rdwService: RdwImpl = RdwImpl(config)
 
     override val carService: CarService = CarServiceImpl(this)
     override val userService: UserService = UserServiceImpl()
