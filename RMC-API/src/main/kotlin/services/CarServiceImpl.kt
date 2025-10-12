@@ -48,4 +48,7 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
 
     override suspend fun findByLicense(licensePlate: String): CreateCarDTO? =
         serviceFactoryImpl.rdwService.getCar(licensePlate)
+
+    override fun getCarsByUserId(userId: Int): List<CarDTO>? =
+        serviceFactoryImpl.databaseFactory.carRepository.getByUserId(userId)
 }

@@ -5,10 +5,18 @@ import com.profgroep8.interfaces.repositories.CarRepository
 import com.profgroep8.interfaces.repositories.GenericRepository
 import com.profgroep8.models.domain.Car
 import com.profgroep8.models.dto.CarDTO
+import com.profgroep8.models.entity.CarEntity
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepositoryImpl(Car) {
     override suspend fun findLicense(licensePlate: String): CarDTO? {
         TODO("not implemented")
+    }
+
+    override fun getByUserId(userId: Int): List<CarDTO> {
+        return transaction {
+            Car.find { CarEntity.userId eq userId }.map { it.toCarDTO() }.toList()
+        }
     }
 
 }

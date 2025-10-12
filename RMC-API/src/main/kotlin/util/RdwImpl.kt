@@ -50,6 +50,7 @@ class RdwImpl(config: ApplicationConfig) {
                 header("X-App-Token", apiKey)
                 header("Accept", "application/json")
             }
+
             val cars: Array<RdwVehicle> = response.body()
             val car = cars.firstOrNull()
 
