@@ -1,5 +1,6 @@
 package com.profgroep8.models.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -32,4 +33,20 @@ data class UpdateCarDTO(
     val year: Int,
     val fuelType: Int,
     val price: Int,
+)
+
+@Serializable
+data class CalculateCarRequestDTO(
+    val standardKmPerYear: Double,
+
+    @JsonIgnore
+    var carId: Int,
+)
+
+@Serializable
+data class CalculateCarResponseDTO(
+    val carId: Int,
+    val fuelType: Int,
+    val tco: Double,
+    val costPerKm: Double,
 )

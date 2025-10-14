@@ -1,6 +1,7 @@
 package com.profgroep8.Controller.Car
 
 import com.profgroep8.interfaces.services.ServiceFactory
+import com.profgroep8.models.dto.CalculateCarRequestDTO
 import com.profgroep8.models.dto.CreateCarDTO
 import com.profgroep8.models.dto.UpdateCarDTO
 import io.ktor.http.content.*
@@ -21,12 +22,6 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                 call.respond(cars)
             }
 
-            get("/{id}") {
-                val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
-                val car = serviceFactory.carService.getSingle(carId)
-                call.respond(car)
-            }
-
             post {
                 // Receive the DTO from the request body
                 val createCarDTO = call.receive<CreateCarDTO>()
@@ -38,53 +33,55 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                 call.respond(newCar)
             }
 
-            put("/{id}") {
-                val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
-                val updateCarDTO = call.receive<UpdateCarDTO>()
+            route("/{id}") {
+                //getting car by id
+                get {
+                    val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                    val car = serviceFactory.carService.getSingle(carId)
+                    call.respond(car)
+                }
 
-                // Call the service to update the car
-                val updatedCar = serviceFactory.carService.update(carId, updateCarDTO)
+                //updating car by id
+                put {
+                    val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                    val updateCarDTO = call.receive<UpdateCarDTO>()
 
-                call.respond(updatedCar)
-            }
+                    val updatedCar = serviceFactory.carService.update(carId, updateCarDTO)
 
-            delete("/{id}") {
-                val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                    call.respond(updatedCar)
+                }
 
-                // Call the service to update the car
-                val success = serviceFactory.carService.delete(carId)
+                //deleting car by id
+                delete("/{id}") {
+                    val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
 
-                if (!success) throw BadRequestException("Car could not be deleted")
+                    val success = serviceFactory.carService.delete(carId)
 
-                call.respond(true)
-            }
+                    if (!success) throw BadRequestException("Car could not be deleted")
 
-            //check for getting licenseplate
-            get("/license/{plate}") {
-                val licensePlate = call.parameters["plate"] ?: throw NotFoundException()
+                    call.respond(true)
+                }
 
-                val car = serviceFactory.carService.findByLicense(licensePlate)
-                if (car === null) throw BadRequestException("Car could not be found")
+                //Calculate car cost by id
+                post("/calculate") {
+                    val request = call.receive<CalculateCarRequestDTO>();
+                    if (request.standardKmPerYear.isNaN()) {
+                        throw NotFoundException("Request is missing, ${request}")
+                    }
+                    request.carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException("Car ID is missing")
 
-                call.respond(car)
-            }
+                    val res = serviceFactory.carService.calculateCar(request) ?: throw BadRequestException("Car could not be calculated")
+                    call.respond(res)
+                }
 
-            get("/search") {
-
-            }
-
-            route("{id}") {
-                //Calculate
-                post("/calculate") {}
-
-                //Uploading image
+                //Uploading image by car id
                 //Todo make it authenticated to check userid
                 post("/image") {
                     val carId = call.parameters["id"]?.toIntOrNull()
                         ?: throw BadRequestException("Invalid car ID")
 
-                    val checkCarId = serviceFactory.carService.getSingle(carId);
-                    if (checkCarId == null) {
+                    val checkCarId = serviceFactory.carService.getSingle(carId)
+                    if (checkCarId === null) {
                         throw NotFoundException("Car could not be found")
                     }
 
@@ -113,6 +110,20 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                 }
             }
 
+            //check for getting licenseplate
+            get("/license/{plate}") {
+                val licensePlate = call.parameters["plate"] ?: throw NotFoundException()
+
+                val car = serviceFactory.carService.findByLicense(licensePlate)
+                if (car === null) throw BadRequestException("Car could not be found")
+
+                call.respond(car)
+            }
+
+            get("/search") {
+
+            }
+
             get("filter") {
 
             }
@@ -122,6 +133,7 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
             }
 
             //maybe make private
+            //getting all cars by userid
             get("user/{userId}") {
                 val userId = call.parameters["userId"]?.toIntOrNull() ?: throw BadRequestException("Invalid user ID")
                 val cars = serviceFactory.carService.getCarsByUserId(userId)

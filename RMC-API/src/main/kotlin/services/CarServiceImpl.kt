@@ -1,9 +1,7 @@
 package com.profgroep8.services
 
 import com.profgroep8.interfaces.services.CarService
-import com.profgroep8.models.dto.CarDTO
-import com.profgroep8.models.dto.CreateCarDTO
-import com.profgroep8.models.dto.UpdateCarDTO
+import com.profgroep8.models.dto.*
 import io.ktor.server.plugins.*
 
 class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
@@ -51,4 +49,13 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
 
     override fun getCarsByUserId(userId: Int): List<CarDTO>? =
         serviceFactoryImpl.databaseFactory.carRepository.getByUserId(userId)
+
+    override fun calculateCar(carRequestDTO: CalculateCarRequestDTO): CalculateCarResponseDTO? =
+        try {
+            serviceFactoryImpl.databaseFactory.carRepository.getSingle(carRequestDTO.carId)?.CalculateTCO(carRequestDTO)
+                ?: throw BadRequestException("Unexpected error")
+        } catch (e: Exception) {
+            throw BadRequestException("Car could not be found")
+        }
+
 }

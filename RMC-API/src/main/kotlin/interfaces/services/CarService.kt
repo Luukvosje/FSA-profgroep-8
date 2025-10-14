@@ -1,5 +1,7 @@
 package com.profgroep8.interfaces.services
 
+import com.profgroep8.models.dto.CalculateCarRequestDTO
+import com.profgroep8.models.dto.CalculateCarResponseDTO
 import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.dto.CreateCarDTO
 import com.profgroep8.models.dto.UpdateCarDTO
@@ -13,4 +15,6 @@ interface CarService {
    suspend fun findByLicense(licensePlate: String): CreateCarDTO?
 
    fun getCarsByUserId(userId: Int): List<CarDTO>?
+
+    fun calculateCar(carRequestDTO: CalculateCarRequestDTO): CalculateCarResponseDTO?
 }
