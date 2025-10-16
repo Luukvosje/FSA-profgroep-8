@@ -18,6 +18,7 @@ import com.profgroep8.plugins.JwtConfig.generateToken
 
 class UserServiceImpl : UserService, UserRepository<User> {
 
+    //looks if the account already exists or not
     override fun register(item: CreateUserDTO): UserDTO {
         val existingUser = findByEmail(item.email)
         if (existingUser != null) throw BadRequestException("User already exists with this email")
@@ -26,10 +27,12 @@ class UserServiceImpl : UserService, UserRepository<User> {
         return createdUser.toUserDTO()
     }
 
+    //finds if email already exists
     override fun findByEmail(email: String): User? = transaction {
         User.find { UserEntity.email eq email }.singleOrNull()
     }
 
+    //creates the user
     override fun create(user: CreateUserDTO): User? = transaction {
         val hashedPassword = BCrypt.hashpw(user.password, BCrypt.gensalt())
         User.new {
@@ -45,6 +48,7 @@ class UserServiceImpl : UserService, UserRepository<User> {
         }
     }
 
+    //the user does login in here and checks if its the right user
     override fun login(item: LoginUserDTO): LoginResponseDTO {
         val user = transaction {
             User.find { UserEntity.email eq item.email }.singleOrNull()
@@ -61,6 +65,7 @@ class UserServiceImpl : UserService, UserRepository<User> {
         )
     }
 
+    //finds the user with that email
     override fun getByEmail(email: String): UserDTO? {
         val user = transaction {
             User.find { UserEntity.email eq email }.singleOrNull()
@@ -69,6 +74,7 @@ class UserServiceImpl : UserService, UserRepository<User> {
         return user.toUserDTO()
     }
 
+    //gets the bonus points of that user
     override fun getBonusPoints(userId: Int): Int {
         val user = transaction {
             User.findById(userId)
@@ -76,6 +82,7 @@ class UserServiceImpl : UserService, UserRepository<User> {
         return user.points
     }
 
+    //updates the bonus points if the user is found
     override fun updateBonusPoints(userId: Int, points: Int): UserDTO {
         val user = transaction {
             User.findById(userId)
