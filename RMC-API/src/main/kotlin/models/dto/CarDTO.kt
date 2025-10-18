@@ -50,3 +50,21 @@ data class CalculateCarResponseDTO(
     val tco: Double,
     val costPerKm: Double,
 )
+
+@Serializable
+data class FilterCar(
+    val licensePlate: String? = null,
+    val brand: String? = null,
+    val model: String? = null,
+    val year: Int? = null,
+    val fuelType: Int? = null,
+    val price: Int? = null,
+    val minPrice: Double? = null,
+    val maxPrice: Double? = null,
+) {
+    fun ToSearchValues(): FilterCar = this.copy(
+        licensePlate = this.licensePlate?.let { it.lowercase().replace("-", "").trim() },
+        brand = this.brand?.let { it.lowercase().trim() },
+        model = this.model?.let { it.lowercase().trim() },
+    )
+}

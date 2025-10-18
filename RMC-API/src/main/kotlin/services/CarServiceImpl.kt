@@ -3,6 +3,7 @@ package com.profgroep8.services
 import com.profgroep8.interfaces.services.CarService
 import com.profgroep8.models.dto.*
 import io.ktor.server.plugins.*
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
     override fun getAll() =
@@ -12,8 +13,10 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
         serviceFactoryImpl.databaseFactory.carRepository.getSingle(carId)?.toCarDTO() ?: throw NotFoundException()
 
     override fun create(item: CreateCarDTO): CarDTO {
+        val plate = item.licensePlate.lowercase().replace("-", "").trim()
+
         val createdCar = serviceFactoryImpl.databaseFactory.carRepository.create {
-            this.licensePlate = item.licensePlate
+            this.licensePlate = plate
             this.brand = item.brand
             this.model = item.model
             this.brand = item.brand
@@ -57,5 +60,9 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
         } catch (e: Exception) {
             throw BadRequestException("Car could not be found")
         }
+
+    override fun filterCar(filter: FilterCar): List<CarDTO>? {
+        return serviceFactoryImpl.databaseFactory.carRepository.filterCars(filter) ?: throw BadRequestException("Unexpected error")
+    }
 
 }

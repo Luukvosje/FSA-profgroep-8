@@ -4,6 +4,7 @@ import com.profgroep8.models.dto.CalculateCarRequestDTO
 import com.profgroep8.models.dto.CalculateCarResponseDTO
 import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.dto.CreateCarDTO
+import com.profgroep8.models.dto.FilterCar
 import com.profgroep8.models.dto.UpdateCarDTO
 
 interface CarService {
@@ -17,4 +18,5 @@ interface CarService {
    fun getCarsByUserId(userId: Int): List<CarDTO>?
 
     fun calculateCar(carRequestDTO: CalculateCarRequestDTO): CalculateCarResponseDTO?
+    fun filterCar(filter: FilterCar): List<CarDTO>?
 }

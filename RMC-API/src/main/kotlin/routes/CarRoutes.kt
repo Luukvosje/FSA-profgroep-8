@@ -3,6 +3,7 @@ package com.profgroep8.Controller.Car
 import com.profgroep8.interfaces.services.ServiceFactory
 import com.profgroep8.models.dto.CalculateCarRequestDTO
 import com.profgroep8.models.dto.CreateCarDTO
+import com.profgroep8.models.dto.FilterCar
 import com.profgroep8.models.dto.UpdateCarDTO
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -70,7 +71,8 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                     }
                     request.carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException("Car ID is missing")
 
-                    val res = serviceFactory.carService.calculateCar(request) ?: throw BadRequestException("Car could not be calculated")
+                    val res = serviceFactory.carService.calculateCar(request)
+                        ?: throw BadRequestException("Car could not be calculated")
                     call.respond(res)
                 }
 
@@ -124,10 +126,15 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
             }
 
-            get("filter") {
+            post("filter") {
+                val filterObj = call.receive<FilterCar>()
 
+                val cars = serviceFactory.carService.filterCar(filterObj) ?: throw BadRequestException("Cars could not be filtered")
+                call.respond(cars)
             }
 
+            //make use of rentalLocation
+            //TODO("need rentalService for this")
             get("available") {
 
             }
