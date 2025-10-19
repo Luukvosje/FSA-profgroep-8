@@ -4,6 +4,8 @@ package com.profgroep8.repositories
 import com.profgroep8.interfaces.repositories.CarRepository
 import com.profgroep8.interfaces.repositories.DatabaseFactory
 import com.profgroep8.interfaces.repositories.GenericRepository
+import com.profgroep8.interfaces.repositories.RentalLocationRepository
+import com.profgroep8.interfaces.repositories.RentalRepository
 import com.profgroep8.interfaces.repositories.UserRepository
 import com.profgroep8.models.domain.Car
 import com.profgroep8.models.domain.User
@@ -35,10 +37,10 @@ object DatabaseFactoryImpl : DatabaseFactory {
                 RentalLocationsEntity
             )
         }
-
     }
 
-
-    override val carRepository : CarRepository by lazy { CarRepositoryImpl() }
+    override val carRepository: CarRepository by lazy { CarRepositoryImpl() }
     override val userRepository: UserRepository<User> = UserServiceImpl()
+    override val rentalRepository: RentalRepository by lazy { RentalRepositoryImpl() }
+    override val rentalLocationRepository: RentalLocationRepository by lazy { RentalLocationRepositoryImpl() }
 }

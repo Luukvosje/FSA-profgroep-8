@@ -5,7 +5,7 @@ import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 
-object CarEntity : IntIdTable(name = "Car", columnName = "CarID") {
+object CarEntity : IntIdTable(name = "Car", columnName = "id") {
     val licensePlate = varchar("LicencePlate", 10).uniqueIndex()
     val brand = varchar("Brand", 100)
     val model = varchar("Model", 100)

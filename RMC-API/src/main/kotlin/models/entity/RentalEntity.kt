@@ -4,16 +4,16 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object RentalEntity : IntIdTable("Rental", "RentalID") {
+object RentalEntity : IntIdTable("Rental", "id") {
 
-    val UserId = integer("UserID").references(
+    val userId = integer("UserID").references(
         UserEntity.id,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE
     )
 
-    val CarId = integer("CarID").references(
-        RentalEntity.id,
+    val carId = integer("CarID").references(
+        CarEntity.id,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE
     )
@@ -33,7 +33,7 @@ object RentalEntity : IntIdTable("Rental", "RentalID") {
     val state = integer("State")
 }
 
-object RentalLocationsEntity : IntIdTable("RentalLocation", "RentalLocationID") {
+object RentalLocationsEntity : IntIdTable("RentalLocation", "id") {
     val date = datetime("Date")
     val longitude = float("Longitude")
     val latitude = float("Latitude")

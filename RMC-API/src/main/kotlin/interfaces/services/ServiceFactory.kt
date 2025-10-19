@@ -7,4 +7,6 @@ interface ServiceFactory {
 
     val carService: CarService
     val userService: UserService
+    val rentalService: RentalService
+    val rentalLocationService: RentalLocationService
 }
