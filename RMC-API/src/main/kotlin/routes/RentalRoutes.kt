@@ -23,7 +23,7 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
             }
 
             get("/{id}") {
-                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                 val rental = serviceFactory.rentalService.getSingle(rentalId)
                 call.respond(rental)
             }
@@ -32,34 +32,31 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
             post {
                 val createRentalDTO = call.receive<CreateRentalDTO>()
                 val newRental = serviceFactory.rentalService.create(createRentalDTO)
-
                 call.respond(newRental)
             }
 
             // Update rental by id
             put("/{id}") {
-                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                 val updateRentalDTO = call.receive<UpdateRentalDTO>()
 
                 val updatedRental = serviceFactory.rentalService.update(rentalId, updateRentalDTO)
-
                 call.respond(updatedRental)
             }
 
             // Set rental to state inactive by id
             put("/{id}/end") {
-                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                 val inactive = 0 // 0 = inactive, 1 = active
                 val updateRentalDTO = UpdateRentalDTO(inactive)
 
                 val updatedRental = serviceFactory.rentalService.update(rentalId, updateRentalDTO)
-                
                 call.respond(updatedRental)
             }
 
             // Get start and end location for rental by id
             get("/{id}/locations") {
-                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                 val rental = serviceFactory.rentalService.getSingle(rentalId)
                 
                 val locationsResponse = RentalLocationsResponseDTO(
@@ -72,8 +69,8 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
             
             // Update a location of a rental by id
             put("/{rentalId}/locations/{locationId}") {
-                val rentalId = call.parameters["rentalId"]?.toIntOrNull() ?: throw NotFoundException()
-                val locationId = call.parameters["locationId"]?.toIntOrNull() ?: throw NotFoundException()
+                val rentalId = call.parameters["rentalId"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
+                val locationId = call.parameters["locationId"]?.toIntOrNull() ?: throw BadRequestException("Invalid location ID format")
                 
                 // Check if the location belongs to this rental
                 val rental = serviceFactory.rentalService.getSingle(rentalId)
@@ -88,11 +85,11 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
 
             // Delete a rental by id
             delete("/{id}") {
-                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
 
                 val success = serviceFactory.rentalService.delete(rentalId)
 
-                if (!success) throw BadRequestException("Rental could not be deleted")
+                if (!success) throw NotFoundException("Rental not found")
 
                 call.respond(true)
             }

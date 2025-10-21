@@ -17,7 +17,6 @@ fun Application.userRoutes(serviceFactory: ServiceFactory) {
 
     routing {
         route("/users") {
-
             post("/register") {
                 val createUserDTO = call.receive<CreateUserDTO>()
                 val newUser = serviceFactory.userService.register(createUserDTO)

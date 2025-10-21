@@ -5,6 +5,7 @@ import com.profgroep8.models.dto.CreateRentalDTO
 import com.profgroep8.models.dto.RentalWithLocationsDTO
 import com.profgroep8.models.dto.UpdateRentalDTO
 import io.ktor.server.plugins.*
+import io.ktor.server.plugins.NotFoundException
 
 class RentalServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl): RentalService {
     override fun getAll() =
@@ -66,7 +67,7 @@ class RentalServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl): RentalServi
             val endLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.endRentalLocationId)
                 ?: throw IllegalStateException("End rental location not found")
             rental.toRentalWithLocationsDTO(startLocation, endLocation)
-        } ?: throw BadRequestException("Unexpected error")
+        } ?: throw NotFoundException("Rental not found")
     }
 
     override fun delete(rentalId: Int): Boolean {
