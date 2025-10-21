@@ -1,8 +1,28 @@
-<div align="center">
+Source
 
-<h1>FSA-profgroep-8</h1>
-<h2 style="margin-top:-10px;">CarRentalProject</h2>
+Copy
 
-<img src="Logo.png" alt="Logo" width="400"/>
+Download
+# FSA-profgroep-8
 
-</div>
+## CarRentalProject
+
+![Logo](Logo.png)
+
+## Getting started
+
+## Usage
+
+## Endpoints
+### User
+| Endpoint        | Description              | Endpoint No. | Access |
+|-----------------|--------------------------|--------------|--------|
+| `POST /signup`  | Register an account       | [1]         | CLIENT |
+### Car
+| Endpoint        | Description              | Endpoint No. | Access |
+|-----------------|--------------------------|--------------|--------|
+| `POST /signup`  | Register an account       | [1]         | CLIENT |
+### Rental
+| Endpoint        | Description              | Endpoint No. | Access |
+|-----------------|--------------------------|--------------|--------|
+| `POST /signup`  | Register an account       | [1]         | CLIENT |
