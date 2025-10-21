@@ -5,13 +5,19 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.http.*
 import io.ktor.server.response.*
 import com.profgroep8.exceptions.*
+import io.ktor.server.auth.UnauthorizedResponse
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.BadRequestException
 
 class ConflictException : Exception() // 409 CONFLICT
+class UnauthorizedException : Exception() //401 UNAUTHORIZED
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
+        exception<UnauthorizedException> { call, cause ->
+            call.respond(HttpStatusCode.Unauthorized, cause)
+        }
+
         exception<BadRequestException> { call, cause ->
             call.respond(
                 status = HttpStatusCode.BadRequest,

@@ -2,8 +2,11 @@ package com.profgroep8.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.profgroep8.exceptions.UnauthorizedException
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.auth.UnauthorizedResponse
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.config.ApplicationConfig
@@ -39,6 +42,9 @@ object JwtConfig {
                     if (credential.payload.getClaim("userId").asString().isNotEmpty()) {
                         JWTPrincipal(credential.payload)
                     } else null
+                }
+                challenge { defaultScheme, realm ->
+                    throw UnauthorizedException()
                 }
             }
         }
