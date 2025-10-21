@@ -16,6 +16,8 @@ application {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-server-openapi:3.3.0") // OpenAPI plugin
+    implementation("io.ktor:ktor-server-swagger:3.3.0") // Swagger UI
     implementation("io.ktor:ktor-server-core:3.3.0")
     implementation("io.ktor:ktor-server-content-negotiation:3.3.0")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.0")
