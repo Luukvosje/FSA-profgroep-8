@@ -15,10 +15,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepositoryImpl(Car) {
-    override suspend fun findLicense(licensePlate: String): CarDTO? {
-        TODO("not implemented")
-    }
-
     override fun getByUserId(userId: Int): List<CarDTO> {
         return transaction {
             Car.find { CarEntity.userId eq userId }.map { it.toCarDTO() }.toList()
@@ -72,5 +68,16 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
             query.map { it.toCarDTO() }        }
     }
 
+    override fun searchCars(keyword: String): List<CarDTO> {
+        val normalizedKeyword = "%${keyword.trim().lowercase()}%"
+
+        return transaction {
+            Car.find {
+                (CarEntity.brand.lowerCase() like normalizedKeyword) or
+                (CarEntity.licensePlate.lowerCase() like normalizedKeyword) or
+                (CarEntity.model.lowerCase() like normalizedKeyword)
+            }.map { it.toCarDTO() }
+        }
+    }
 
 }

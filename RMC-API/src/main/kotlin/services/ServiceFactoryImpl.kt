@@ -1,6 +1,6 @@
 package com.profgroep8.services
 
-import com.profgroep8.Util.RdwImpl
+import com.profgroep8.Util.RdwClient
 import com.profgroep8.interfaces.repositories.DatabaseFactory
 import com.profgroep8.interfaces.services.CarService
 import com.profgroep8.interfaces.services.RentalLocationService
@@ -13,8 +13,12 @@ open class ServiceFactoryImpl(
     val databaseFactory: DatabaseFactory,
     config: ApplicationConfig,
 ) : ServiceFactory {
-    override val rdwService: RdwImpl = RdwImpl(config)
 
+    init {
+        RdwClient.init(config) // initialize once
+    }
+
+    override val rdwClient: RdwClient = RdwClient
     override val carService: CarService = CarServiceImpl(this)
     override val userService: UserService = UserServiceImpl(this)
     override val rentalService: RentalService = RentalServiceImpl(this)

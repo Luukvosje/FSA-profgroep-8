@@ -30,5 +30,4 @@ fun Application.module() {
     configureSerialization()
     configureRouting(serviceFactory)
     configureStatusPages()
-
 }

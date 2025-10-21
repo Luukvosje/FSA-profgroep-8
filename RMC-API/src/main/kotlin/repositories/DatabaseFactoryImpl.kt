@@ -15,6 +15,7 @@ import com.profgroep8.models.entity.RentalLocationsEntity
 import com.profgroep8.models.entity.UserEntity
 import com.profgroep8.services.UserServiceImpl
 import io.ktor.server.config.ApplicationConfig
+import io.ktor.server.config.MapApplicationConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction

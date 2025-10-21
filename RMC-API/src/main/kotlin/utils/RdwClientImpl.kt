@@ -6,50 +6,46 @@ import com.profgroep8.interfaces.utils.RdwVehicle
 import com.profgroep8.models.dto.CreateCarDTO
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
 import kotlinx.serialization.json.Json
 import java.time.format.DateTimeFormatter
 
-class RdwImpl(config: ApplicationConfig) {
-    private val apiKey = config.property("ktor.rdw.apiKey").getString()
-    private val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-            })
+object RdwClient {
+    private lateinit var client: HttpClient
+
+    fun init(config: ApplicationConfig) {
+        client = HttpClient {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                })
+            }
+            install(DefaultRequest) {
+                url("https://opendata.rdw.nl/")
+                headers.append(HttpHeaders.ContentType, ContentType.Application.Json)
+                headers.append(HttpHeaders.Accept, ContentType.Application.Json)
+                headers.append("X-App-Token", config.property("ktor.rdw.apiKey").getString())
+            }
         }
     }
-
 
     suspend fun getCar(licensePlate: String): CreateCarDTO? {
         val normalized = licensePlate.uppercase().replace("-", "").trim()
 
-        //Url for basic information
-        val basicUrl = "https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken=$normalized"
-
-        //Url for fuel information
-        val fuelUrl = "https://opendata.rdw.nl/resource/8ys7-d773.json?kenteken=$normalized"
-
         try {
-            val response = client.get(basicUrl) {
-                header("X-App-Token", apiKey)
-                header("Accept", "application/json")
-            }
+            val response = client.get("resource/m9d7-ebf2.json?kenteken=$normalized")
 
             if (response.status != HttpStatusCode.OK) {
                 throw Error("Call missing")
             }
 
-            val fuelResponse = client.get(fuelUrl) {
-                header("X-App-Token", apiKey)
-                header("Accept", "application/json")
-            }
+            val fuelResponse = client.get("resource/8ys7-d773.json?kenteken=$normalized")
 
             val cars: Array<RdwVehicle> = response.body()
             val car = cars.firstOrNull()
@@ -80,5 +76,4 @@ class RdwImpl(config: ApplicationConfig) {
             return null
         }
     }
-
 }

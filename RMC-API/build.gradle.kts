@@ -5,7 +5,6 @@ plugins {
     kotlin("jvm") version "2.2.20"
     id("io.ktor.plugin") version "3.3.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
-    id("org.jetbrains.dokka") version "2.0.0"
 }
 
 group = "com.profgroep8"
@@ -45,4 +44,5 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-test-host:3.3.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("com.h2database:h2:2.2.224")
 }

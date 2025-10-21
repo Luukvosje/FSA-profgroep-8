@@ -48,21 +48,26 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
         serviceFactoryImpl.databaseFactory.carRepository.delete(carId)
 
     override suspend fun findByLicense(licensePlate: String): CreateCarDTO? =
-        serviceFactoryImpl.rdwService.getCar(licensePlate)
+        serviceFactoryImpl.rdwClient.getCar(licensePlate)
 
     override fun getCarsByUserId(userId: Int): List<CarDTO>? =
         serviceFactoryImpl.databaseFactory.carRepository.getByUserId(userId)
 
-    override fun calculateCar(carRequestDTO: CalculateCarRequestDTO): CalculateCarResponseDTO? =
+    override fun calculateCar(request: CalculateCarRequestDTO): CalculateCarResponseDTO? =
         try {
-            serviceFactoryImpl.databaseFactory.carRepository.getSingle(carRequestDTO.carId)?.calculateTCO(carRequestDTO)
+            val car = serviceFactoryImpl.databaseFactory.carRepository.getSingle(request.carId)
                 ?: throw BadRequestException("Unexpected error")
+
+            car.calculateTCO(request.standardKmPerYear)
         } catch (e: Exception) {
             throw BadRequestException("Car could not be found")
         }
 
-    override fun filterCar(filter: FilterCar): List<CarDTO>? {
-        return serviceFactoryImpl.databaseFactory.carRepository.filterCars(filter) ?: throw BadRequestException("Unexpected error")
-    }
+    override fun filterCar(filter: FilterCar): List<CarDTO> =
+        serviceFactoryImpl.databaseFactory.carRepository.filterCars(filter)
+            ?: throw BadRequestException("Unexpected error")
 
+    override fun searchCars(keyword: String): List<CarDTO> =
+        serviceFactoryImpl.databaseFactory.carRepository.searchCars(keyword)
+            ?: throw BadRequestException("Unexpected error")
 }
