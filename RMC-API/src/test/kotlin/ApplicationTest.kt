@@ -103,20 +103,20 @@ class ApplicationTest {
 
     @Test
     fun testLoginUser() = testApplication {
-        environment {
-            config = MapApplicationConfig(
-                "ktor.jwt.secret" to "testsecret",
-                "ktor.jwt.issuer" to "testissuer",
-                "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm",
-                "ktor.rdw.apiKey" to "testapikey"
-            )
-        }
+        environment { config = MapApplicationConfig(
+            "ktor.jwt.secret" to "testsecret",
+            "ktor.jwt.issuer" to "testissuer",
+            "ktor.jwt.audience" to "testaudience",
+            "ktor.jwt.realm" to "testrealm",
+            "ktor.rdw.apiKey" to "testapikey"
+        )}
+
         application { module() }
-        // Register user before login
+
+        val email = "pauldm@example.com"
         val createUserDTO = CreateUserDTO(
             fullName = "Paul De Mast",
-            email = "pauldm@example.com",
+            email = email,
             password = "test123",
             phone = "+31687654321",
             address = "456 Street",
@@ -124,18 +124,18 @@ class ApplicationTest {
             city = "Rotterdam",
             countryISO = "NL"
         )
+
         client.post("/users/register") {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(createUserDTO))
         }
-        val loginUserDTO = LoginUserDTO(
-            email = "pauldemast@example.com",
-            password = "test123"
-        )
+
+        val loginUserDTO = LoginUserDTO(email, "test123")
         val response: HttpResponse = client.post("/users/login") {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(loginUserDTO))
         }
+
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody = response.bodyAsText()
         assertNotNull(responseBody)
@@ -144,33 +144,52 @@ class ApplicationTest {
 
     @Test
     fun testGetLoggedInUser() = testApplication {
-        environment {
-            config = MapApplicationConfig(
-                "ktor.jwt.secret" to "testsecret",
-                "ktor.jwt.issuer" to "testissuer",
-                "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm",
-                "ktor.rdw.apiKey" to "testapikey"
-            )
-        }
-        JwtConfig.init(
-            MapApplicationConfig(
-                "ktor.jwt.secret" to "testsecret",
-                "ktor.jwt.issuer" to "testissuer",
-                "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm",
-                "ktor.rdw.apiKey" to "testapikey"
-            )
-        )
+        environment { config = MapApplicationConfig(
+            "ktor.jwt.secret" to "testsecret",
+            "ktor.jwt.issuer" to "testissuer",
+            "ktor.jwt.audience" to "testaudience",
+            "ktor.jwt.realm" to "testrealm",
+            "ktor.rdw.apiKey" to "testapikey"
+        )}
+
         application { module() }
-        val token = JwtConfig.generateToken("1", "pauldemast@example.com")
+
+        val email = "meuser_${UUID.randomUUID()}@example.com"
+        val createUserDTO = CreateUserDTO(
+            fullName = "Me User",
+            email = email,
+            password = "test123",
+            phone = "+31600000000",
+            address = "Test Street",
+            zipcode = "1234AB",
+            city = "TestCity",
+            countryISO = "NL"
+        )
+
+        // register
+        client.post("/users/register") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(createUserDTO))
+        }
+
+        // login
+        val loginResponse: HttpResponse = client.post("/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(LoginUserDTO(email, "test123")))
+        }
+
+        val loginBody = loginResponse.bodyAsText()
+        val token = Regex("\"token\":\"([^\"]+)\"").find(loginBody)!!.groupValues[1]
+
+        // get logged in user
         val response: HttpResponse = client.get("/users/me") {
             header(HttpHeaders.Authorization, "Bearer $token")
         }
+
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody = response.bodyAsText()
         assertNotNull(responseBody)
-        assert(responseBody.contains("pauldemast@example.com"))
+        assert(responseBody.contains(email))
     }
 
     @Test

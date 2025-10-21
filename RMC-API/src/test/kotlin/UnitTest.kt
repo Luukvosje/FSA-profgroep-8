@@ -20,13 +20,25 @@ class UnitTest {
 
     @Before
     fun setup() {
-        userService = UserServiceImpl()
+        userService = UserServiceImpl(
+            com.profgroep8.services.ServiceFactoryImpl(
+                com.profgroep8.repositories.DatabaseFactoryImpl,
+                MapApplicationConfig(
+                    "ktor.jwt.secret" to "testsecret",
+                    "ktor.jwt.issuer" to "testissuer",
+                    "ktor.jwt.audience" to "testaudience",
+                    "ktor.jwt.realm" to "testrealm",
+                    "ktor.rdw.apiKey" to "dummykey"
+                )
+            )
+        )
         JwtConfig.init(
             MapApplicationConfig(
                 "ktor.jwt.secret" to "testsecret",
                 "ktor.jwt.issuer" to "testissuer",
                 "ktor.jwt.audience" to "testaudience",
-                "ktor.jwt.realm" to "testrealm"
+                "ktor.jwt.realm" to "testrealm",
+                "ktor.rdw.apiKey" to "dummykey"
             )
         )
     }
