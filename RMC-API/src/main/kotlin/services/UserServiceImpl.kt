@@ -11,12 +11,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.profgroep8.interfaces.services.RentalService
 import com.profgroep8.models.dto.LoginResponseDTO
 import java.util.*
 import com.profgroep8.models.entity.UserEntity
 import com.profgroep8.plugins.JwtConfig.generateToken
 
-class UserServiceImpl : UserService, UserRepository<User> {
+class UserServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl): UserService {
 
     //looks if the account already exists or not
     override fun register(item: CreateUserDTO): UserDTO {
@@ -28,12 +29,12 @@ class UserServiceImpl : UserService, UserRepository<User> {
     }
 
     //finds if email already exists
-    override fun findByEmail(email: String): User? = transaction {
+    fun findByEmail(email: String): User? = transaction {
         User.find { UserEntity.email eq email }.singleOrNull()
     }
 
     //creates the user
-    override fun create(user: CreateUserDTO): User? = transaction {
+    fun create(user: CreateUserDTO): User? = transaction {
         val hashedPassword = BCrypt.hashpw(user.password, BCrypt.gensalt())
         User.new {
             fullName = user.fullName

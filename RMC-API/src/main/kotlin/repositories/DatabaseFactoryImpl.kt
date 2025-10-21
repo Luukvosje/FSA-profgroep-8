@@ -40,7 +40,7 @@ object DatabaseFactoryImpl : DatabaseFactory {
     }
 
     override val carRepository: CarRepository by lazy { CarRepositoryImpl() }
-    override val userRepository: UserRepository<User> = UserServiceImpl()
+    override val userRepository: UserRepository by lazy { UserRepositoryImpl() }
     override val rentalRepository: RentalRepository by lazy { RentalRepositoryImpl() }
     override val rentalLocationRepository: RentalLocationRepository by lazy { RentalLocationRepositoryImpl() }
 }

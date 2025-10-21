@@ -5,7 +5,7 @@ import com.profgroep8.models.domain.User
 
 interface DatabaseFactory {
     val carRepository: CarRepository
-    val userRepository: UserRepository<User>
+    val userRepository: UserRepository
     val rentalRepository: RentalRepository
     val rentalLocationRepository: RentalLocationRepository
 }
