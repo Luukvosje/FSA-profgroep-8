@@ -47,7 +47,7 @@ class Car(carId: EntityID<Int>) : IntEntity(carId) {
         )
     }
 
-    fun CalculateTCO(request: CalculateCarRequestDTO): CalculateCarResponseDTO {
+    fun calculateTCO(request: CalculateCarRequestDTO): CalculateCarResponseDTO {
         val depreciation: Double
         val maintenance: Double
         val tax: Double

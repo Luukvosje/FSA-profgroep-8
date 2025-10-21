@@ -55,7 +55,7 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
 
     override fun calculateCar(carRequestDTO: CalculateCarRequestDTO): CalculateCarResponseDTO? =
         try {
-            serviceFactoryImpl.databaseFactory.carRepository.getSingle(carRequestDTO.carId)?.CalculateTCO(carRequestDTO)
+            serviceFactoryImpl.databaseFactory.carRepository.getSingle(carRequestDTO.carId)?.calculateTCO(carRequestDTO)
                 ?: throw BadRequestException("Unexpected error")
         } catch (e: Exception) {
             throw BadRequestException("Car could not be found")
