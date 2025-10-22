@@ -1,0 +1,1143 @@
+openapi: 3.0.3
+info:
+  title: Rent My Car API
+  description: API for the Rent My Car app.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /users/register:
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      description: Create a new user account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDTO'
+      responses:
+        '200':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/login:
+    post:
+      tags:
+        - Users
+      summary: Login user
+      description: Authenticate user and return JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUserDTO'
+      responses:
+        '200':
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: Get current user
+      description: Get information about the currently authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{id}/bonuspoints:
+    get:
+      tags:
+        - Users
+      summary: Get user bonus points
+      description: Get bonus points for a specific user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bonus points retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bonusPoints:
+                    type: integer
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Users
+      summary: Update user bonus points
+      description: Update bonus points for a specific user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                points:
+                  type: integer
+              required:
+                - points
+      responses:
+        '200':
+          description: Bonus points updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /cars:
+    get:
+      tags:
+        - Cars
+      summary: Get all cars
+      description: Retrieve all cars in the system
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cars retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Cars
+      summary: Create a new car
+      description: Add a new car to the system
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCarDTO'
+      responses:
+        '201':
+          description: Car created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - Car already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /cars/{carID}:
+    get:
+      tags:
+        - Cars
+      summary: Get car by ID
+      description: Retrieve a specific car by its ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: carID
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Car retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarDTO'
+        '404':
+          description: Car not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Cars
+      summary: Update car
+      description: Update an existing car
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: carID
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCarDTO'
+      responses:
+        '200':
+          description: Car updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Car not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Cars
+      summary: Delete car
+      description: Delete a car from the system
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: carID
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Car deleted successfully
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Car not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /cars/license/{plate}:
+    get:
+      tags:
+        - Cars
+      summary: Get car by license plate
+      description: Retrieve a car by its license plate from RDW
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: plate
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Car retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCarDTO'
+        '404':
+          description: Car not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Cars
+      summary: Create car by license plate
+      description: Create a new car by fetching data from RDW using license plate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: plate
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Car created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - Car already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /cars/{carID}/calculate:
+    post:
+      tags:
+        - Cars
+      summary: Calculate car costs
+      description: Calculate total cost of ownership and cost per kilometer for a car
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: carID
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalculateCarRequestDTO'
+      responses:
+        '200':
+          description: Calculation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculateCarResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Car not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /cars/{carID}/image:
+    post:
+      tags:
+        - Cars
+      summary: Upload car image
+      description: Upload an image for a specific car
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: carID
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Image uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imagePath:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Car not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /cars/search:
+    get:
+      tags:
+        - Cars
+      summary: Search cars
+      description: Search cars by keyword
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarDTO'
+
+  /cars/filter:
+    post:
+      tags:
+        - Cars
+      summary: Filter cars
+      description: Filter cars by various criteria
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterCar'
+      responses:
+        '200':
+          description: Filtered cars retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarDTO'
+
+
+  /cars/user/{userID}:
+    get:
+      tags:
+        - Cars
+      summary: Get cars by user ID
+      description: Get all cars belonging to a specific user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userID
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User cars retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rentals:
+    get:
+      tags:
+        - Rentals
+      summary: Get all rentals
+      description: Retrieve all rentals in the system
+      responses:
+        '200':
+          description: Rentals retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RentalWithLocationsDTO'
+
+    post:
+      tags:
+        - Rentals
+      summary: Create a new rental
+      description: Create a new rental
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRentalDTO'
+      responses:
+        '200':
+          description: Rental created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalWithLocationsDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rentals/{id}:
+    get:
+      tags:
+        - Rentals
+      summary: Get rental by ID
+      description: Retrieve a specific rental by its ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rental retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalWithLocationsDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Rentals
+      summary: Update rental
+      description: Update an existing rental
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRentalDTO'
+      responses:
+        '200':
+          description: Rental updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalWithLocationsDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Rentals
+      summary: Delete rental
+      description: Delete a rental from the system
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rental deleted successfully
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Rental not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rentals/{id}/end:
+    put:
+      tags:
+        - Rentals
+      summary: End rental
+      description: Set a rental to inactive state
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rental ended successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalWithLocationsDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rentals/{id}/locations:
+    get:
+      tags:
+        - Rentals
+      summary: Get rental locations
+      description: Get start and end locations for a rental
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rental locations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalLocationsResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rentals/{rentalID}/locations/{locationID}:
+    put:
+      tags:
+        - Rentals
+      summary: Update rental location
+      description: Update a specific location of a rental
+      parameters:
+        - name: rentalID
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: locationID
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRentalLocationDTO'
+      responses:
+        '200':
+          description: Rental location updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalLocationDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Location not found or doesn't belong to rental
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserDTO:
+      type: object
+      properties:
+        userID:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          type: string
+        zipcode:
+          type: string
+        city:
+          type: string
+        countryISO:
+          type: string
+        points:
+          type: integer
+      required:
+        - userID
+        - fullName
+        - email
+        - phone
+        - address
+        - zipcode
+        - city
+        - countryISO
+        - points
+
+    CreateUserDTO:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        phone:
+          type: string
+        address:
+          type: string
+        zipcode:
+          type: string
+        city:
+          type: string
+        countryISO:
+          type: string
+      required:
+        - fullName
+        - email
+        - password
+        - phone
+        - address
+        - zipcode
+        - city
+        - countryISO
+
+    LoginUserDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    LoginResponseDTO:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserDTO'
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    CarDTO:
+      type: object
+      properties:
+        carID:
+          type: integer
+        licensePlate:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        fuelType:
+          type: integer
+        price:
+          type: integer
+        userID:
+          type: integer
+      required:
+        - carID
+        - licensePlate
+        - brand
+        - model
+        - year
+        - fuelType
+        - price
+        - userID
+
+    CreateCarDTO:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        fuelType:
+          type: integer
+        price:
+          type: integer
+      required:
+        - licensePlate
+        - brand
+        - model
+        - year
+        - fuelType
+        - price
+
+    UpdateCarDTO:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        fuelType:
+          type: integer
+        price:
+          type: integer
+      required:
+        - licensePlate
+        - brand
+        - model
+        - year
+        - fuelType
+        - price
+
+    CalculateCarRequestDTO:
+      type: object
+      properties:
+        standardKmPerYear:
+          type: number
+          format: double
+      required:
+        - standardKmPerYear
+
+    CalculateCarResponseDTO:
+      type: object
+      properties:
+        car:
+          $ref: '#/components/schemas/CarDTO'
+        tco:
+          type: number
+          format: double
+        costPerKm:
+          type: number
+          format: double
+      required:
+        - car
+        - tco
+        - costPerKm
+
+    FilterCar:
+      type: object
+      properties:
+        licensePlate:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        fuelType:
+          type: integer
+        minPrice:
+          type: number
+          format: double
+        maxPrice:
+          type: number
+          format: double
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+
+    Availability:
+      type: object
+      properties:
+        start:
+          $ref: '#/components/schemas/RentalLocationDTO'
+        end:
+          $ref: '#/components/schemas/RentalLocationDTO'
+      required:
+        - start
+        - end
+
+    RentalDTO:
+      type: object
+      properties:
+        rentalID:
+          type: integer
+        userID:
+          type: integer
+        carID:
+          type: integer
+        startRentalLocationId:
+          type: integer
+        endRentalLocationId:
+          type: integer
+        state:
+          type: integer
+      required:
+        - rentalID
+        - userID
+        - carID
+        - startRentalLocationId
+        - endRentalLocationId
+        - state
+
+    CreateRentalDTO:
+      type: object
+      properties:
+        carID:
+          type: integer
+        startLocation:
+          $ref: '#/components/schemas/CreateRentalLocationDTO'
+        endLocation:
+          $ref: '#/components/schemas/CreateRentalLocationDTO'
+      required:
+        - carID
+        - startLocation
+        - endLocation
+
+    UpdateRentalDTO:
+      type: object
+      properties:
+        state:
+          type: integer
+      required:
+        - state
+
+    RentalLocationDTO:
+      type: object
+      properties:
+        rentalLocationID:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        longitude:
+          type: number
+          format: float
+        latitude:
+          type: number
+          format: float
+      required:
+        - rentalLocationID
+        - date
+        - longitude
+        - latitude
+
+    CreateRentalLocationDTO:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        longitude:
+          type: number
+          format: float
+        latitude:
+          type: number
+          format: float
+      required:
+        - date
+        - longitude
+        - latitude
+
+    UpdateRentalLocationDTO:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        longitude:
+          type: number
+          format: float
+        latitude:
+          type: number
+          format: float
+      required:
+        - date
+        - longitude
+        - latitude
+
+    RentalWithLocationsDTO:
+      type: object
+      properties:
+        rentalID:
+          type: integer
+        userID:
+          type: integer
+        carID:
+          type: integer
+        startRentalLocation:
+          $ref: '#/components/schemas/RentalLocationDTO'
+        endRentalLocation:
+          $ref: '#/components/schemas/RentalLocationDTO'
+        state:
+          type: integer
+      required:
+        - rentalID
+        - userID
+        - carID
+        - startRentalLocation
+        - endRentalLocation
+        - state
+
+    RentalLocationsResponseDTO:
+      type: object
+      properties:
+        startLocation:
+          $ref: '#/components/schemas/RentalLocationDTO'
+        endLocation:
+          $ref: '#/components/schemas/RentalLocationDTO'
+      required:
+        - startLocation
+        - endLocation
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - error
+        - message
+        - timestamp
