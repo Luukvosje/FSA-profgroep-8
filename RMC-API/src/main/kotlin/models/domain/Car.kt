@@ -1,7 +1,5 @@
 package com.profgroep8.models.domain
 
-import com.profgroep8.models.dto.CalculateCarRequestDTO
-import com.profgroep8.models.dto.CalculateCarResponseDTO
 import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.entity.CarEntity
 import org.jetbrains.exposed.dao.IntEntity

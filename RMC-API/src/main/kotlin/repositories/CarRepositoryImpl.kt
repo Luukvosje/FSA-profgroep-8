@@ -40,10 +40,10 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
             }
 
             normalizedFilter.brand?.let {
-                conditions += CarEntity.brand like "%${it.lowercase().trim()}%"
+                conditions += CarEntity.brand.lowerCase().trim() like "%${it.lowercase().trim()}%"
             }
             normalizedFilter.model?.let {
-                conditions += CarEntity.model like "%${it.lowercase().trim()}%"
+                conditions += CarEntity.model.lowerCase().trim() like "%${it.lowercase().trim()}%"
             }
             normalizedFilter.fuelType?.let {
                 conditions += CarEntity.fuelType eq it
@@ -65,7 +65,8 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
             } else {
                 Car.all()
             }
-            query.map { it.toCarDTO() }        }
+            query.map { it.toCarDTO() }
+        }
     }
 
     override fun searchCars(keyword: String?): List<CarDTO> {
@@ -74,10 +75,9 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
         return transaction {
             Car.find {
                 (CarEntity.brand.lowerCase() like normalizedKeyword) or
-                (CarEntity.licensePlate.lowerCase() like normalizedKeyword) or
-                (CarEntity.model.lowerCase() like normalizedKeyword)
+                        (CarEntity.licensePlate.lowerCase() like normalizedKeyword) or
+                        (CarEntity.model.lowerCase() like normalizedKeyword)
             }.map { it.toCarDTO() }
         }
     }
-
 }

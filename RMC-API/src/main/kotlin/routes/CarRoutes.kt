@@ -7,12 +7,11 @@ import com.profgroep8.models.dto.CalculateCarRequestDTO
 import com.profgroep8.models.dto.CreateCarDTO
 import com.profgroep8.models.dto.FilterCar
 import com.profgroep8.models.dto.UpdateCarDTO
-import io.ktor.http.HttpStatusCode
+import getUserContext
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
+import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -34,9 +33,7 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
                 // POST: Create a car
                 post {
-                    val principal = call.principal<JWTPrincipal>()
-                    val userID = principal?.getClaim("userId", String::class)
-                        ?.toIntOrNull() ?: throw UnauthorizedException()
+                    val user = getUserContext()
 
                     // Receive the DTO from the request body
                     val createCarDTO = call.receive<CreateCarDTO>()
@@ -51,8 +48,7 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                         throw ConflictException("Car with license plate ${createCarDTO.licensePlate} already exists")
 
                     // Call the service to create a new car
-                    // TODO: UserContext instead of ID 1
-                    val car = serviceFactory.carService.create(createCarDTO, userID)
+                    val car = serviceFactory.carService.create(createCarDTO, user.userID)
                         ?: throw BadRequestException("Car not created")
 
                     // Then return it
@@ -197,7 +193,6 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
                 }
 
-                // TODO(maybe make private)
                 // GET: All cars by UserID
                 get("user/{userID}") {
                     val userID = call.parameters["userID"]?.toIntOrNull()

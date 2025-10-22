@@ -54,7 +54,6 @@ data class FilterCar(
     val model: String? = null,
     val year: Int? = null,
     val fuelType: Int? = null,
-    val price: Int? = null,
     val minPrice: Double? = null,
     val maxPrice: Double? = null,
 ) {
