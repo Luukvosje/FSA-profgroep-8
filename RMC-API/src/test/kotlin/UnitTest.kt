@@ -111,7 +111,7 @@ class UnitTest {
             countryISO = "NL"
         )
         val user = userService.register(dto)
-        val points = userService.getBonusPoints(user.userId)
+        val points = userService.getBonusPoints(user.userID)
         assertEquals(0, points)
     }
 
@@ -130,10 +130,10 @@ class UnitTest {
         )
         val user = userService.register(dto)
 
-        val updated = userService.updateBonusPoints(user.userId, 250)
+        val updated = userService.updateBonusPoints(user.userID, 250)
 
         assertEquals(250, updated.points)
-        assertEquals(user.userId, updated.userId)
+        assertEquals(user.userID, updated.userID)
     }
 
     @Test
@@ -187,12 +187,11 @@ class UnitTest {
             fuelType = 1,
             price = 75000
         )
-        val createdCar = carService.create(carDTO)
+        val createdCar = carService.create(carDTO, 0)
 
         // Create rental
         val createRentalDTO = CreateRentalDTO(
-            userId = createdUser.userId,
-            carId = createdCar.carId,
+            carID = createdCar?.carID ?: 0,
             startLocation = CreateRentalLocationDTO(
                 date = LocalDateTime.parse("2024-01-01T10:00:00"),
                 longitude = 4.9041f,
@@ -205,11 +204,11 @@ class UnitTest {
             )
         )
 
-        val createdRental = rentalService.create(createRentalDTO)
+        val createdRental = rentalService.create(createRentalDTO, 0)
 
         assertNotNull(createdRental)
-        assertEquals(createdUser.userId, createdRental.userId)
-        assertEquals(createdCar.carId, createdRental.carId)
+        assertEquals(createdUser.userID, createdRental.userID)
+        assertEquals(createdCar?.carID ?: 0, createdRental.carID)
         assertEquals(4.9041f, createdRental.startRentalLocation.longitude)
         assertEquals(52.3676f, createdRental.startRentalLocation.latitude)
     }
@@ -238,12 +237,11 @@ class UnitTest {
             fuelType = 1,
             price = 75000
         )
-        val createdCar = carService.create(carDTO)
+        val createdCar = carService.create(carDTO, 0)
 
         // Create rental
         val createRentalDTO = CreateRentalDTO(
-            userId = createdUser.userId,
-            carId = createdCar.carId,
+            carID = createdCar?.carID ?: 0,
             startLocation = CreateRentalLocationDTO(
                 date = LocalDateTime.parse("2024-01-01T10:00:00"),
                 longitude = 4.9041f,
@@ -255,14 +253,14 @@ class UnitTest {
                 latitude = 52.3676f
             )
         )
-        val createdRental = rentalService.create(createRentalDTO)
+        val createdRental = rentalService.create(createRentalDTO, 0)
 
         // Update rental
         val updateRentalDTO = UpdateRentalDTO(state = 0)
-        val updatedRental = rentalService.update(createdRental.rentalId, updateRentalDTO)
+        val updatedRental = rentalService.update(createdRental.rentalID, updateRentalDTO)
 
         assertNotNull(updatedRental)
-        assertEquals(createdRental.rentalId, updatedRental.rentalId)
+        assertEquals(createdRental.rentalID, updatedRental.rentalID)
         assertEquals(0, updatedRental.state)
     }
 
@@ -290,12 +288,11 @@ class UnitTest {
             fuelType = 1,
             price = 75000
         )
-        val createdCar = carService.create(carDTO)
+        val createdCar = carService.create(carDTO, 0)
 
         // Create rental
         val createRentalDTO = CreateRentalDTO(
-            userId = createdUser.userId,
-            carId = createdCar.carId,
+            carID = createdCar?.carID ?: 0,
             startLocation = CreateRentalLocationDTO(
                 date = LocalDateTime.parse("2024-01-01T10:00:00"),
                 longitude = 4.9041f,
@@ -307,10 +304,10 @@ class UnitTest {
                 latitude = 52.3676f
             )
         )
-        val createdRental = rentalService.create(createRentalDTO)
+        val createdRental = rentalService.create(createRentalDTO, 0)
 
         // Delete rental
-        val deleteResult = rentalService.delete(createdRental.rentalId)
+        val deleteResult = rentalService.delete(createdRental.rentalID)
 
         assertNotNull(deleteResult)
         assertEquals(true, deleteResult)

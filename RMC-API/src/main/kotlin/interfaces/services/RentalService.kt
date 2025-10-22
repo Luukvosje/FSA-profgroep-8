@@ -6,8 +6,8 @@ import com.profgroep8.models.dto.UpdateRentalDTO
 
 interface RentalService {
     fun getAll(): List<RentalWithLocationsDTO>
-    fun getSingle(rentalId: Int): RentalWithLocationsDTO
-    fun create(item: CreateRentalDTO): RentalWithLocationsDTO
-    fun update(rentalId: Int, item: UpdateRentalDTO): RentalWithLocationsDTO
-    fun delete(rentalId: Int): Boolean
+    fun getSingle(rentalID: Int): RentalWithLocationsDTO
+    fun create(item: CreateRentalDTO, userID: Int): RentalWithLocationsDTO
+    fun update(rentalID: Int, item: UpdateRentalDTO): RentalWithLocationsDTO
+    fun delete(rentalID: Int): Boolean
 }

@@ -62,12 +62,11 @@ class ApplicationTest {
             fuelType = 1,
             price = 75000
         )
-        val createdCar = serviceFactory.carService.create(carDTO)
+        val createdCar = serviceFactory.carService.create(carDTO, 0)
         
         // Create test rental
         val createRentalDTO = CreateRentalDTO(
-            userId = createdUser.userId,
-            carId = createdCar.carId,
+            carID = createdCar?.carID ?: 0,
             startLocation = CreateRentalLocationDTO(
                 date = LocalDateTime.parse("2024-01-01T10:00:00"),
                 longitude = 4.9041f,
@@ -79,9 +78,9 @@ class ApplicationTest {
                 latitude = 52.3676f
             )
         )
-        val createdRental = serviceFactory.rentalService.create(createRentalDTO)
+        val createdRental = serviceFactory.rentalService.create(createRentalDTO, 0)
         
-        return Triple(createdUser.userId, createdCar.carId, createdRental.rentalId)
+        return Triple(createdUser.userID, createdCar?.carID ?: 0, createdRental.rentalID)
     }
 
     private fun initJwtForTest() {
@@ -398,8 +397,7 @@ class ApplicationTest {
         application { module() }
 
         val invalidRentalDTO = CreateRentalDTO(
-            userId = -1, // Invalid user ID
-            carId = -1,  // Invalid car ID
+            carID = -1,  // Invalid car ID
             startLocation = CreateRentalLocationDTO(
                 date = LocalDateTime.parse("2024-01-01T10:00:00"),
                 longitude = 0f, // Invalid coordinates
@@ -587,12 +585,11 @@ class ApplicationTest {
             fuelType = 1,
             price = 85000
         )
-        val secondCar = serviceFactory.carService.create(secondCarDTO)
+        val secondCar = serviceFactory.carService.create(secondCarDTO, userId)
 
         // Now test creating another rental with valid references
         val validRentalDTO = CreateRentalDTO(
-            userId = userId,
-            carId = secondCar.carId,
+            carID = secondCar?.carID ?: 0,
             startLocation = CreateRentalLocationDTO(
                 date = LocalDateTime.parse("2024-01-02T10:00:00"),
                 longitude = 4.9041f,
@@ -765,7 +762,7 @@ class ApplicationTest {
         DatabaseFactoryImpl.init()
         val serviceFactory = ServiceFactoryImpl(DatabaseFactoryImpl, testConfig)
         val rental = serviceFactory.rentalService.getSingle(rentalId)
-        val locationId = rental.startRentalLocation.rentalLocationId
+        val locationId = rental.startRentalLocation.rentalLocationID
 
         val updateLocationDTO = UpdateRentalLocationDTO(
             date = LocalDateTime.parse("2024-01-01T12:00:00"),

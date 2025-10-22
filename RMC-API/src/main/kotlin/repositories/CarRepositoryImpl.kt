@@ -68,8 +68,8 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
             query.map { it.toCarDTO() }        }
     }
 
-    override fun searchCars(keyword: String): List<CarDTO> {
-        val normalizedKeyword = "%${keyword.trim().lowercase()}%"
+    override fun searchCars(keyword: String?): List<CarDTO> {
+        val normalizedKeyword = "%${keyword?.trim()?.lowercase()}%"
 
         return transaction {
             Car.find {

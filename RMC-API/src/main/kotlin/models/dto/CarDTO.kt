@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CarDTO(
-    val carId: Int,
+    val carID: Int,
     val licensePlate: String,
     val brand: String,
     val model: String,
     val year: Int,
     val fuelType: Int,
     val price: Int,
-    val userId: Int
+    val userID: Int
 )
 
 @Serializable
@@ -38,15 +38,11 @@ data class UpdateCarDTO(
 @Serializable
 data class CalculateCarRequestDTO(
     val standardKmPerYear: Double,
-
-    @JsonIgnore
-    var carId: Int,
 )
 
 @Serializable
 data class CalculateCarResponseDTO(
-    val carId: Int,
-    val fuelType: Int,
+    val car: CarDTO,
     val tco: Double,
     val costPerKm: Double,
 )

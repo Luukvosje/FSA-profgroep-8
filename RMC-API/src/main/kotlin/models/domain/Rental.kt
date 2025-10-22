@@ -10,19 +10,19 @@ import org.jetbrains.exposed.dao.id.EntityID
 class Rental(rentalId: EntityID<Int>) : IntEntity(rentalId) {
     companion object : IntEntityClass<Rental>(RentalEntity)
 
-    var userId by RentalEntity.userId
-    var carId by RentalEntity.carId
-    var startRentalLocationId by RentalEntity.startRentalLocationId
-    var endRentalLocationId by RentalEntity.endRentalLocationId
+    var userID by RentalEntity.userID
+    var carID by RentalEntity.carID
+    var startRentalLocationID by RentalEntity.startRentalLocationID
+    var endRentalLocationID by RentalEntity.endRentalLocationID
     var state by RentalEntity.state
 
     fun toRentalDTO(): RentalDTO {
         return RentalDTO(
             this.id.value,
-            this.userId,
-            this.carId,
-            this.startRentalLocationId,
-            this.endRentalLocationId,
+            this.userID,
+            this.carID,
+            this.startRentalLocationID,
+            this.endRentalLocationID,
             this.state
         )
     }
@@ -30,8 +30,8 @@ class Rental(rentalId: EntityID<Int>) : IntEntity(rentalId) {
     fun toRentalWithLocationsDTO(startLocation: RentalLocation, endLocation: RentalLocation): RentalWithLocationsDTO {
         return RentalWithLocationsDTO(
             this.id.value,
-            this.userId,
-            this.carId,
+            this.userID,
+            this.carID,
             startLocation.toRentalLocationDTO(),
             endLocation.toRentalLocationDTO(),
             this.state

@@ -8,7 +8,7 @@ import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.BadRequestException
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 
-class ConflictException : Exception() // 409 CONFLICT
+class ConflictException(message: String) : Exception(message) // 409 CONFLICT
 class UnauthorizedException : Exception() //401 UNAUTHORIZED
 
 fun Application.configureStatusPages() {

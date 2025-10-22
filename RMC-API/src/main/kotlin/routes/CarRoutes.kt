@@ -1,10 +1,12 @@
 package com.profgroep8.Controller.Car
 
+import com.profgroep8.exceptions.ConflictException
 import com.profgroep8.interfaces.services.ServiceFactory
 import com.profgroep8.models.dto.CalculateCarRequestDTO
 import com.profgroep8.models.dto.CreateCarDTO
 import com.profgroep8.models.dto.FilterCar
 import com.profgroep8.models.dto.UpdateCarDTO
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -21,7 +23,7 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
             // GET: Get all cars
             get() {
                 // Get cars from the service and return it
-                val cars = serviceFactory.carService.getAll()
+                val cars = serviceFactory.carService.getAllCars()
                 call.respond(cars)
             }
 
@@ -30,40 +32,56 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                 // Receive the DTO from the request body
                 val createCarDTO = call.receive<CreateCarDTO>()
 
+                val cars = serviceFactory.carService.filterCars(FilterCar(
+                    licensePlate = createCarDTO.licensePlate,
+                ))
+
+                if (cars.isNotEmpty())
+                    throw ConflictException("Car with license plate ${createCarDTO.licensePlate} already exists")
+
                 // Call the service to create a new car
-                val newCar = serviceFactory.carService.create(createCarDTO)
+                // TODO: UserContext instead of ID 1
+                val car = serviceFactory.carService.create(createCarDTO, 1)
+                    ?: throw BadRequestException("Car not created")
 
                 // Then return it
-                call.respond(newCar)
+                call.respond(HttpStatusCode.Created, car)
             }
 
-            route("/{id}") {
+            route("/{carID}") {
                 // GET: Get single car by ID
                 get {
                     // Get the id from the params else throw 404
-                    val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                    val carId = call.parameters["carID"]?.toIntOrNull()
+                        ?: throw NotFoundException("Car not found")
 
                     val car = serviceFactory.carService.getSingle(carId)
+                        ?: throw NotFoundException("Car not found")
+
                     call.respond(car)
                 }
 
                 // PUT: Update car by ID
                 put {
                     // Get the id from the params else throw 404
-                    val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                    val carId = call.parameters["carID"]?.toIntOrNull()
+                        ?: throw NotFoundException("Car not found")
 
                     // Get the update request form the body
                     val updateCarDTO = call.receive<UpdateCarDTO>()
 
                     // Call the update in the service and return it
                     val updatedCar = serviceFactory.carService.update(carId, updateCarDTO)
+                        ?: throw BadRequestException("Car not updated")
+
                     call.respond(updatedCar)
                 }
 
                 // DELETE: Delete the car by ID
-                delete("/{id}") {
+                delete {
                     // Get the id from the params else throw 404
-                    val carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                    val carId = call.parameters["carID"]?.toIntOrNull()
+                        ?: throw NotFoundException("Car not found")
 
                     // Delete it in the service
                     val success = serviceFactory.carService.delete(carId)
@@ -86,11 +104,14 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                     }
 
                     // Get the id from the params else throw 404
-                    request.carId = call.parameters["id"]?.toIntOrNull() ?: throw NotFoundException()
+                    val carID = call.parameters["carID"]?.toIntOrNull()
+                        ?: throw NotFoundException()
+
+                    val car = serviceFactory.carService.getSingle(carID)
+                        ?: throw NotFoundException()
 
                     // Calculate and then return it
-                    val res = serviceFactory.carService.calculateCar(request)
-                        ?: throw BadRequestException("Car could not be calculated")
+                    val res = serviceFactory.carService.calculateCar(request, car)
 
                     call.respond(res)
                 }
@@ -98,13 +119,12 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                 // TODO(make it authenticated to check userid)
                 // POST: Upload an image to a car
                 post("/image") {
-                    val carId = call.parameters["id"]?.toIntOrNull()
-                        ?: throw BadRequestException("Invalid car ID")
+                    val carId = call.parameters["carID"]?.toIntOrNull()
+                        ?: throw BadRequestException("Car not found")
 
-                    val checkCarId = serviceFactory.carService.getSingle(carId)
-                    if (checkCarId === null) {
-                        throw NotFoundException("Car could not be found")
-                    }
+                    // Check if car exists
+                    serviceFactory.carService.getSingle(carId)
+                        ?: throw NotFoundException("Car not found")
 
                     val multipart = call.receiveMultipart()
                     var fileName: String? = null
@@ -133,10 +153,11 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
             // GET: Get car from RdwClient by license plate
             get("/license/{plate}") {
-                val licensePlate = call.parameters["plate"] ?: throw NotFoundException()
+                val licensePlate = call.parameters["plate"]
+                    ?: throw NotFoundException("License plate not found")
 
                 val car = serviceFactory.carService.findByLicense(licensePlate)
-                if (car === null) throw BadRequestException("Car could not be found")
+                    ?: throw NotFoundException("Car not found")
 
                 call.respond(car)
             }
@@ -145,7 +166,7 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
             get("/search") {
                 val keyword = call.queryParameters["keyword"]
 
-                val cars = serviceFactory.carService.searchCars(keyword ?: "")
+                val cars = serviceFactory.carService.searchCars(keyword)
 
                 call.respond(cars)
             }
@@ -154,7 +175,8 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
             post("filter") {
                 val filterObj = call.receive<FilterCar>()
 
-                val cars = serviceFactory.carService.filterCar(filterObj) ?: throw BadRequestException("Cars could not be filtered")
+                val cars = serviceFactory.carService.filterCars(filterObj)
+
                 call.respond(cars)
             }
 
@@ -166,11 +188,11 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
             // TODO(maybe make private)
             // GET: All cars by UserID
-            get("user/{userId}") {
-                val userId = call.parameters["userId"]?.toIntOrNull() ?: throw BadRequestException("Invalid user ID")
-                val cars = serviceFactory.carService.getCarsByUserId(userId)
+            get("user/{userID}") {
+                val userID = call.parameters["userID"]?.toIntOrNull()
+                    ?: throw BadRequestException("User not found")
 
-                if (cars === null) throw BadRequestException("User has no cars")
+                val cars = serviceFactory.carService.getCarsByUserId(userID)
 
                 call.respond(cars)
             }

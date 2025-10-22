@@ -31,7 +31,7 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
             // Create new rental
             post {
                 val createRentalDTO = call.receive<CreateRentalDTO>()
-                val newRental = serviceFactory.rentalService.create(createRentalDTO)
+                val newRental = serviceFactory.rentalService.create(createRentalDTO, 1) // TODO: Replace with UserContext
                 call.respond(newRental)
             }
 
@@ -68,18 +68,18 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
             }
             
             // Update a location of a rental by id
-            put("/{rentalId}/locations/{locationId}") {
-                val rentalId = call.parameters["rentalId"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
-                val locationId = call.parameters["locationId"]?.toIntOrNull() ?: throw BadRequestException("Invalid location ID format")
+            put("/{rentalID}/locations/{locationID}") {
+                val rentalID = call.parameters["rentalID"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
+                val locationID = call.parameters["locationID"]?.toIntOrNull() ?: throw BadRequestException("Invalid location ID format")
                 
                 // Check if the location belongs to this rental
-                val rental = serviceFactory.rentalService.getSingle(rentalId)
-                if (rental.startRentalLocation.rentalLocationId != locationId && rental.endRentalLocation.rentalLocationId != locationId) {
+                val rental = serviceFactory.rentalService.getSingle(rentalID)
+                if (rental.startRentalLocation.rentalLocationID != locationID && rental.endRentalLocation.rentalLocationID != locationID) {
                     throw NotFoundException("Location does not belong to this rental")
                 }
                 
                 val updateRentalLocationDTO = call.receive<UpdateRentalLocationDTO>()
-                val updatedRentalLocation = serviceFactory.rentalLocationService.update(locationId, updateRentalLocationDTO)
+                val updatedRentalLocation = serviceFactory.rentalLocationService.update(locationID, updateRentalLocationDTO)
                 call.respond(updatedRentalLocation)
             }
 

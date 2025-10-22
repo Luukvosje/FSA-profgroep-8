@@ -5,7 +5,7 @@ import com.profgroep8.models.dto.RentalLocationDTO
 import com.profgroep8.models.dto.UpdateRentalLocationDTO
 
 interface RentalLocationService {
-    fun getSingle(rentalLocationId: Int): RentalLocationDTO
+    fun getSingle(rentalLocationID: Int): RentalLocationDTO
     fun create(item: CreateRentalLocationDTO): RentalLocationDTO
-    fun update(rentalLocationId: Int, item: UpdateRentalLocationDTO): RentalLocationDTO
+    fun update(rentalLocationID: Int, item: UpdateRentalLocationDTO): RentalLocationDTO
 }

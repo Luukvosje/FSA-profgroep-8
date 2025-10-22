@@ -33,7 +33,6 @@ class Car(carId: EntityID<Int>) : IntEntity(carId) {
     var price by CarEntity.price
     var userId by CarEntity.userId
 
-
     fun toCarDTO(): CarDTO {
         return CarDTO(
             this.id.value,
@@ -46,62 +45,5 @@ class Car(carId: EntityID<Int>) : IntEntity(carId) {
             this.userId
         )
     }
-
-    fun calculateTCO(standardKmPerYear: Double): CalculateCarResponseDTO {
-        val depreciation: Double
-        val maintenance: Double
-        val tax: Double
-        val energyCost: Double
-
-        when (FuelType.fromCode(this.fuelType)) {
-            FuelType.GASOLINE -> {
-                depreciation = 3000.0
-                maintenance = 700.0
-                tax = 600.0
-                val fuelConsumptionPer100Km = 6.5
-                val fuelPrice = 2.10
-                energyCost = (fuelConsumptionPer100Km / 100.0) * fuelPrice * standardKmPerYear
-            }
-
-            FuelType.DIESEL -> {
-                depreciation = 3200.0
-                maintenance = 750.0
-                tax = 800.0
-                val fuelConsumptionPer100Km = 5.5
-                val fuelPrice = 1.95
-                energyCost = (fuelConsumptionPer100Km / 100.0) * fuelPrice * standardKmPerYear
-            }
-
-            FuelType.ELECTRIC -> {
-                depreciation = 2500.0
-                maintenance = 400.0
-                tax = 0.0
-                val consumptionPer100Km = 18.0
-                val electricityPrice = 0.35
-                energyCost = (consumptionPer100Km / 100.0) * electricityPrice * standardKmPerYear
-            }
-
-            FuelType.HYBRID -> {
-                depreciation = 2800.0
-                maintenance = 600.0
-                tax = 400.0
-                val fuelConsumptionPer100Km = 4.0
-                val fuelPrice = 2.05
-                val electricityCost = 0.05 * standardKmPerYear
-                energyCost = (fuelConsumptionPer100Km / 100.0) * fuelPrice * standardKmPerYear + electricityCost
-            }
-        }
-
-        val totalCost = depreciation + maintenance + tax + energyCost
-        val costPerKm = totalCost / standardKmPerYear
-
-        return CalculateCarResponseDTO(
-            carId = id.value,
-            fuelType = fuelType,
-            tco = totalCost,
-            costPerKm = costPerKm
-        )
-    }
-
 }
 

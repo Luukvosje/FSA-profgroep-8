@@ -8,8 +8,8 @@ import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
 
 class RentalLocationServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : RentalLocationService {
-    override fun getSingle(rentalLocationId: Int): RentalLocationDTO =
-        serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rentalLocationId)?.toRentalLocationDTO() ?: throw NotFoundException()
+    override fun getSingle(rentalLocationID: Int): RentalLocationDTO =
+        serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rentalLocationID)?.toRentalLocationDTO() ?: throw NotFoundException()
 
     override fun create(item: CreateRentalLocationDTO): RentalLocationDTO {
         val createdRentalLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.create {
@@ -21,14 +21,14 @@ class RentalLocationServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : Re
         return createdRentalLocation?.toRentalLocationDTO() ?: throw BadRequestException("Failed to create rental location")
     }
 
-    override fun update(rentalLocationId: Int, item: UpdateRentalLocationDTO): RentalLocationDTO {
-        val updatedRentalLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.update(rentalLocationId) {
+    override fun update(rentalLocationID: Int, item: UpdateRentalLocationDTO): RentalLocationDTO {
+        val updatedRentalLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.update(rentalLocationID) {
             date = item.date
             longitude = item.longitude
             latitude = item.latitude
         }
 
-        return updatedRentalLocation?.toRentalLocationDTO() ?: throw NotFoundException("Rental location with id $rentalLocationId not found")
+        return updatedRentalLocation?.toRentalLocationDTO() ?: throw NotFoundException("Rental location with id $rentalLocationID not found")
     }
 }
 

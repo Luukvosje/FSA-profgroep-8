@@ -21,7 +21,7 @@ class User(userId: EntityID<Int>) : IntEntity(userId) {
 
     fun toUserDTO(): UserDTO {
         return UserDTO(
-            userId = this.id.value,
+            userID = this.id.value,
             fullName = this.fullName,
             email = this.email,
             phone = this.phone,

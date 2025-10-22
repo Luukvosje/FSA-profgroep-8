@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RentalDTO(
-    val rentalId: Int,
-    val userId: Int,
-    val carId: Int,
+    val rentalID: Int,
+    val userID: Int,
+    val carID: Int,
     val startRentalLocationId: Int,
     val endRentalLocationId: Int,
     val state: Int,
@@ -14,8 +14,7 @@ data class RentalDTO(
 
 @Serializable
 data class CreateRentalDTO(
-    val userId: Int,
-    val carId: Int,
+    val carID: Int,
     val startLocation: CreateRentalLocationDTO,
     val endLocation: CreateRentalLocationDTO
 )
@@ -27,9 +26,9 @@ data class UpdateRentalDTO(
 
 @Serializable
 data class RentalWithLocationsDTO(
-    val rentalId: Int,
-    val userId: Int,
-    val carId: Int,
+    val rentalID: Int,
+    val userID: Int,
+    val carID: Int,
     val startRentalLocation: RentalLocationDTO,
     val endRentalLocation: RentalLocationDTO,
     val state: Int,

@@ -10,25 +10,25 @@ import io.ktor.server.plugins.NotFoundException
 class RentalServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl): RentalService {
     override fun getAll() =
         serviceFactoryImpl.databaseFactory.rentalRepository.getAll().map { rental ->
-            val startLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.startRentalLocationId)
+            val startLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.startRentalLocationID)
                 ?: throw IllegalStateException("Start rental location not found")
-            val endLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.endRentalLocationId)
+            val endLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.endRentalLocationID)
                 ?: throw IllegalStateException("End rental location not found")
             rental.toRentalWithLocationsDTO(startLocation, endLocation)
         }
 
-    override fun getSingle(rentalId: Int): RentalWithLocationsDTO {
-        val rental = serviceFactoryImpl.databaseFactory.rentalRepository.getSingle(rentalId) ?: throw NotFoundException()
-        val startLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.startRentalLocationId)
+    override fun getSingle(rentalID: Int): RentalWithLocationsDTO {
+        val rental = serviceFactoryImpl.databaseFactory.rentalRepository.getSingle(rentalID) ?: throw NotFoundException()
+        val startLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.startRentalLocationID)
             ?: throw IllegalStateException("Start rental location not found")
-        val endLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.endRentalLocationId)
+        val endLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.endRentalLocationID)
             ?: throw IllegalStateException("End rental location not found")
         return rental.toRentalWithLocationsDTO(startLocation, endLocation)
     }
 
-    override fun create(item: CreateRentalDTO): RentalWithLocationsDTO {
+    override fun create(item: CreateRentalDTO, userID: Int): RentalWithLocationsDTO {
         // Check if car is already rented
-        val existingRental = serviceFactoryImpl.databaseFactory.rentalRepository.getActiveRentalByCar(item.carId)
+        val existingRental = serviceFactoryImpl.databaseFactory.rentalRepository.getActiveRentalByCar(item.carID)
         if (existingRental != null) {
             throw BadRequestException("Car is currently rented")
         }
@@ -46,36 +46,36 @@ class RentalServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl): RentalServi
         } ?: throw BadRequestException("Failed to create end location")
 
         val createdRental = serviceFactoryImpl.databaseFactory.rentalRepository.create {
-            this.userId = item.userId
-            this.carId = item.carId
-            this.startRentalLocationId = startLocation.id.value
-            this.endRentalLocationId = endLocation.id.value
+            this.userID = userID
+            this.carID = item.carID
+            this.startRentalLocationID = startLocation.id.value
+            this.endRentalLocationID = endLocation.id.value
             this.state = 1
         }
 
         return createdRental?.toRentalWithLocationsDTO(startLocation, endLocation) ?: throw BadRequestException("Failed to create rental")
     }
 
-    override fun update(rentalId: Int, item: UpdateRentalDTO): RentalWithLocationsDTO {
-        val updatedRental = serviceFactoryImpl.databaseFactory.rentalRepository.update(rentalId) {
+    override fun update(rentalID: Int, item: UpdateRentalDTO): RentalWithLocationsDTO {
+        val updatedRental = serviceFactoryImpl.databaseFactory.rentalRepository.update(rentalID) {
             this.state = item.state
         }
 
         return updatedRental?.let { rental ->
-            val startLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.startRentalLocationId)
+            val startLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.startRentalLocationID)
                 ?: throw IllegalStateException("Start rental location not found")
-            val endLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.endRentalLocationId)
+            val endLocation = serviceFactoryImpl.databaseFactory.rentalLocationRepository.getSingle(rental.endRentalLocationID)
                 ?: throw IllegalStateException("End rental location not found")
             rental.toRentalWithLocationsDTO(startLocation, endLocation)
         } ?: throw NotFoundException("Rental not found")
     }
 
-    override fun delete(rentalId: Int): Boolean {
-        val rental = serviceFactoryImpl.databaseFactory.rentalRepository.getSingle(rentalId) ?: return false
+    override fun delete(rentalID: Int): Boolean {
+        val rental = serviceFactoryImpl.databaseFactory.rentalRepository.getSingle(rentalID) ?: return false
 
         // Rental is automatically deleted by cascade
-        val startLocationDeleted = serviceFactoryImpl.databaseFactory.rentalLocationRepository.delete(rental.startRentalLocationId)
-        val endLocationDeleted = serviceFactoryImpl.databaseFactory.rentalLocationRepository.delete(rental.endRentalLocationId)
+        val startLocationDeleted = serviceFactoryImpl.databaseFactory.rentalLocationRepository.delete(rental.startRentalLocationID)
+        val endLocationDeleted = serviceFactoryImpl.databaseFactory.rentalLocationRepository.delete(rental.endRentalLocationID)
         
         return startLocationDeleted && endLocationDeleted
     }

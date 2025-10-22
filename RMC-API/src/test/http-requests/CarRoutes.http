@@ -1,0 +1,90 @@
+### Get all cars
+GET http://localhost:8080/cars
+
+### Get all available cars
+GET http://localhost:8080/cars/available
+
+### Get all cars of a specific user
+GET http://localhost:8080/cars/user/1
+
+### Search cars by keyword
+GET http://localhost:8080/cars/search?keyword=corsa
+
+### Create new car
+POST http://localhost:8080/cars
+Content-Type: application/json
+
+{
+    "licensePlate": "18-LHB-7",
+    "brand": "OPEL",
+    "model": "CORSA",
+    "year": 2011,
+    "fuelType": 3,
+    "price": 0
+}
+
+### Get single car
+GET http://localhost:8080/cars/1
+
+### Update car
+PUT http://localhost:8080/cars/1
+Content-Type: application/json
+
+{
+  "licensePlate": "18-LHB-7",
+  "brand": "OPEL",
+  "model": "CORSA",
+  "year": 2010,
+  "fuelType": 3,
+  "price": 0
+}
+
+### Calculate TCO of car
+POST http://localhost:8080/cars/1/calculate
+
+### Filter cars by properties
+POST http://localhost:8080/cars/filter
+Content-Type: application/json
+
+{
+  "brand": "OPEL",
+  "model": "CORSA",
+  "yearFrom": 2010,
+  "yearTo": 2020,
+  "fuelType": 3,
+  "priceFrom": 0,
+  "priceTo": 10000
+}
+
+### Upload an image for a car
+POST http://localhost:8080/cars/4/image
+Content-Type: multipart/form-data; boundary=ImageBoundary
+
+--ImageBoundary
+Content-Disposition: form-data; name="file"; filename="img.jpg"
+Content-Type: image/gif
+
+< ./corsa.jpg
+--ImageBoundary--
+
+### Get car by license plate
+GET http://localhost:8080/cars/license/18-LHB-7
+
+### Delete car
+DELETE http://localhost:8080/cars/1
+Content-Type: application/json
+
+###
+POST http://localhost:8080/users/register
+Content-Type: application/json
+
+{
+  "fullName": "Test User",
+  "email": "testuser_${UUID.randomUUID()}@example.com",
+  "password": "test123",
+  "phone": "+31600000000",
+  "address": "Test Street",
+  "zipcode": "1234AB",
+  "city": "TestCity",
+  "countryISO": "NL"
+}

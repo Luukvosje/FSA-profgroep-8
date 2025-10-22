@@ -8,14 +8,14 @@ import com.profgroep8.models.dto.FilterCar
 import com.profgroep8.models.dto.UpdateCarDTO
 
 interface CarService {
-    fun getAll(): List<CarDTO>
-    fun getSingle(carId: Int): CarDTO
-    fun create(item: CreateCarDTO): CarDTO
-    fun update(carId: Int, item: UpdateCarDTO): CarDTO
-    fun delete(carId: Int): Boolean
     suspend fun findByLicense(licensePlate: String): CreateCarDTO?
-    fun getCarsByUserId(userId: Int): List<CarDTO>?
-    fun calculateCar(request: CalculateCarRequestDTO): CalculateCarResponseDTO?
-    fun filterCar(filter: FilterCar): List<CarDTO>?
-    fun searchCars(keyword: String): List<CarDTO>
+    fun getAllCars(): List<CarDTO>
+    fun getCarsByUserId(userID: Int): List<CarDTO>
+    fun filterCars(filter: FilterCar): List<CarDTO>
+    fun searchCars(keyword: String?): List<CarDTO>
+    fun getSingle(carID: Int): CarDTO?
+    fun calculateCar(request: CalculateCarRequestDTO, car: CarDTO): CalculateCarResponseDTO
+    fun create(item: CreateCarDTO, userID: Int): CarDTO?
+    fun update(carID: Int, item: UpdateCarDTO): CarDTO?
+    fun delete(carID: Int): Boolean
 }

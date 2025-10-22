@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RentalLocationDTO(
-    val rentalLocationId: Int,
+    val rentalLocationID: Int,
     val date: LocalDateTime,
     val longitude: Float,
     val latitude: Float
