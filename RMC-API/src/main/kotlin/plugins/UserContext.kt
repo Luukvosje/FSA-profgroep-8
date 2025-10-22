@@ -7,57 +7,22 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
-fun Application.configureUserContext() {
-    intercept(ApplicationCallPipeline.Setup) {
-        val principal = call.principal<JWTPrincipal>()
-        if (principal != null) {
-            val userId = principal.payload.getClaim("userId").asString()
-            val email = principal.payload.getClaim("email").asString()
+fun ApplicationCall.getUserContext(): UserContext? {
+    val principal = this.principal<JWTPrincipal>() ?: return null
+    val userId = principal.payload.getClaim("userId").asString().toIntOrNull()
+    val email = principal.payload.getClaim("email").asString()
 
-            if (!userId.isNullOrEmpty()) {
-                val userContext = UserContext(userId.toInt(), email)
-                val contextElement = UserContextElement(userContext)
-
-                withContext(contextElement) {
-                    proceed()
-                }
-
-                return@intercept
-            }
-        }
-        proceed()
+    return if (userId != null && email != null) {
+        UserContext(userId, email)
+    } else {
+        null
     }
 }
-
-fun Application.configureUserContextPlugin() {
-    intercept(ApplicationCallPipeline.Call) {
-        val principal = call.principal<JWTPrincipal>() ?: return@intercept
-
-        val userId = principal.payload.getClaim("userId").asString()
-        val email = principal.payload.getClaim("email").asString()
-
-        if (!userId.isNullOrEmpty()) {
-            val userContext = UserContext(userId.toInt(), email)
-            val element = UserContextElement(userContext)
-            withContext(element) {
-                proceed()
-            }
-        } else {
-            proceed()
-        }
-    }
-}
-
-suspend fun getUserContext(): UserContext {
-    return currentCoroutineContext()[UserContextElement]?.userContext ?: throw UnauthorizedException()
+fun ApplicationCall.requireUserContext(): UserContext {
+    return getUserContext() ?: throw UnauthorizedException()
 }
 
 data class UserContext(
     val userID: Int,
     val email: String
 )
-
-class UserContextElement(val userContext: UserContext) :
-    AbstractCoroutineContextElement(Key) {
-    companion object Key : CoroutineContext.Key<UserContextElement>
-}

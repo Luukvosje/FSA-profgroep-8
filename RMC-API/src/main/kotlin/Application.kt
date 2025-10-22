@@ -6,8 +6,6 @@ import com.profgroep8.plugins.JwtConfig
 import com.profgroep8.plugins.configureRouting
 import com.profgroep8.plugins.configureSerialization
 import com.profgroep8.services.ServiceFactoryImpl
-import configureUserContext
-import configureUserContextPlugin
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.serialization.kotlinx.json.json
@@ -28,10 +26,6 @@ fun Application.module() {
 
     JwtConfig.init(appConfig)
     JwtConfig.configureSecurity(this)
-
-    //For intergrating the userContext
-    configureUserContext()
-    configureUserContextPlugin()
 
     configureSerialization()
     configureRouting(serviceFactory)

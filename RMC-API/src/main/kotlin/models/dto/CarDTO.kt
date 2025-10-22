@@ -1,6 +1,6 @@
 package com.profgroep8.models.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnore
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -56,6 +56,8 @@ data class FilterCar(
     val fuelType: Int? = null,
     val minPrice: Double? = null,
     val maxPrice: Double? = null,
+    val startDate: LocalDateTime? = null,
+    val endDate: LocalDateTime? = null,
 ) {
     fun ToSearchValues(): FilterCar = this.copy(
         licensePlate = this.licensePlate?.let { it.lowercase().replace("-", "").trim() },
@@ -63,3 +65,9 @@ data class FilterCar(
         model = this.model?.let { it.lowercase().trim() },
     )
 }
+
+@Serializable
+data class Availability(
+    val start: RentalLocationDTO,
+    val end: RentalLocationDTO
+)

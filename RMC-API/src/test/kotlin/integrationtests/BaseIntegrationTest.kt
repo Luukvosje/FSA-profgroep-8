@@ -2,11 +2,7 @@ package com.profgroep8.integrations
 
 import com.profgroep8.interfaces.services.ServiceFactory
 import com.profgroep8.mocks.MockDatabaseFactoryImpl
-import com.profgroep8.models.dto.CreateCarDTO
-import com.profgroep8.models.dto.CreateRentalDTO
-import com.profgroep8.models.dto.CreateRentalLocationDTO
 import com.profgroep8.models.dto.CreateUserDTO
-import com.profgroep8.models.dto.UpdateRentalDTO
 import com.profgroep8.models.entity.CarEntity
 import com.profgroep8.models.entity.RentalEntity
 import com.profgroep8.models.entity.RentalLocationsEntity
@@ -14,32 +10,13 @@ import com.profgroep8.models.entity.UserEntity
 import com.profgroep8.module
 import com.profgroep8.plugins.JwtConfig
 import com.profgroep8.services.ServiceFactoryImpl
-import io.ktor.client.HttpClient
-import io.ktor.client.request.delete
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.put
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.server.config.MapApplicationConfig
-import io.ktor.server.testing.testApplication
-import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.json.Json
+import io.ktor.client.*
+import io.ktor.server.config.*
+import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.After
 import org.junit.Before
-import org.junit.Test
-import java.util.UUID
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 open class BaseIntegrationTest {
     private val testConfig = MapApplicationConfig(
@@ -59,18 +36,20 @@ open class BaseIntegrationTest {
     }
 
     protected fun generateToken(): String {
-        serviceFactory.userService.register(CreateUserDTO(
-            fullName = "John Doe",
-            email = "johndoe@example.com",
-            password = "test123",
-            phone = "+31687654321",
-            address = "456 Street",
-            zipcode = "2000CD",
-            city = "Rotterdam",
-            countryISO = "NL"
-        ))
+        val user = serviceFactory.userService.register(
+            CreateUserDTO(
+                fullName = "John Doe",
+                email = "johndoe@example.com",
+                password = "test123",
+                phone = "+31687654321",
+                address = "456 Street",
+                zipcode = "2000CD",
+                city = "Rotterdam",
+                countryISO = "NL"
+            )
+        )
 
-        return JwtConfig.generateToken("1", "johndoe@example.com")
+        return JwtConfig.generateToken(user.userID.toString(), "johndoe@example.com")
     }
 
     @Before

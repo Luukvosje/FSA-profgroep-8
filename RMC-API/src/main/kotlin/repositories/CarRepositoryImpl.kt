@@ -7,6 +7,10 @@ import com.profgroep8.models.domain.Car
 import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.dto.FilterCar
 import com.profgroep8.models.entity.CarEntity
+import com.profgroep8.models.entity.RentalEntity
+import com.profgroep8.models.entity.RentalLocationsEntity
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
@@ -60,6 +64,10 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
                 conditions += CarEntity.price lessEq normalizedFilter.maxPrice.toInt()
             }
 
+            if (normalizedFilter.startDate != null && normalizedFilter.endDate != null) {
+                conditions += CheckAvailability(normalizedFilter.startDate, normalizedFilter.endDate)
+            }
+
             val query = if (conditions.isNotEmpty()) {
                 Car.find { conditions.reduce { acc, op -> acc and op } }
             } else {
@@ -67,6 +75,26 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
             }
             query.map { it.toCarDTO() }
         }
+    }
+
+    private fun CheckAvailability(startDate: LocalDateTime, endDate: LocalDateTime): Op<Boolean> {
+        val startLoc = RentalLocationsEntity.alias("startLoc")
+        val endLoc = RentalLocationsEntity.alias("endLoc")
+        val rentalAlias = RentalEntity.alias("rentalAlias")
+
+        return exists(
+            rentalAlias.join(
+                startLoc,
+                JoinType.INNER,
+                RentalEntity.startRentalLocationID,
+                startLoc[RentalLocationsEntity.id]
+            )
+                .join(endLoc, JoinType.INNER, RentalEntity.endRentalLocationID, endLoc[RentalLocationsEntity.id])
+                .select(rentalAlias[RentalEntity.id]).where(
+                    (startLoc[RentalLocationsEntity.date] lessEq endDate) and
+                            (endLoc[RentalLocationsEntity.date] greaterEq startDate)
+                )
+        )
     }
 
     override fun searchCars(keyword: String?): List<CarDTO> {

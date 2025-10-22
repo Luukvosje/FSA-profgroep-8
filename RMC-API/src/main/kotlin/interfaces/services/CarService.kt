@@ -1,11 +1,6 @@
 package com.profgroep8.interfaces.services
 
-import com.profgroep8.models.dto.CalculateCarRequestDTO
-import com.profgroep8.models.dto.CalculateCarResponseDTO
-import com.profgroep8.models.dto.CarDTO
-import com.profgroep8.models.dto.CreateCarDTO
-import com.profgroep8.models.dto.FilterCar
-import com.profgroep8.models.dto.UpdateCarDTO
+import com.profgroep8.models.dto.*
 
 interface CarService {
     suspend fun findByLicense(licensePlate: String): CreateCarDTO?

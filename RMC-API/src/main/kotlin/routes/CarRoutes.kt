@@ -3,7 +3,9 @@ package com.profgroep8.Controller.Car
 import com.profgroep8.exceptions.ConflictException
 import com.profgroep8.exceptions.UnauthorizedException
 import com.profgroep8.interfaces.services.ServiceFactory
+import com.profgroep8.models.dto.Availability
 import com.profgroep8.models.dto.CalculateCarRequestDTO
+import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.dto.CreateCarDTO
 import com.profgroep8.models.dto.FilterCar
 import com.profgroep8.models.dto.UpdateCarDTO
@@ -17,6 +19,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.jvm.javaio.*
+import requireUserContext
 import java.io.File
 
 fun Application.carRoutes(serviceFactory: ServiceFactory) {
@@ -33,7 +36,7 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
                 // POST: Create a car
                 post {
-                    val user = getUserContext()
+                    val user = call.requireUserContext()
 
                     // Receive the DTO from the request body
                     val createCarDTO = call.receive<CreateCarDTO>()
@@ -49,6 +52,30 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
                     // Call the service to create a new car
                     val car = serviceFactory.carService.create(createCarDTO, user.userID)
+                        ?: throw BadRequestException("Car not created")
+
+                    // Then return it
+                    call.respond(HttpStatusCode.Created, car)
+                }
+
+                post("/license/{plate}") {
+                    val user = call.requireUserContext()
+                    val licensePlate = call.parameters["plate"]
+                        ?: throw IllegalArgumentException("Missing plate")
+
+                    val cars = serviceFactory.carService.filterCars(
+                        FilterCar(
+                            licensePlate = licensePlate.toString(),
+                        )
+                    )
+
+                    if (cars.isNotEmpty())
+                        throw ConflictException("Car with license plate ${licensePlate} already exists")
+
+                    val carCreate: CreateCarDTO = serviceFactory.carService.findByLicense(licensePlate) ?: throw BadRequestException("Car could not be found")
+
+                    // Call the service to create a new car
+                    val car = serviceFactory.carService.create(carCreate, user.userID)
                         ?: throw BadRequestException("Car not created")
 
                     // Then return it
@@ -123,15 +150,19 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                         call.respond(res)
                     }
 
-                    // TODO(make it authenticated to check userid)
                     // POST: Upload an image to a car
                     post("/image") {
+
                         val carId = call.parameters["carID"]?.toIntOrNull()
                             ?: throw BadRequestException("Car not found")
 
                         // Check if car exists
-                        serviceFactory.carService.getSingle(carId)
+                        val car = serviceFactory.carService.getSingle(carId)
                             ?: throw NotFoundException("Car not found")
+
+                        if (car.userID != call.requireUserContext().userID) {
+                            throw UnauthorizedException()
+                        }
 
                         val multipart = call.receiveMultipart()
                         var fileName: String? = null
@@ -187,11 +218,12 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                     call.respond(cars)
                 }
 
-                // TODO(need rentalService for this)
-                // GET: All available cars
-                get("available") {
-
-                }
+//                // TODO(need rentalService for this)
+//                // GET: All available cars
+//                get("/available") {
+//                    val request = call.receive<Availability>()
+//
+//                }
 
                 // GET: All cars by UserID
                 get("user/{userID}") {
