@@ -58,8 +58,20 @@ open class BaseIntegrationTest {
         client.block()
     }
 
-    protected fun generateToken(): String =
-        JwtConfig.generateToken("1", "johndoe@example.com")
+    protected fun generateToken(): String {
+        serviceFactory.userService.register(CreateUserDTO(
+            fullName = "John Doe",
+            email = "johndoe@example.com",
+            password = "test123",
+            phone = "+31687654321",
+            address = "456 Street",
+            zipcode = "2000CD",
+            city = "Rotterdam",
+            countryISO = "NL"
+        ))
+
+        return JwtConfig.generateToken("1", "johndoe@example.com")
+    }
 
     @Before
     fun setup() {

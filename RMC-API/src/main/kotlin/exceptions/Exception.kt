@@ -13,8 +13,14 @@ class UnauthorizedException : Exception() //401 UNAUTHORIZED
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
-        exception<UnauthorizedException> { call, cause ->
-            call.respond(HttpStatusCode.Unauthorized, cause)
+        exception<UnauthorizedException> { call, _ ->
+            call.respond(
+                HttpStatusCode.Unauthorized,
+                mapOf(
+                    "error" to "Unauthorized",
+                    "details" to "Missing or invalid authentication token."
+                )
+            )
         }
 
         exception<BadRequestException> { call, cause ->
