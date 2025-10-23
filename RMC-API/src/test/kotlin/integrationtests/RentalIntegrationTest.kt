@@ -5,7 +5,6 @@ import com.profgroep8.models.dto.CreateRentalDTO
 import com.profgroep8.models.dto.CreateRentalLocationDTO
 import com.profgroep8.models.dto.CreateCarDTO
 import com.profgroep8.models.dto.CarDTO
-import com.profgroep8.models.dto.RentalDTO
 import com.profgroep8.models.dto.RentalWithLocationsDTO
 import com.profgroep8.models.dto.UpdateRentalDTO
 import com.profgroep8.models.dto.UpdateRentalLocationDTO

@@ -48,7 +48,6 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
             // Get single rental
             authenticate("jwt") {
                 get("/{id}") {
-                    val userContext = call.requireUserContext()
                     val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                     
                     // Check if user can access this rental (renter or car owner)
@@ -64,7 +63,6 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
             // Get rental locations
             authenticate("jwt") {
                 get("/{id}/locations") {
-                    val userContext = call.requireUserContext()
                     val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                     
                     // Check if user can access this rental (renter or car owner)
@@ -94,7 +92,6 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
 
                 // Update rental by id
                 put("/{id}") {
-                    val userContext = call.requireUserContext()
                     val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                     
                     // Check if user can access this rental (renter or car owner)
@@ -109,7 +106,6 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
 
                 // Set rental to state inactive by id
                 put("/{id}/end") {
-                    val userContext = call.requireUserContext()
                     val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                     
                     // Check if user can access this rental (renter or car owner)
@@ -125,7 +121,6 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
                 
                 // Update a location of a rental by id
                 put("/{rentalID}/locations/{locationID}") {
-                    val userContext = call.requireUserContext()
                     val rentalID = call.parameters["rentalID"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
                     val locationID = call.parameters["locationID"]?.toIntOrNull() ?: throw BadRequestException("Invalid location ID format")
                     
@@ -147,7 +142,6 @@ fun Application.rentalRoutes(serviceFactory: ServiceFactory) {
 
                 // Delete a rental by id
                 delete("/{id}") {
-                    val userContext = call.requireUserContext()
                     val rentalId = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid rental ID format")
 
                     // Check if user can access this rental (renter or car owner)
