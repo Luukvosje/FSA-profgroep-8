@@ -1,5 +1,6 @@
 package com.profgroep8.integrations
 
+import com.profgroep8.exceptions.configureStatusPages
 import com.profgroep8.interfaces.services.ServiceFactory
 import com.profgroep8.mocks.MockDatabaseFactoryImpl
 import com.profgroep8.models.dto.CreateUserDTO
@@ -7,8 +8,10 @@ import com.profgroep8.models.entity.CarEntity
 import com.profgroep8.models.entity.RentalEntity
 import com.profgroep8.models.entity.RentalLocationsEntity
 import com.profgroep8.models.entity.UserEntity
-import com.profgroep8.module
 import com.profgroep8.plugins.JwtConfig
+import com.profgroep8.plugins.configureOpenAPI
+import com.profgroep8.plugins.configureRouting
+import com.profgroep8.plugins.configureSerialization
 import com.profgroep8.services.ServiceFactoryImpl
 import io.ktor.client.*
 import io.ktor.server.config.*
@@ -31,7 +34,20 @@ open class BaseIntegrationTest {
 
     protected fun runTest(block: suspend HttpClient.() -> Unit) = testApplication {
         environment { config = testConfig }
-        application { module() }
+        application {
+            // Initialize mock database
+            MockDatabaseFactoryImpl.init()
+            
+            serviceFactory = ServiceFactoryImpl(MockDatabaseFactoryImpl, testConfig)
+            
+            JwtConfig.init(testConfig)
+            JwtConfig.configureSecurity(this)
+            
+            configureSerialization()
+            configureRouting(serviceFactory)
+            configureStatusPages()
+            configureOpenAPI()
+        }
         client.block()
     }
 
