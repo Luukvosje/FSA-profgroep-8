@@ -12,7 +12,7 @@ object CarEntity : IntIdTable(name = "Car", columnName = "CarID") {
     val year = integer("Year")
     val fuelType = integer("FuelType")
     val price = integer("Price")
-    val userId = integer("UserID").references(
+    val userID = integer("UserID").references(
         UserEntity.id,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE

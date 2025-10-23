@@ -25,6 +25,40 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
     override fun getSingle(carID: Int): CarDTO? =
         serviceFactoryImpl.databaseFactory.carRepository.getSingle(carID)?.toCarDTO()
 
+    override fun create(item: CreateCarDTO, userID: Int): CarDTO? {
+        val plate = item.licensePlate.lowercase().replace("-", "").trim()
+
+        val createdCar = serviceFactoryImpl.databaseFactory.carRepository.create {
+            this.licensePlate = plate
+            this.brand = item.brand
+            this.model = item.model
+            this.brand = item.brand
+            this.price = item.price
+            this.year = item.year
+            this.fuelType = item.fuelType
+            this.userId = userID
+        }
+
+        return createdCar?.toCarDTO()
+    }
+
+    override fun update(carID: Int, item: UpdateCarDTO): CarDTO? {
+        val updatedCar = serviceFactoryImpl.databaseFactory.carRepository.update(carID, {
+            this.licensePlate = item.licensePlate
+            this.brand = item.brand
+            this.model = item.model
+            this.brand = item.brand
+            this.price = item.price
+            this.year = item.year
+            this.fuelType = item.fuelType
+        })
+
+        return updatedCar?.toCarDTO()
+    }
+
+    override fun delete(carID: Int): Boolean =
+        serviceFactoryImpl.databaseFactory.carRepository.delete(carID)
+
     override fun calculateCar(request: CalculateCarRequestDTO, car: CarDTO): CalculateCarResponseDTO {
         val depreciation: Double
         val maintenance: Double
@@ -79,40 +113,4 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
             costPerKm = costPerKm
         )
     }
-
-    override fun create(item: CreateCarDTO, userID: Int): CarDTO? {
-        val plate = item.licensePlate.lowercase().replace("-", "").trim()
-
-        val createdCar = serviceFactoryImpl.databaseFactory.carRepository.create {
-            this.licensePlate = plate
-            this.brand = item.brand
-            this.model = item.model
-            this.brand = item.brand
-            this.price = item.price
-            this.year = item.year
-            this.fuelType = item.fuelType
-            this.userId = userID
-        }
-
-        return createdCar?.toCarDTO()
-    }
-
-    override fun update(carID: Int, item: UpdateCarDTO): CarDTO? {
-        val updatedCar = serviceFactoryImpl.databaseFactory.carRepository.update(carID, {
-            this.licensePlate = item.licensePlate
-            this.brand = item.brand
-            this.model = item.model
-            this.brand = item.brand
-            this.price = item.price
-            this.year = item.year
-            this.fuelType = item.fuelType
-        })
-
-        return updatedCar?.toCarDTO()
-    }
-
-    override fun delete(carID: Int): Boolean =
-        serviceFactoryImpl.databaseFactory.carRepository.delete(carID)
-
-
 }

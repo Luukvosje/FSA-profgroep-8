@@ -20,7 +20,7 @@ enum class FuelType(val code: Int) {
     }
 }
 
-class Car(carId: EntityID<Int>) : IntEntity(carId) {
+class Car(carID: EntityID<Int>) : IntEntity(carID) {
     companion object : IntEntityClass<Car>(CarEntity)
 
     var licensePlate by CarEntity.licensePlate
@@ -29,7 +29,7 @@ class Car(carId: EntityID<Int>) : IntEntity(carId) {
     var year by CarEntity.year
     var fuelType by CarEntity.fuelType
     var price by CarEntity.price
-    var userId by CarEntity.userId
+    var userID by CarEntity.userID
 
     fun toCarDTO(): CarDTO {
         return CarDTO(
@@ -40,7 +40,7 @@ class Car(carId: EntityID<Int>) : IntEntity(carId) {
             this.year,
             this.fuelType,
             this.price,
-            this.userId
+            this.userID
         )
     }
 }
