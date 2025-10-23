@@ -1,0 +1,59 @@
+### Get all rentals
+GET http://localhost:8080/rentals
+Authorization: Bearer <your-jwt-token>
+
+### Get single rental
+GET http://localhost:8080/rentals/1
+Authorization: Bearer <your-jwt-token>
+
+### Create new rental
+POST http://localhost:8080/rentals
+Authorization: Bearer <your-jwt-token>
+Content-Type: application/json
+
+{
+    "carID": 1,
+    "startLocation": {
+        "date": "2024-01-15T10:00:00",
+        "longitude": 4.9041,
+        "latitude": 52.3676
+    },
+    "endLocation": {
+        "date": "2024-01-20T18:00:00",
+        "longitude": 4.9041,
+        "latitude": 52.3676
+    }
+}
+
+### Update rental
+PUT http://localhost:8080/rentals/1
+Authorization: Bearer <your-jwt-token>
+Content-Type: application/json
+
+{
+    "state": 1
+}
+
+### End rental (set to inactive)
+PUT http://localhost:8080/rentals/1/end
+Authorization: Bearer <your-jwt-token>
+
+### Get rental locations
+GET http://localhost:8080/rentals/1/locations
+Authorization: Bearer <your-jwt-token>
+
+### Update rental location
+PUT http://localhost:8080/rentals/1/locations/1
+Authorization: Bearer <your-jwt-token>
+Content-Type: application/json
+
+{
+    "date": "2024-01-15T11:00:00",
+    "longitude": 4.9041,
+    "latitude": 52.3676
+}
+
+### Delete rental
+DELETE http://localhost:8080/rentals/1
+Authorization: Bearer <your-jwt-token>
+
