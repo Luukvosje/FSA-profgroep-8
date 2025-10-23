@@ -218,13 +218,6 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                     call.respond(cars)
                 }
 
-//                // TODO(need rentalService for this)
-//                // GET: All available cars
-//                get("/available") {
-//                    val request = call.receive<Availability>()
-//
-//                }
-
                 // GET: All cars by UserID
                 get("user/{userID}") {
                     val userID = call.parameters["userID"]?.toIntOrNull()

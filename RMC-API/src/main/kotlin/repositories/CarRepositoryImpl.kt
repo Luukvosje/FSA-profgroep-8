@@ -6,16 +6,18 @@ import com.profgroep8.interfaces.repositories.GenericRepository
 import com.profgroep8.models.domain.Car
 import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.dto.FilterCar
+import com.profgroep8.models.dto.FilterSortOrder
 import com.profgroep8.models.entity.CarEntity
 import com.profgroep8.models.entity.RentalEntity
 import com.profgroep8.models.entity.RentalLocationsEntity
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
+import org.jetbrains.exposed.sql.kotlin.datetime.KotlinLocalDateTimeColumnType
+import org.jetbrains.exposed.sql.kotlin.datetime.dateTimeParam
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepositoryImpl(Car) {
@@ -64,36 +66,56 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
                 conditions += CarEntity.price lessEq normalizedFilter.maxPrice.toInt()
             }
 
-            if (normalizedFilter.startDate != null && normalizedFilter.endDate != null) {
-                conditions += CheckAvailability(normalizedFilter.startDate, normalizedFilter.endDate)
-            }
-
             val query = if (conditions.isNotEmpty()) {
                 Car.find { conditions.reduce { acc, op -> acc and op } }
             } else {
                 Car.all()
             }
+
+            val sortOrder = filter.sortOrder?.let { FilterSortOrder.fromString(it) } ?: FilterSortOrder.nothing
+
+            val sortedQuery = when (sortOrder) {
+                FilterSortOrder.price -> query.orderBy(CarEntity.price to SortOrder.ASC)
+                FilterSortOrder.Brand -> query.orderBy(CarEntity.brand to SortOrder.ASC)
+                FilterSortOrder.Model -> query.orderBy(CarEntity.model to SortOrder.ASC)
+                FilterSortOrder.FuelType -> query.orderBy(CarEntity.fuelType to SortOrder.ASC)
+                FilterSortOrder.Year -> query.orderBy(CarEntity.year to SortOrder.DESC)
+                else -> query
+            }
+
+            sortedQuery.map { it.toCarDTO() }
+
             query.map { it.toCarDTO() }
         }
     }
 
-    private fun CheckAvailability(startDate: LocalDateTime, endDate: LocalDateTime): Op<Boolean> {
-        val startLoc = RentalLocationsEntity.alias("startLoc")
-        val endLoc = RentalLocationsEntity.alias("endLoc")
+    private fun isAvailableBetween(startDate: LocalDateTime?, endDate: LocalDateTime?): Op<Boolean> {
         val rentalAlias = RentalEntity.alias("rentalAlias")
+        val startLoc = RentalLocationsEntity.alias("start_loc")
+        val endLoc = RentalLocationsEntity.alias("end_loc")
 
-        return exists(
-            rentalAlias.join(
-                startLoc,
-                JoinType.INNER,
-                RentalEntity.startRentalLocationID,
-                startLoc[RentalLocationsEntity.id]
-            )
-                .join(endLoc, JoinType.INNER, RentalEntity.endRentalLocationID, endLoc[RentalLocationsEntity.id])
-                .select(rentalAlias[RentalEntity.id]).where(
-                    (startLoc[RentalLocationsEntity.date] lessEq endDate) and
-                            (endLoc[RentalLocationsEntity.date] greaterEq startDate)
+        val overlapCondition = Op.build {
+            (rentalAlias[RentalEntity.carID] eq CarEntity.id) and
+                    (startDate?.let { endLoc[RentalLocationsEntity.date] greaterEq it } ?: Op.TRUE) and
+                    (endDate?.let { startLoc[RentalLocationsEntity.date] lessEq it } ?: Op.TRUE)
+        }
+
+        return NotExists(
+            rentalAlias
+                .join(
+                    startLoc,
+                    JoinType.INNER,
+                    rentalAlias[RentalEntity.startRentalLocationID],
+                    startLoc[RentalLocationsEntity.id]
                 )
+                .join(
+                    endLoc,
+                    JoinType.INNER,
+                    rentalAlias[RentalEntity.endRentalLocationID],
+                    endLoc[RentalLocationsEntity.id]
+                )
+                .select(rentalAlias[RentalEntity.id])
+                .where { overlapCondition }
         )
     }
 
@@ -108,4 +130,40 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
             }.map { it.toCarDTO() }
         }
     }
+
+    override fun getAvailableCars(startDate: LocalDateTime, endDate: LocalDateTime): List<CarDTO> {
+        return transaction {
+            val r = RentalEntity.alias("r")
+            val startLoc = RentalLocationsEntity.alias("startLoc")
+            val endLoc = RentalLocationsEntity.alias("endLoc")
+
+            val subQuery = r
+                .join(
+                    startLoc,
+                    JoinType.INNER,
+                    r[RentalEntity.startRentalLocationID],
+                    startLoc[RentalLocationsEntity.id]
+                )
+                .join(endLoc, JoinType.INNER, r[RentalEntity.endRentalLocationID], endLoc[RentalLocationsEntity.id])
+                .select(Max(endLoc[RentalLocationsEntity.date], KotlinLocalDateTimeColumnType()))
+                .where {
+                    (r[RentalEntity.carID] eq CarEntity.id) and
+                            (endLoc[RentalLocationsEntity.date] greaterEq startDate) and
+                            (startLoc[RentalLocationsEntity.date] lessEq endDate)
+                }
+
+            val availableFromExpr = Coalesce(subQuery, dateTimeParam(startDate))
+
+            val condition: Op<Boolean> = Op.build {
+                CarEntity.select(CarEntity.columns + listOf(availableFromExpr.alias("AvailableFrom")))
+                    .where { availableFromExpr lessEq endDate }
+                    .orderBy(availableFromExpr to SortOrder.ASC)
+            }
+            Car.find {
+                condition
+            }.map { it.toCarDTO() }
+        }
+    }
+
+
 }

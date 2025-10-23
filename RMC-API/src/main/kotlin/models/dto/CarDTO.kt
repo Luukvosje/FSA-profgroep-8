@@ -49,6 +49,7 @@ data class CalculateCarResponseDTO(
 
 @Serializable
 data class FilterCar(
+    val sortOrder: String? = null,
     val licensePlate: String? = null,
     val brand: String? = null,
     val model: String? = null,
@@ -56,8 +57,6 @@ data class FilterCar(
     val fuelType: Int? = null,
     val minPrice: Double? = null,
     val maxPrice: Double? = null,
-    val startDate: LocalDateTime? = null,
-    val endDate: LocalDateTime? = null,
 ) {
     fun ToSearchValues(): FilterCar = this.copy(
         licensePlate = this.licensePlate?.let { it.lowercase().replace("-", "").trim() },
@@ -66,8 +65,24 @@ data class FilterCar(
     )
 }
 
+enum class FilterSortOrder(val sortString: String) {
+    Year("year"),
+    FuelType("fuelType"),
+    Model("model"),
+    Brand("brand"),
+    price("price"),
+    nothing("");
+
+    companion object {
+        fun fromString(sortString: String): FilterSortOrder {
+            return values().find { it.sortString == sortString }
+                ?: nothing
+        }
+    }
+}
+
 @Serializable
 data class Availability(
-    val start: RentalLocationDTO,
-    val end: RentalLocationDTO
+    val startDate: LocalDateTime? = null,
+    val endDate: LocalDateTime? = null,
 )
