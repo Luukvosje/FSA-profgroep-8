@@ -235,18 +235,25 @@ Content-Type: application/json
 
 | Method | Endpoint | Description | Authentication |
 |--------|----------|-------------|----------------|
-| `GET` | `/rentals` | Get all rentals | None |
-| `POST` | `/rentals` | Create a new rental | None |
-| `GET` | `/rentals/{id}` | Get rental by ID | None |
-| `PUT` | `/rentals/{id}` | Update rental | None |
-| `DELETE` | `/rentals/{id}` | Delete rental | None |
-| `PUT` | `/rentals/{id}/end` | End rental | None |
-| `GET` | `/rentals/{id}/locations` | Get rental locations | None |
-| `PUT` | `/rentals/{rentalID}/locations/{locationID}` | Update rental location | None |
+| `GET` | `/rentals` | Get all rentals (Only rentals where user is involved) | Required |
+| `POST` | `/rentals` | Create a new rental | Required |
+| `GET` | `/rentals/{id}` | Get rental by ID | Required (Renter or Car Owner) |
+| `PUT` | `/rentals/{id}` | Update rental | Required (Renter or Car Owner) |
+| `DELETE` | `/rentals/{id}` | Delete rental | Required (Renter or Car Owner) |
+| `PUT` | `/rentals/{id}/end` | End rental | Required (Renter or Car Owner) |
+| `GET` | `/rentals/{id}/locations` | Get rental locations | Required (Renter or Car Owner) |
+| `PUT` | `/rentals/{rentalID}/locations/{locationID}` | Update rental location | Required (Renter or Car Owner) |
+
+#### Get Single Rental
+```http
+GET /rentals/{id}
+Authorization: Bearer <token>
+```
 
 #### Create Rental
 ```http
 POST /rentals
+Authorization: Bearer <token>
 Content-Type: application/json
 
 {
@@ -262,6 +269,12 @@ Content-Type: application/json
     "latitude": 52.3676
   }
 }
+```
+
+#### Get Rental Locations
+```http
+GET /rentals/{id}/locations
+Authorization: Bearer <token>
 ```
 
 ### Data Models

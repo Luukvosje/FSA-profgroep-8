@@ -21,7 +21,10 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testGetAllRentals() = runTest {
-        val response = get("/rentals")
+        val token = generateToken()
+        val response = get("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody = response.bodyAsText()
         assertNotNull(responseBody)
@@ -31,18 +34,25 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testGetRentalByIdNotFound() = runTest {
-        val response = get("/rentals/99999")
+        val token = generateToken()
+        val response = get("/rentals/99999") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
     @Test
     fun testGetRentalByIdInvalidId() = runTest {
-        val response = get("/rentals/invalid")
+        val token = generateToken()
+        val response = get("/rentals/invalid") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
     @Test
     fun testCreateRentalInvalidData() = runTest {
+        val token = generateToken()
         val invalidRentalDTO = CreateRentalDTO(
             carID = -1,  // Invalid car ID
             startLocation = CreateRentalLocationDTO(
@@ -58,6 +68,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val response = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(invalidRentalDTO))
         }
@@ -67,7 +78,9 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testCreateRentalWithInvalidJson() = runTest {
+        val token = generateToken()
         val response = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody("invalid json")
         }
@@ -117,6 +130,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val response = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(validRentalDTO))
         }
@@ -128,7 +142,9 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testCreateRentalWrongBody() = runTest {
+        val token = generateToken()
         val response = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody("""{"invalid": "json", "missing": "required", "fields": true}""")
         }
@@ -138,9 +154,11 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testUpdateRentalNotFound() = runTest {
+        val token = generateToken()
         val updateRentalDTO = UpdateRentalDTO(state = 0)
 
         val response = put("/rentals/99999") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(updateRentalDTO))
         }
@@ -190,6 +208,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val createResponse = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(createRentalDTO))
         }
@@ -201,6 +220,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         val updateRentalDTO = UpdateRentalDTO(state = 0)
 
         val response = put("/rentals/${rental.rentalID}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(updateRentalDTO))
         }
@@ -212,7 +232,57 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testUpdateRentalWrongBody() = runTest {
-        val response = put("/rentals/1") {
+        val token = generateToken()
+        
+        // Create a car first
+        val carResponse = post("/cars") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(
+                Json.encodeToString(
+                    CreateCarDTO.serializer(),
+                    CreateCarDTO(
+                        licensePlate = "TEST-${(1000..9999).random()}",
+                        brand = "BMW",
+                        model = "X5",
+                        year = 2025,
+                        fuelType = 1,
+                        price = 85000
+                    )
+                )
+            )
+        }
+
+        assertEquals(HttpStatusCode.Created, carResponse.status)
+        val car = Json.decodeFromString(CarDTO.serializer(), carResponse.bodyAsText())
+
+        // Create a rental
+        val createRentalDTO = CreateRentalDTO(
+            carID = car.carID,
+            startLocation = CreateRentalLocationDTO(
+                date = LocalDateTime.parse("2025-01-01T10:00:00"),
+                longitude = 4.9041f,
+                latitude = 52.3676f
+            ),
+            endLocation = CreateRentalLocationDTO(
+                date = LocalDateTime.parse("2025-01-01T18:00:00"),
+                longitude = 4.9041f,
+                latitude = 52.3676f
+            )
+        )
+
+        val createResponse = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(createRentalDTO))
+        }
+
+        assertEquals(HttpStatusCode.OK, createResponse.status)
+        val rental = Json.decodeFromString(RentalWithLocationsDTO.serializer(), createResponse.bodyAsText())
+
+        // Now test updating with wrong body
+        val response = put("/rentals/${rental.rentalID}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody("""{"invalid": "json", "missing": "state", "field": true}""")
         }
@@ -222,7 +292,10 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testEndRentalNotFound() = runTest {
-        val response = put("/rentals/99999/end")
+        val token = generateToken()
+        val response = put("/rentals/99999/end") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
@@ -268,6 +341,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val createResponse = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(createRentalDTO))
         }
@@ -275,20 +349,21 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         assertEquals(HttpStatusCode.OK, createResponse.status)
         val rental = Json.decodeFromString(RentalWithLocationsDTO.serializer(), createResponse.bodyAsText())
 
-        val response = put("/rentals/${rental.rentalID}/end")
+        val response = put("/rentals/${rental.rentalID}/end") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
 
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody = response.bodyAsText()
         assertNotNull(responseBody)
     }
 
-    // --------------------------------
-    // RENTAL LOCATION TESTS
-    // --------------------------------
-
     @Test
     fun testGetRentalLocationsNotFound() = runTest {
-        val response = get("/rentals/99999/locations")
+        val token = generateToken()
+        val response = get("/rentals/99999/locations") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
@@ -334,6 +409,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val createResponse = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(createRentalDTO))
         }
@@ -341,7 +417,9 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         assertEquals(HttpStatusCode.OK, createResponse.status)
         val rental = Json.decodeFromString(RentalWithLocationsDTO.serializer(), createResponse.bodyAsText())
 
-        val response = get("/rentals/${rental.rentalID}/locations")
+        val response = get("/rentals/${rental.rentalID}/locations") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
 
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody = response.bodyAsText()
@@ -350,6 +428,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testUpdateRentalLocationNotFound() = runTest {
+        val token = generateToken()
         val updateLocationDTO = UpdateRentalLocationDTO(
             date = LocalDateTime.parse("2025-01-01T12:00:00"),
             longitude = 4.9041f,
@@ -357,6 +436,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val response = put("/rentals/99999/locations/99999") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(updateLocationDTO))
         }
@@ -406,6 +486,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val createResponse = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(createRentalDTO))
         }
@@ -420,6 +501,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val response = put("/rentals/${rental.rentalID}/locations/${rental.startRentalLocation.rentalLocationID}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(updateLocationDTO))
         }
@@ -431,7 +513,9 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testUpdateRentalLocationWrongBody() = runTest {
+        val token = generateToken()
         val response = put("/rentals/1/locations/1") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody("invalid json")
         }
@@ -443,7 +527,10 @@ class RentalIntegrationTest : BaseIntegrationTest() {
 
     @Test
     fun testDeleteRentalNotFound() = runTest {
-        val response = delete("/rentals/99999")
+        val token = generateToken()
+        val response = delete("/rentals/99999") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
@@ -489,6 +576,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val createResponse = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(createRentalDTO))
         }
@@ -496,7 +584,9 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         assertEquals(HttpStatusCode.OK, createResponse.status)
         val rental = Json.decodeFromString(RentalWithLocationsDTO.serializer(), createResponse.bodyAsText())
 
-        val response = delete("/rentals/${rental.rentalID}")
+        val response = delete("/rentals/${rental.rentalID}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
 
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody = response.bodyAsText()
@@ -545,6 +635,7 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         )
 
         val createResponse = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(createRentalDTO))
         }
@@ -553,7 +644,9 @@ class RentalIntegrationTest : BaseIntegrationTest() {
         val rental = Json.decodeFromString(RentalWithLocationsDTO.serializer(), createResponse.bodyAsText())
 
         // Get the rental by ID
-        val response = get("/rentals/${rental.rentalID}")
+        val response = get("/rentals/${rental.rentalID}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
 
         assertEquals(HttpStatusCode.OK, response.status)
         val responseBody = response.bodyAsText()

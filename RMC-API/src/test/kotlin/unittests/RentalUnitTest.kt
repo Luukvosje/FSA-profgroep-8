@@ -346,7 +346,7 @@ class RentalUnitTest : BaseUnitTest() {
             fuelType = 1,
             price = 75000
         )
-        val createdCar = serviceFactory.carService.create(carDTO, 0)
+        val createdCar = serviceFactory.carService.create(carDTO, createdUser.userID)
 
         // Create rental
         val createRentalDTO = CreateRentalDTO(
@@ -363,7 +363,7 @@ class RentalUnitTest : BaseUnitTest() {
             )
         )
 
-        val createdRental = serviceFactory.rentalService.create(createRentalDTO, 0)
+        val createdRental = serviceFactory.rentalService.create(createRentalDTO, createdUser.userID)
 
         assertNotNull(createdRental)
         assertEquals(createdUser.userID, createdRental.userID)
@@ -396,7 +396,7 @@ class RentalUnitTest : BaseUnitTest() {
             fuelType = 1,
             price = 75000
         )
-        val createdCar = serviceFactory.carService.create(carDTO, 0)
+        val createdCar = serviceFactory.carService.create(carDTO, createdUser.userID)
 
         // Create rental
         val createRentalDTO = CreateRentalDTO(
@@ -412,7 +412,7 @@ class RentalUnitTest : BaseUnitTest() {
                 latitude = 52.3676f
             )
         )
-        val createdRental = serviceFactory.rentalService.create(createRentalDTO, 0)
+        val createdRental = serviceFactory.rentalService.create(createRentalDTO, createdUser.userID)
 
         // Update rental
         val updateRentalDTO = UpdateRentalDTO(state = 0)
@@ -447,7 +447,7 @@ class RentalUnitTest : BaseUnitTest() {
             fuelType = 1,
             price = 75000
         )
-        val createdCar = serviceFactory.carService.create(carDTO, 0)
+        val createdCar = serviceFactory.carService.create(carDTO, createdUser.userID)
 
         // Create rental
         val createRentalDTO = CreateRentalDTO(
@@ -463,7 +463,7 @@ class RentalUnitTest : BaseUnitTest() {
                 latitude = 52.3676f
             )
         )
-        val createdRental = serviceFactory.rentalService.create(createRentalDTO, 0)
+        val createdRental = serviceFactory.rentalService.create(createRentalDTO, createdUser.userID)
 
         // Delete rental
         val deleteResult = serviceFactory.rentalService.delete(createdRental.rentalID)
