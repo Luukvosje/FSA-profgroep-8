@@ -36,7 +36,7 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
             this.price = item.price
             this.year = item.year
             this.fuelType = item.fuelType
-            this.userId = userID
+            this.userID = userID
         }
 
         return createdCar?.toCarDTO()

@@ -21,7 +21,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepositoryImpl(Car) {
     override fun getByUserId(userId: Int): List<CarDTO> {
         return transaction {
-            Car.find { CarEntity.userId eq userId }.map { it.toCarDTO() }.toList()
+            Car.find { CarEntity.userID eq userId }.map { it.toCarDTO() }.toList()
         }
     }
 
