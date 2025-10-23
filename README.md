@@ -44,11 +44,53 @@ cd FSA-profgroep-8
    GRANT ALL PRIVILEGES ON DATABASE your_db TO your_user;
    ```
 
-3. **Update Configuration**:
-   - Edit `RMC-API/src/main/resources/application.yaml`
-   - Update database connection details if needed
+### Step 3: Configuration Setup
 
-### Step 3: Build and Run the Application
+#### 3.1 Application Configuration
+
+Edit `/src/main/resources/application.yaml` and update the JWT and RDW details:
+
+```yaml
+ktor:
+  application:
+    modules:
+      - com.profgroep8.ApplicationKt.module
+  deployment:
+    port: 8080
+  jwt:
+    secret: "your_secret"
+    issuer: "com.profgroep8.carrental"
+    audience: "car_rental_users"
+    realm: "CarRentalAPI"
+  rdw:
+    apiKey: "your_rdw_api_key"
+```
+
+#### 3.2 Database Configuration
+
+Edit `/src/main/kotlin/repositories/DatabaseFactoryImpl.kt` and update the database connection details:
+
+```kotlin
+// Update these values to match your PostgreSQL setup
+private val database = Database.connect(
+    url = "jdbc:postgresql://localhost:5432/your_database_name",
+    driver = "org.postgresql.Driver",
+    user = "your_database_user",
+    password = "your_database_password"
+)
+```
+
+#### 3.3 External API Keys
+
+- **RDW API Key**: Required for fetching car information by license plate
+  - Get your API key from [RDW Open Data](https://opendata.rdw.nl/)
+  - Update the `rdw.apiKey` value in `application.yaml`
+
+- **JWT Secret**: Used for signing and verifying authentication tokens
+  - Generate a secure random string for production
+  - Update the `jwt.secret` value in `application.yaml`
+
+### Step 4: Build and Run the Application
 
 1. **Navigate to the API directory**:
    ```bash
@@ -70,7 +112,7 @@ cd FSA-profgroep-8
    - Swagger UI at `http://localhost:8080/swagger`
    - OpenAPI spec at `http://localhost:8080/openapi/documentation.yaml`
 
-### Step 4: Environment Configuration
+### Step 5: Environment Configuration
 
 The application uses the following configuration (found in `application.yaml`):
 
