@@ -3,13 +3,7 @@ package com.profgroep8.Controller.Car
 import com.profgroep8.exceptions.ConflictException
 import com.profgroep8.exceptions.UnauthorizedException
 import com.profgroep8.interfaces.services.ServiceFactory
-import com.profgroep8.models.dto.Availability
-import com.profgroep8.models.dto.CalculateCarRequestDTO
-import com.profgroep8.models.dto.CarDTO
-import com.profgroep8.models.dto.CreateCarDTO
-import com.profgroep8.models.dto.FilterCar
-import com.profgroep8.models.dto.UpdateCarDTO
-import getUserContext
+import com.profgroep8.models.dto.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -19,9 +13,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.jvm.javaio.*
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDate
+import kotlinx.datetime.toKotlinLocalDateTime
 import requireUserContext
 import java.io.File
 
@@ -75,7 +68,8 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                     if (cars.isNotEmpty())
                         throw ConflictException("Car with license plate ${licensePlate} already exists")
 
-                    val carCreate: CreateCarDTO = serviceFactory.carService.findByLicense(licensePlate) ?: throw BadRequestException("Car could not be found")
+                    val carCreate: CreateCarDTO = serviceFactory.carService.findByLicense(licensePlate)
+                        ?: throw BadRequestException("Car could not be found")
 
                     // Call the service to create a new car
                     val car = serviceFactory.carService.create(carCreate, user.userID)
@@ -85,13 +79,14 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                     call.respond(HttpStatusCode.Created, car)
                 }
 
-                // POST: get all available Cars
-                post("/available"){
-                    val request = call.receive<Availability>()
+                // GET: get all available Cars
+                get("/available/{date}") {
+                    val dateParam = call.parameters["date"]
 
-                    val cars = serviceFactory.carService.getAvailableCars(request)
+                    val date = LocalDateTime.parse(dateParam?: java.time.LocalDateTime.now().toString())
 
-                    call.respond(HttpStatusCode.OK, cars)
+                    val cars = serviceFactory.carService.getAvailableCars(date)
+                    call.respond(cars)
                 }
 
                 route("/{carID}") {

@@ -1,6 +1,7 @@
 package com.profgroep8.interfaces.services
 
 import com.profgroep8.models.dto.*
+import kotlinx.datetime.LocalDateTime
 
 interface CarService {
     suspend fun findByLicense(licensePlate: String): CreateCarDTO?
@@ -13,5 +14,5 @@ interface CarService {
     fun create(item: CreateCarDTO, userID: Int): CarDTO?
     fun update(carID: Int, item: UpdateCarDTO): CarDTO?
     fun delete(carID: Int): Boolean
-    fun getAvailableCars(availability: Availability): List<CarAvailability>
+    fun getAvailableCars(date: LocalDateTime): List<CarAvailability>
 }

@@ -2,7 +2,7 @@
 GET http://localhost:8080/cars
 
 ### Get all available cars
-GET http://localhost:8080/cars/available
+GET http://localhost:8080/cars/available/2025-10-10T00:00:00
 
 ### Get all cars of a specific user
 GET http://localhost:8080/cars/user/1

@@ -194,6 +194,7 @@ Content-Type: application/json
 | `GET` | `/cars/search` | Search cars by keyword | Required |
 | `POST` | `/cars/filter` | Filter cars by criteria | Required |
 | `GET` | `/cars/user/{userID}` | Get cars by user ID | Required |
+| `GET` | `/cars/available/{date}` | Get all cars available from date (date can be empty) | Required |
 
 #### Create Car
 ```http

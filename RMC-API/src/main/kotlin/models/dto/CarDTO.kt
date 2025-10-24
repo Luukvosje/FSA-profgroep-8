@@ -93,5 +93,5 @@ data class Availability(
 data class CarAvailability(
     val car: CarDTO,
     val availableFrom: LocalDateTime? = null,
-    val availableTill: LocalDateTime? = null,
+    val availableUntill: LocalDateTime? = null,
 )
