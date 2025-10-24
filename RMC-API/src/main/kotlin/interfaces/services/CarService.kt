@@ -13,4 +13,5 @@ interface CarService {
     fun create(item: CreateCarDTO, userID: Int): CarDTO?
     fun update(carID: Int, item: UpdateCarDTO): CarDTO?
     fun delete(carID: Int): Boolean
+    fun getAvailableCars(availability: Availability): List<CarAvailability>
 }

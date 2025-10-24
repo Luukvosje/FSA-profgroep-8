@@ -13,6 +13,8 @@ data class CarDTO(
     val fuelType: Int,
     val price: Int,
     val userID: Int
+
+
 )
 
 @Serializable
@@ -85,4 +87,11 @@ enum class FilterSortOrder(val sortString: String) {
 data class Availability(
     val startDate: LocalDateTime? = null,
     val endDate: LocalDateTime? = null,
+)
+
+@Serializable
+data class CarAvailability(
+    val car: CarDTO,
+    val availableFrom: LocalDateTime? = null,
+    val availableTill: LocalDateTime? = null,
 )

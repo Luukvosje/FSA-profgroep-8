@@ -19,6 +19,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDate
 import requireUserContext
 import java.io.File
 
@@ -80,6 +83,15 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
                     // Then return it
                     call.respond(HttpStatusCode.Created, car)
+                }
+
+                // POST: get all available Cars
+                post("/available"){
+                    val request = call.receive<Availability>()
+
+                    val cars = serviceFactory.carService.getAvailableCars(request)
+
+                    call.respond(HttpStatusCode.OK, cars)
                 }
 
                 route("/{carID}") {

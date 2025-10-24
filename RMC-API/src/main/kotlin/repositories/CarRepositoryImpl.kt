@@ -4,20 +4,23 @@ package com.profgroep8.repositories
 import com.profgroep8.interfaces.repositories.CarRepository
 import com.profgroep8.interfaces.repositories.GenericRepository
 import com.profgroep8.models.domain.Car
+import com.profgroep8.models.dto.CarAvailability
 import com.profgroep8.models.dto.CarDTO
 import com.profgroep8.models.dto.FilterCar
 import com.profgroep8.models.dto.FilterSortOrder
 import com.profgroep8.models.entity.CarEntity
 import com.profgroep8.models.entity.RentalEntity
 import com.profgroep8.models.entity.RentalLocationsEntity
+import io.ktor.server.plugins.BadRequestException
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
-import org.jetbrains.exposed.sql.kotlin.datetime.KotlinLocalDateTimeColumnType
-import org.jetbrains.exposed.sql.kotlin.datetime.dateTimeParam
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepositoryImpl(Car) {
@@ -131,37 +134,58 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
         }
     }
 
-    override fun getAvailableCars(startDate: LocalDateTime, endDate: LocalDateTime): List<CarDTO> {
+    override fun getAvailableCars(
+        startDate: LocalDateTime?,
+    ): List<CarAvailability> {
         return transaction {
-            val r = RentalEntity.alias("r")
-            val startLoc = RentalLocationsEntity.alias("startLoc")
-            val endLoc = RentalLocationsEntity.alias("endLoc")
+            val today = java.time.LocalDateTime.now().toKotlinLocalDateTime();
 
-            val subQuery = r
+            val lastRentalAlias = RentalEntity
+                .join(RentalLocationsEntity, JoinType.LEFT, RentalEntity.endRentalLocationID, RentalLocationsEntity.id)
+                .select(RentalEntity.carID, RentalLocationsEntity.date.max())
+                .where { RentalLocationsEntity.date greaterEq (startDate ?: today) }
+                .groupBy(RentalEntity.carID)
+                .alias("last_rental")
+
+            val nextRentalAlias = RentalEntity
                 .join(
-                    startLoc,
-                    JoinType.INNER,
-                    r[RentalEntity.startRentalLocationID],
-                    startLoc[RentalLocationsEntity.id]
+                    RentalLocationsEntity,
+                    JoinType.LEFT,
+                    RentalEntity.startRentalLocationID,
+                    RentalLocationsEntity.id
                 )
-                .join(endLoc, JoinType.INNER, r[RentalEntity.endRentalLocationID], endLoc[RentalLocationsEntity.id])
-                .select(Max(endLoc[RentalLocationsEntity.date], KotlinLocalDateTimeColumnType()))
-                .where {
-                    (r[RentalEntity.carID] eq CarEntity.id) and
-                            (endLoc[RentalLocationsEntity.date] greaterEq startDate) and
-                            (startLoc[RentalLocationsEntity.date] lessEq endDate)
-                }
+                .select(RentalEntity.carID, RentalLocationsEntity.date.min())
+                .where { RentalLocationsEntity.date greater (startDate ?: today) }
+                .groupBy(RentalEntity.carID)
+                .alias("next_rental")
 
-            val availableFromExpr = Coalesce(subQuery, dateTimeParam(startDate))
-
-            val condition: Op<Boolean> = Op.build {
-                CarEntity.select(CarEntity.columns + listOf(availableFromExpr.alias("AvailableFrom")))
-                    .where { availableFromExpr lessEq endDate }
-                    .orderBy(availableFromExpr to SortOrder.ASC)
+            CarEntity.leftJoin(
+                lastRentalAlias,
+                { CarEntity.id },
+                { lastRentalAlias[RentalEntity.carID] }
+            ).leftJoin(
+                nextRentalAlias,
+                { CarEntity.id },
+                { nextRentalAlias[RentalEntity.carID] }
+            )
+            .selectAll()
+            .map { row ->
+                val carDTO = CarDTO(
+                    carID = row[CarEntity.id].value,
+                    licensePlate = row[CarEntity.licensePlate],
+                    brand = row[CarEntity.brand],
+                    model = row[CarEntity.model],
+                    year = row[CarEntity.year],
+                    fuelType = row[CarEntity.fuelType],
+                    price = row[CarEntity.price],
+                    userID = row[CarEntity.userID]
+                )
+                val availableFrom: LocalDateTime =
+                    row[lastRentalAlias[RentalLocationsEntity.date.max()]] ?: (startDate ?: today)
+                val availableTill: LocalDateTime =
+                    row[nextRentalAlias[RentalLocationsEntity.date.min()]] ?: (startDate ?: today)
+                CarAvailability(car = carDTO, availableFrom = availableFrom, availableTill = availableTill)
             }
-            Car.find {
-                condition
-            }.map { it.toCarDTO() }
         }
     }
 

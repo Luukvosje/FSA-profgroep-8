@@ -4,6 +4,9 @@ import com.profgroep8.interfaces.services.CarService
 import com.profgroep8.models.domain.FuelType
 import com.profgroep8.models.dto.*
 import io.ktor.server.plugins.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toKotlinLocalDate
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
@@ -112,5 +115,15 @@ class CarServiceImpl(val serviceFactoryImpl: ServiceFactoryImpl) : CarService {
             tco = totalCost,
             costPerKm = costPerKm
         )
+    }
+
+    override fun getAvailableCars(availability: Availability): List<CarAvailability> {
+        var startDate = availability.startDate;
+
+        if(availability.startDate != null && availability.startDate < java.time.LocalDateTime.now().toKotlinLocalDateTime()) {
+            startDate = java.time.LocalDateTime.now().toKotlinLocalDateTime()
+        }
+
+        return serviceFactoryImpl.databaseFactory.carRepository.getAvailableCars(startDate)
     }
 }
