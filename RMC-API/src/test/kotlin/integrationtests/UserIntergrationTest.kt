@@ -33,8 +33,7 @@ class UserIntegrationTest : BaseIntegrationTest() {
             setBody(Json.encodeToString(CreateUserDTO.serializer(), newUser))
         }
 
-        // userRoutes currently responds 200 OK, not 201 Created
-        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(HttpStatusCode.Created, response.status)
 
         val createdUser = Json.decodeFromString(UserDTO.serializer(), response.bodyAsText())
         assertNotNull(createdUser)
@@ -131,7 +130,7 @@ class UserIntegrationTest : BaseIntegrationTest() {
             header(HttpHeaders.Authorization, "Bearer $token")
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 
     @Test
@@ -144,6 +143,6 @@ class UserIntegrationTest : BaseIntegrationTest() {
             setBody("""{ "points": 100 }""")
         }
 
-        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 }
