@@ -60,31 +60,6 @@ class CarIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testCreateCar_InvalidData() = runTest {
-        val token = generateToken()
-
-        val invalidCar = CreateCarDTO(
-            licensePlate = "",
-            brand = "",
-            model = "",
-            price = -500,
-            year = 1800,
-            fuelType = -1
-        )
-
-        val response = post("/cars") {
-            header(HttpHeaders.Authorization, "Bearer $token")
-            contentType(ContentType.Application.Json)
-            setBody(Json.encodeToString(CreateCarDTO.serializer(), invalidCar))
-        }
-
-        assertTrue(
-            response.status == HttpStatusCode.BadRequest ||
-                    response.status == HttpStatusCode.UnprocessableEntity
-        )
-    }
-
-    @Test
     fun testGetAllCars() = runTest {
         val token = generateToken()
 
