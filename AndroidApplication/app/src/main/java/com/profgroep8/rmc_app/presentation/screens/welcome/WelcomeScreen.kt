@@ -1,5 +1,7 @@
 package com.digitalarchitects.rmc_app.presentation.screens.welcome
 
+import RmcFilledButton
+import RmcFilledTonalButton
 import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
@@ -22,13 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import com.digitalarchitects.rmc_app.R
-import com.digitalarchitects.rmc_app.data.auth.AuthResult
-import com.digitalarchitects.rmc_app.presentation.RmcScreen
-import com.digitalarchitects.rmc_app.presentation.components.RmcFilledButton
-import com.digitalarchitects.rmc_app.presentation.components.RmcFilledTonalButton
-import com.digitalarchitects.rmc_app.presentation.components.RmcLogoText
-import com.digitalarchitects.rmc_app.presentation.components.RmcSpacer
+import com.profgroep8.rmc_app.RmcScreen
+import com.profgroep8.rmc_app.presentation.components.RmcLogoText
+import com.profgroep8.rmc_app.presentation.components.RmcSpacer
 import com.profgroep8.rmc_app.presentation.screens.welcome.WelcomeViewModel
 
 @Composable
