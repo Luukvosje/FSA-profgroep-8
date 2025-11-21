@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "RMC-app"
 include(":app")
- 
+include(":network")
