@@ -1,16 +1,17 @@
 package com.profgroep8.integrationtests
 
 import com.profgroep8.integrations.BaseIntegrationTest
-import com.profgroep8.models.dto.CreateCarDTO
-import com.profgroep8.models.dto.UpdateCarDTO
-import com.profgroep8.models.dto.CarDTO
+import com.profgroep8.models.dto.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.junit.Test
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class CarIntegrationTest : BaseIntegrationTest() {
     @Test
@@ -286,4 +287,56 @@ class CarIntegrationTest : BaseIntegrationTest() {
         val response = delete("/cars/1")
         assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
+
+    @Test
+    fun testGetAvailableCars() = runTest {
+        val token = generateToken()
+
+        val license1 = "AB-123-CD"
+        val license2 = "T-848-TK"
+
+        val carRes = post("/cars/license/${license1}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+        }
+
+        val carRes2 = post("/cars/license/${license2}") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+        }
+
+        assertEquals(HttpStatusCode.Created, carRes.status)
+        assertEquals(HttpStatusCode.Created, carRes2.status)
+        val car = Json.decodeFromString(CarDTO.serializer(), carRes.bodyAsText())
+
+        val validRentalDTO = CreateRentalDTO(
+            carID = car.carID,
+            startLocation = CreateRentalLocationDTO(
+                date = LocalDateTime.parse("2025-01-02T10:00:00"),
+                longitude = 4.9041f,
+                latitude = 52.3676f
+            ),
+            endLocation = CreateRentalLocationDTO(
+                date = LocalDateTime.parse("2026-01-02T18:00:00"),
+                longitude = 4.9041f,
+                latitude = 52.3676f
+            )
+        )
+
+        val response = post("/rentals") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(validRentalDTO))
+        }
+        assertEquals(HttpStatusCode.Created, response.status)
+
+        val availableCars = get("/cars/available/2025-25-10T00:00:00"){
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }
+        assertEquals(HttpStatusCode.OK, availableCars.status)
+
+
+
+    }
+
 }
