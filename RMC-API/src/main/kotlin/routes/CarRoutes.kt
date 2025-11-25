@@ -113,7 +113,7 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
                         // Call the update in the service and return it
                         val updatedCar = serviceFactory.carService.update(carId, updateCarDTO)
-                            ?: throw BadRequestException("Car not updated")
+                            ?: throw NotFoundException("Car not updated")
 
                         call.respond(updatedCar)
                     }
@@ -127,8 +127,8 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
                         // Delete it in the service
                         val success = serviceFactory.carService.delete(carId)
 
-                        // If failed throw 401
-                        if (!success) throw BadRequestException("Car could not be deleted")
+                        // If failed throw 404
+                        if (!success) throw NotFoundException("Car could not be deleted")
 
                         // Return true
                         call.respond(true)
