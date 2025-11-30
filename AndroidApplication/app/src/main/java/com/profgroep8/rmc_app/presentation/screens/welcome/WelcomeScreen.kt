@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import com.profgroep8.rmc_app.RmcScreen
+import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.presentation.components.RmcLogoText
 import com.profgroep8.rmc_app.presentation.components.RmcSpacer
 import com.profgroep8.rmc_app.presentation.screens.welcome.WelcomeViewModel
@@ -34,7 +34,6 @@ fun WelcomeScreen(
     viewModel: WelcomeViewModel,
     navigateToScreen: (String) -> Unit
 ) {
-
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
@@ -43,20 +42,20 @@ fun WelcomeScreen(
     }
 
     LaunchedEffect(viewModel, context) {
-        viewModel.authResult.collect { result ->
-            val messageResId = when (result) {
-                is AuthResult.Authorized -> {
-                    viewModel.getDataFromRemoteSource()
-                    navigateToScreen(RmcScreen.RentACar.name)
-                    return@collect
-                }
-                is AuthResult.Unauthorized -> R.string.toast_unauthorized
-                is AuthResult.NoConnectionError -> R.string.toast_no_connection
-                is AuthResult.UnknownError -> R.string.toast_unknown_error
-            }
-
-            showToast(context, messageResId)
-        }
+//        viewModel.authResult.collect { result ->
+//            val messageResId = when (result) {
+//                is AuthResult.Authorized -> {
+//                    viewModel.getDataFromRemoteSource()
+//                    navigateToScreen(RmcScreen.RentACar.name)
+//                    return@collect
+//                }
+//                is AuthResult.Unauthorized -> R.string.toast_unauthorized
+//                is AuthResult.NoConnectionError -> R.string.toast_no_connection
+//                is AuthResult.UnknownError -> R.string.toast_unknown_error
+//            }
+//
+//            showToast(context, messageResId)
+//        }
     }
 
 

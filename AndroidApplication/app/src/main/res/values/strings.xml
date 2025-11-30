@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">RMC-app</string>
+    <string name="profile_picture">Profiel foto</string>
+    <string name="camera">Camera</string>
+    <string name="welcome_title">Welkom bij RMC</string>
+    <string name="welcome_body">Maak een account aan of login</string>
+    <string name="register">Registeren</string>
+    <string name="login">Inloggen</string>
 </resources>

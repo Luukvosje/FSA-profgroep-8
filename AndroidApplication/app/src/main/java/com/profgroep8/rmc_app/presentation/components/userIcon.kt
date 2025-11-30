@@ -1,11 +1,14 @@
 package com.profgroep8.rmc_app.presentation.components
 
+import RmcFilledTonalIconButton
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +19,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.profgroep8.rmc_app.R
 
 
 /**
@@ -41,8 +47,7 @@ fun RmcUserIcon(
         AsyncImage(
             model = ImageRequest.Builder(context = LocalContext.current).data(imageUrl)
                 .crossfade(true).build(),
-            error = painterResource(R.drawable.loading_img),
-            placeholder = painterResource(R.drawable.usericon),
+            placeholder = painterResource(R.drawable.user),
             contentDescription = stringResource(R.string.profile_picture),
             contentScale = ContentScale.Crop,
             modifier = modifier

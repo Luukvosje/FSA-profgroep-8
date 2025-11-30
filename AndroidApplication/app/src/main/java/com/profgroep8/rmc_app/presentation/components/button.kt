@@ -29,7 +29,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.profgroep8.rmc_app.R
 @Composable
 fun RmcFilledButton(
     modifier: Modifier = Modifier,
@@ -209,8 +211,7 @@ fun RmcImgFilledIconButton(
         AsyncImage(
             model = ImageRequest.Builder(context = LocalContext.current).data(imageUrl)
                 .crossfade(true).build(),
-            error = painterResource(R.drawable.loading_img),
-            placeholder = painterResource(R.drawable.usericon),
+            placeholder = painterResource(R.drawable.user),
             contentDescription = stringResource(R.string.profile_picture),
             contentScale = ContentScale.Crop,
             modifier = Modifier

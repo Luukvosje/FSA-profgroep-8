@@ -25,12 +25,12 @@ fun RmcAppBar(
 ) {
     TopAppBar(
         navigationIcon = {
-            RmcOutlinedIconButton(
-                icon = navigationIcon,
-                label = title,
-                onClick = navigateUp,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
+//            RmcOutlinedIconButton(
+//                icon = navigationIcon,
+//                label = title,
+//                onClick = navigateUp,
+//                modifier = Modifier.padding(horizontal = 8.dp)
+//            )
         },
         title = {
             Text(
