@@ -67,7 +67,7 @@ fun RmcTextField(
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         maxLines = maxLines,
         singleLine = maxLines == 1,
-        value = value ?: "", // Provide an empty string if value is null
+        value = value ?: "",
         enabled = enabled,
         onValueChange = onValueChange,
         leadingIcon = leadingIcon?.let {

@@ -11,4 +11,11 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel(
 ) : ViewModel() {
+    private val _uiState = MutableStateFlow(LoginUIState())
+    val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
+
+
+    fun onEvent(event: LoginUIEvent) {
+
+    }
 }

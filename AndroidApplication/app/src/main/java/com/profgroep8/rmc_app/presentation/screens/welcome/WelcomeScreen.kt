@@ -6,8 +6,10 @@ import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,14 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.presentation.components.RmcLogoText
 import com.profgroep8.rmc_app.presentation.components.RmcSpacer
 import com.profgroep8.rmc_app.presentation.screens.welcome.WelcomeViewModel
+
 
 @Composable
 fun WelcomeScreen(
@@ -63,52 +68,61 @@ fun WelcomeScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(dimensionResource(R.dimen.padding_large))
-                .verticalScroll(rememberScrollState())
         ) {
-            RmcLogoText()
 
-            RmcSpacer()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopStart)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                RmcLogoText()
 
-            Text(
-                text = stringResource(R.string.welcome_title),
-                style = MaterialTheme.typography.titleLarge
-            )
+                RmcSpacer()
 
-            RmcSpacer(8)
+                Text(
+                    text = stringResource(R.string.welcome_title),
+                    style = MaterialTheme.typography.titleLarge
+                )
 
-            Text(
-                text = stringResource(R.string.welcome_body),
-                style = MaterialTheme.typography.bodyLarge
-            )
+                RmcSpacer(8)
 
-            RmcSpacer()
+                Text(
+                    text = stringResource(R.string.welcome_body),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                RmcSpacer()
+            }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter),
+                horizontalArrangement = Arrangement.spacedBy(
+                    dimensionResource(R.dimen.padding_medium)
+                )
             ) {
+
                 Column(Modifier.weight(1f)) {
                     RmcFilledTonalButton(
                         value = stringResource(id = R.string.register),
-                        onClick = {
-                            navigateToScreen(RmcScreen.Register.name)
-                        }
+                        onClick = { navigateToScreen(RmcScreen.Register.name) }
                     )
                 }
+
                 Column(Modifier.weight(1f)) {
                     RmcFilledButton(
                         value = stringResource(id = R.string.login),
-                        onClick = {
-                            navigateToScreen(RmcScreen.Login.name)
-                        }
+                        onClick = { navigateToScreen(RmcScreen.Login.name) }
                     )
                 }
             }
-
         }
     }
+
 }

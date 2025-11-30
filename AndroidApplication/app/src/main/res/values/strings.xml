@@ -6,4 +6,7 @@
     <string name="welcome_body">Maak een account aan of login</string>
     <string name="register">Registeren</string>
     <string name="login">Inloggen</string>
+    <string name="password">Wachtwoord</string>
+    <string name="email">Email</string>
+    <string name="or">Of</string>
 </resources>
