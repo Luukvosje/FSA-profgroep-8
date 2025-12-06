@@ -16,9 +16,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.profgroep8.rmc_app.R
 
-/**
- * Composable that displays RENT MY CAR in text
- */
 @Composable
 fun RmcLogoText() {
     Text(
@@ -32,7 +29,7 @@ fun RmcLogoText() {
             }
         },
         style = MaterialTheme.typography.displayLarge,
-        color = colorResource(id = R.color.purple_500),
+        color = colorResource(id = R.color.blue_500),
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth()
     )

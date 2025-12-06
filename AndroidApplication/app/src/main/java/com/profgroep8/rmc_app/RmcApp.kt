@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.digitalarchitects.rmc_app.presentation.screens.welcome.WelcomeScreen
+import com.profgroep8.rmc_app.presentation.screens.home.HomeScreen
 import com.profgroep8.rmc_app.presentation.screens.login.LoginScreen
 import com.profgroep8.rmc_app.presentation.screens.login.LoginViewModel
 import com.profgroep8.rmc_app.presentation.screens.register.RegisterScreen
@@ -21,6 +22,7 @@ enum class RmcScreen(@StringRes val title: Int){
     Welcome(R.string.app_name),
     Register(R.string.register),
     Login(R.string.login),
+    Home(R.string.home),
 }
 
 @Preview(showBackground = true)
@@ -32,9 +34,10 @@ fun RmcApp(
     val registerViewModel: RegisterViewModel = viewModel()
     val loginViewModel: LoginViewModel = viewModel()
 
+    val startDestination = RmcScreen.Home
     NavHost(
         navController,
-        RmcScreen.Welcome.name
+        startDestination.name
     ) {
         composable(RmcScreen.Welcome.name) {
             WelcomeScreen(
@@ -52,6 +55,12 @@ fun RmcApp(
             LoginScreen(
                 viewModel = loginViewModel,
                 navigateToScreen = { route -> navController.navigate(route) }
+            )
+        }
+        composable(RmcScreen.Home.name){
+            HomeScreen(
+                navigateToScreen = { navController.navigate(it)},
+                userName = "LoekTEST"
             )
         }
 

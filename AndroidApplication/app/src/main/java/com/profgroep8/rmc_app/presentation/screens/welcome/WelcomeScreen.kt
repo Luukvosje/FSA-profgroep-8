@@ -1,10 +1,12 @@
 package com.digitalarchitects.rmc_app.presentation.screens.welcome
 
+import LogoComponent
 import RmcFilledButton
 import RmcFilledTonalButton
 import android.content.Context
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,12 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.presentation.components.RmcLogoText
 import com.profgroep8.rmc_app.presentation.components.RmcSpacer
 import com.profgroep8.rmc_app.presentation.screens.welcome.WelcomeViewModel
-
+import androidx.compose.ui.tooling.preview.PreviewParameter
 
 @Composable
 fun WelcomeScreen(
@@ -71,57 +73,40 @@ fun WelcomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(dimensionResource(R.dimen.padding_large))
         ) {
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .fillMaxHeight()
                     .align(Alignment.TopStart)
                     .verticalScroll(rememberScrollState())
             ) {
-                RmcLogoText()
+                LogoComponent()
 
                 RmcSpacer()
 
                 Text(
                     text = stringResource(R.string.welcome_title),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 RmcSpacer(8)
-
-                Text(
-                    text = stringResource(R.string.welcome_body),
-                    style = MaterialTheme.typography.bodyLarge
+            Column(Modifier.weight(2f), verticalArrangement = Arrangement.Center,){
+                RmcFilledTonalButton(
+                    value = stringResource(id = R.string.register),
+                    onClick = { navigateToScreen(RmcScreen.Register.name) }
                 )
-
-                RmcSpacer()
+                RmcFilledButton(
+                    value = stringResource(id = R.string.login),
+                    onClick = { navigateToScreen(RmcScreen.Login.name) }
+                )
+            }
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter),
-                horizontalArrangement = Arrangement.spacedBy(
-                    dimensionResource(R.dimen.padding_medium)
-                )
-            ) {
-
-                Column(Modifier.weight(1f)) {
-                    RmcFilledTonalButton(
-                        value = stringResource(id = R.string.register),
-                        onClick = { navigateToScreen(RmcScreen.Register.name) }
-                    )
-                }
-
-                Column(Modifier.weight(1f)) {
-                    RmcFilledButton(
-                        value = stringResource(id = R.string.login),
-                        onClick = { navigateToScreen(RmcScreen.Login.name) }
-                    )
-                }
-            }
         }
     }
 

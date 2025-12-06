@@ -2,11 +2,21 @@
     <string name="app_name">RMC-app</string>
     <string name="profile_picture">Profiel foto</string>
     <string name="camera">Camera</string>
-    <string name="welcome_title">Welkom bij RMC</string>
+    <string name="welcome_title">Welkom bij RentMyCar</string>
     <string name="welcome_body">Maak een account aan of login</string>
     <string name="register">Registeren</string>
     <string name="login">Inloggen</string>
     <string name="password">Wachtwoord</string>
+    <string name="logout">UitLoggen</string>
+    <string name="home">Home</string>
     <string name="email">Email</string>
     <string name="or">Of</string>
+    <string name="home_add_car">Auto toevoegen</string>
+    <string name="home_manage_cars">Auto\'s beheren</string>
+    <string name="home_search_car">Auto\'s zoeken</string>
+    <string name="home_reservations">Reserveringen beheren</string>
+    <string name="home_view_route">Route bekijken</string>
+    <string name="home_view_points">Punten bekijken</string>
+    <string name="home_message">Hallo %s</string>
+
 </resources>
