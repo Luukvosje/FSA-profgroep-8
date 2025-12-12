@@ -18,5 +18,13 @@
     <string name="home_view_route">Route bekijken</string>
     <string name="home_view_points">Punten bekijken</string>
     <string name="home_message">Hallo %s</string>
-
+    <string name="add_car">Auto toevoegen</string>
+    <string name="add_car_sub">Auto toevoegen</string>
+    <string name="license_plate">Kenteken</string>
+    <string name="brand">Merk</string>
+    <string name="model">Model</string>
+    <string name="year">Bouwjaar</string>
+    <string name="fuelType">Brandstof type</string>
+    <string name="address">Adres</string>
+    <string name="button_next">Verder</string>
 </resources>

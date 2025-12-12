@@ -1,7 +1,5 @@
 package com.profgroep8.rmc_app.presentation.screens.home
-
 import RmcFilledButton
-import RmcFilledTonalButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
