@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.digitalarchitects.rmc_app.presentation.screens.welcome.WelcomeScreen
+import com.profgroep8.rmc_app.presentation.screens.CarInformation.CarInformationScreen
+import com.profgroep8.rmc_app.presentation.screens.addCar.AddCarScreen
 import com.profgroep8.rmc_app.presentation.screens.home.HomeScreen
 import com.profgroep8.rmc_app.presentation.screens.login.LoginScreen
 import com.profgroep8.rmc_app.presentation.screens.login.LoginViewModel
@@ -23,6 +25,8 @@ enum class RmcScreen(@StringRes val title: Int){
     Register(R.string.register),
     Login(R.string.login),
     Home(R.string.home),
+    AddCar(R.string.home_add_car),
+    CarInformation(R.string.car_information)
 }
 
 @Preview(showBackground = true)
@@ -34,7 +38,8 @@ fun RmcApp(
     val registerViewModel: RegisterViewModel = viewModel()
     val loginViewModel: LoginViewModel = viewModel()
 
-    val startDestination = RmcScreen.Home
+    val startDestination = RmcScreen.Welcome
+
     NavHost(
         navController,
         startDestination.name
@@ -63,7 +68,16 @@ fun RmcApp(
                 userName = "LoekTEST"
             )
         }
-
+        composable(RmcScreen.AddCar.name) {
+            AddCarScreen(
+                navigateToScreen = {navController.navigate((it))}
+            )
+        }
+        composable(RmcScreen.CarInformation.name) {
+            CarInformationScreen(
+                navigatetoScreen = {navController.navigate(it)}
+            )
+        }
     }
 }
 

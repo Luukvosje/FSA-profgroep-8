@@ -25,7 +25,16 @@ import com.profgroep8.rmc_app.presentation.components.RmcTextField
 
 @Preview
 @Composable
-fun AddCarScreen() {
+fun AddCarScreenPreview() {
+    AddCarScreen(
+        navigateToScreen = {}
+    )
+}
+
+@Composable
+fun AddCarScreen(
+    navigateToScreen: (String) -> Unit
+) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,
