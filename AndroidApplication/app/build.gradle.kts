@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -36,11 +36,9 @@ android {
     buildFeatures {
         compose = true
     }
-
 }
 
 dependencies {
-
     implementation(project(":network"))
 
     implementation(libs.androidx.core.ktx)
