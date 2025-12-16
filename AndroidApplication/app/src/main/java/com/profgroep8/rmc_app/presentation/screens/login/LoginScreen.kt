@@ -2,6 +2,7 @@ package com.profgroep8.rmc_app.presentation.screens.login
 
 
 import RmcFilledButton
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,10 +44,17 @@ import com.profgroep8.rmc_app.presentation.components.RmcTextField
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    navigateToScreen: (String) -> Unit
+    navigateToScreen: (String) -> Unit,
+    navigateBack: () -> Unit = { navigateToScreen(RmcScreen.Welcome.name) } // Optionele parameter
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    // Handler voor systeem back-button
+    BackHandler {
+        navigateBack()
+    }
+
     LaunchedEffect(viewModel, context) {
 //        viewModel.authResult.collect { result ->
 //            when (result) {
@@ -87,7 +95,7 @@ fun LoginScreen(
             RmcAppBar (
                 title = R.string.login,
                 navigationIcon = Icons.AutoMirrored.Rounded.ArrowBack,
-                navigateUp = { navigateToScreen(RmcScreen.Welcome.name) }
+                navigateUp = navigateBack // Gebruik navigateBack in plaats van direct navigateToScreen
             )
         }
     ) { innerPadding ->
