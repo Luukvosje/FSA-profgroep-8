@@ -60,10 +60,10 @@ data class FilterCar(
     val minPrice: Double? = null,
     val maxPrice: Double? = null,
 ) {
-    fun ToSearchValues(): FilterCar = this.copy(
-        licensePlate = this.licensePlate?.let { it.lowercase().replace("-", "").trim() },
-        brand = this.brand?.let { it.lowercase().trim() },
-        model = this.model?.let { it.lowercase().trim() },
+    fun toSearchValues(): FilterCar = this.copy(
+        licensePlate = this.licensePlate?.lowercase()?.replace("-", "")?.trim(),
+        brand = this.brand?.lowercase()?.trim(),
+        model = this.model?.lowercase()?.trim(),
     )
 }
 

@@ -29,7 +29,7 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
     }
 
     override fun filterCars(filter: FilterCar): List<CarDTO> {
-        val normalizedFilter = filter.ToSearchValues()
+        val normalizedFilter = filter.toSearchValues()
         return transaction {
             val conditions = mutableListOf<Op<Boolean>>()
 

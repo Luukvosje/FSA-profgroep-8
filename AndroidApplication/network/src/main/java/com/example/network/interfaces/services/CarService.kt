@@ -1,5 +1,22 @@
 package com.example.network.interfaces.services
 
+import com.example.network.models.domain.Car
+import com.example.network.models.domain.CarTCOResult
+import com.example.network.models.remote.CalculateCarRequestDTO
+import com.example.network.models.remote.CreateCarDTO
+import com.example.network.models.remote.UpdateCarDTO
+import com.example.network.services.ApiResult
+import java.util.Date
+
 interface CarService {
-    suspend fun getAllCars()
+    suspend fun getAllCars(): ApiResult<List<Car>>
+    suspend fun getAllAvailableCars(date: Date): ApiResult<List<Car>>
+    suspend fun getUserCars(userID: Int): ApiResult<List<Car>>
+    suspend fun searchCars(keyword: String): ApiResult<List<Car>>
+    suspend fun getSingleCar(carID: Int): ApiResult<Car>
+    suspend fun getSingleCar(licensePlate: String): ApiResult<Car>
+    suspend fun createCar(request: CreateCarDTO): ApiResult<Car>
+    suspend fun calculateCarTCO(carID: Int, request: CalculateCarRequestDTO): ApiResult<CarTCOResult>
+    suspend fun updateCar(carID: Int, request: UpdateCarDTO): ApiResult<Car>
+    suspend fun deleteCar(carID: Int): ApiResult<Boolean>
 }
