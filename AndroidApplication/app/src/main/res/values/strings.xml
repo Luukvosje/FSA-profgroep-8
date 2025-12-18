@@ -26,6 +26,12 @@
     <string name="year">Bouwjaar</string>
     <string name="fuelType">Brandstof type</string>
     <string name="address">Adres</string>
+
     <string name="button_next">Verder</string>
+    <string name="button_back">Terug</string>
+
     <string name="car_information">Auto informatie</string>
+    <string name="edit_car">Auto aanpassen</string>
+    <string name="delete_car">Auto verwijderen</string>
+    <string name="upload_car_image">Foto toevoegen</string>
 </resources>

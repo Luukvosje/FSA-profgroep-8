@@ -1,15 +1,14 @@
+
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.profgroep8.rmc_app.R
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.digitalarchitects.rmc_app.presentation.screens.welcome.WelcomeScreen
+import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.presentation.screens.CarInformation.CarInformationScreen
 import com.profgroep8.rmc_app.presentation.screens.addCar.AddCarScreen
 import com.profgroep8.rmc_app.presentation.screens.home.HomeScreen
@@ -75,7 +74,8 @@ fun RmcApp(
         }
         composable(RmcScreen.CarInformation.name) {
             CarInformationScreen(
-                navigatetoScreen = {navController.navigate(it)}
+                car = null,
+                navigateToScreen = {navController.navigate(it)}
             )
         }
     }

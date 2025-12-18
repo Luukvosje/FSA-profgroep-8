@@ -27,7 +27,7 @@ import com.profgroep8.rmc_app.presentation.components.RmcTextField
 @Composable
 fun AddCarScreenPreview() {
     AddCarScreen(
-        navigateToScreen = {}
+        navigateToScreen = {string -> println(string)}
     )
 }
 
