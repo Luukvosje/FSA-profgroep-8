@@ -19,17 +19,21 @@ import kotlinx.serialization.json.Json
 
 internal abstract class BaseServiceImpl {
 
-    private val client: HttpClient by lazy {
-        HttpClient(OkHttp) {
-            defaultRequest {
-                url("http://127.0.0.1/") // Voeg http:// toe!
-                header("Content-Type", "application/json")
-                header("Accept", "application/json")
-            }
-            install(Logging) { logger = Logger.SIMPLE }
-            install(ContentNegotiation) {
-                json(Json { ignoreUnknownKeys = true })
-            }
+    private val client = HttpClient(OkHttp) {
+        defaultRequest {
+            url("127.0.0.1/")
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+        }
+
+        install(Logging) {
+            logger = Logger.SIMPLE
+        }
+
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+            })
         }
     }
 
