@@ -33,6 +33,7 @@ fun AddCarScreenPreview() {
 
 @Composable
 fun AddCarScreen(
+    viewModel: AddCarViewModel,
     navigateToScreen: (String) -> Unit
 ) {
     Surface(

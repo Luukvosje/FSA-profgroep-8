@@ -13,20 +13,20 @@ object RentalEntity : IntIdTable("Rental", "RentalID") {
 
     val carID = integer("CarID").references(
         CarEntity.id,
-        onDelete = ReferenceOption.CASCADE,
-        onUpdate = ReferenceOption.CASCADE
+        onDelete = ReferenceOption.NO_ACTION,
+        onUpdate = ReferenceOption.NO_ACTION
     )
 
     val startRentalLocationID = integer("StartRentalLocationID").references(
         RentalLocationsEntity.id,
-        onDelete = ReferenceOption.CASCADE,
-        onUpdate = ReferenceOption.CASCADE
+        onDelete = ReferenceOption.NO_ACTION,
+        onUpdate = ReferenceOption.NO_ACTION
     )
 
     val endRentalLocationID = integer("EndRentalLocationID").references(
         RentalLocationsEntity.id,
-        onDelete = ReferenceOption.CASCADE,
-        onUpdate = ReferenceOption.CASCADE
+        onDelete = ReferenceOption.NO_ACTION,
+        onUpdate = ReferenceOption.NO_ACTION
     )
 
     val state = integer("State")

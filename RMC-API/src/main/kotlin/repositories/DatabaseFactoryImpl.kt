@@ -24,19 +24,26 @@ object DatabaseFactoryImpl : DatabaseFactory {
 
     fun init() {
         Database.connect(
-            url = "jdbc:postgresql://foxtrek.nl:5432/RMC_API",
-            driver = "org.postgresql.Driver",
-            user = "RMCApi",
-            password = "bBvt65nT1L70ii7r8aM9CM"
+            url = "jdbc:sqlserver://ralphdijkstra.nl:1433;" +
+                    "databaseName=RentMyCar.Dev;" +
+                    "encrypt=true;" +
+                    "trustServerCertificate=true",
+            driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+            user = "sa_loek",
+            password = "fPyAXMfa0W]!v.N"
         )
 
         transaction {
+            println("Creating tables...")
+
             SchemaUtils.create(
                 CarEntity,
                 UserEntity,
                 RentalEntity,
                 RentalLocationsEntity
             )
+            println("Tables created!")
+
         }
     }
 

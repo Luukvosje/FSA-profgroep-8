@@ -37,7 +37,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
-    implementation("org.postgresql:postgresql:42.7.4")
+    implementation("com.microsoft.sqlserver:mssql-jdbc:12.6.1.jre11")
 
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")

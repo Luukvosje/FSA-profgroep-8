@@ -14,7 +14,7 @@ object CarEntity : IntIdTable(name = "Car", columnName = "CarID") {
     val price = integer("Price")
     val userID = integer("UserID").references(
         UserEntity.id,
-        onDelete = ReferenceOption.CASCADE,
+        onDelete = ReferenceOption.NO_ACTION,
         onUpdate = ReferenceOption.CASCADE
     )
 }

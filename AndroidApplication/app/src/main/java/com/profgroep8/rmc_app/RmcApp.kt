@@ -28,7 +28,6 @@ enum class RmcScreen(@StringRes val title: Int){
     CarInformation(R.string.car_information)
 }
 
-@Preview(showBackground = true)
 @Composable
 fun RmcApp(
     navController: NavHostController = rememberNavController()
@@ -70,6 +69,7 @@ fun RmcApp(
         composable(RmcScreen.AddCar.name) {
             AddCarScreen(
                 navigateToScreen = {navController.navigate((it))}
+
             )
         }
         composable(RmcScreen.CarInformation.name) {

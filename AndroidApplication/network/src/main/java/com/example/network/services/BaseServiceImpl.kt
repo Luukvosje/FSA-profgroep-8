@@ -18,6 +18,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 internal abstract class BaseServiceImpl {
+
     private val client = HttpClient(OkHttp) {
         defaultRequest {
             url("127.0.0.1/")
