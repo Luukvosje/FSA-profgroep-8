@@ -40,10 +40,11 @@ import com.profgroep8.rmc_app.presentation.components.DividerTextComponent
 import com.profgroep8.rmc_app.presentation.components.RmcAppBar
 import com.profgroep8.rmc_app.presentation.components.RmcSpacer
 import com.profgroep8.rmc_app.presentation.components.RmcTextField
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel,
+    viewModel: LoginViewModel = koinViewModel(),
     navigateToScreen: (String) -> Unit,
     navigateBack: () -> Unit = { navigateToScreen(RmcScreen.Welcome.name) } // Optionele parameter
 ) {

@@ -64,6 +64,12 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation(libs.coil.compose)
 
-    implementation("io.insert-koin:koin-android:3.5.6")
-    implementation("io.insert-koin:koin-androidx-compose:3.5.6")
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    // For Compose integration (new API)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
+
+
 }

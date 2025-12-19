@@ -32,11 +32,7 @@ enum class RmcScreen(@StringRes val title: Int){
 fun RmcApp(
     navController: NavHostController = rememberNavController()
 ) {
-    val welcomeViewModel: WelcomeViewModel = viewModel()
-    val registerViewModel: RegisterViewModel = viewModel()
-    val loginViewModel: LoginViewModel = viewModel()
-
-    val startDestination = RmcScreen.Welcome
+    val startDestination = RmcScreen.AddCar
 
     NavHost(
         navController,
@@ -44,19 +40,16 @@ fun RmcApp(
     ) {
         composable(RmcScreen.Welcome.name) {
             WelcomeScreen(
-                viewModel = welcomeViewModel,
                 navigateToScreen = { route -> navController.navigate(route) }
             )
         }
         composable(RmcScreen.Register.name) {
             RegisterScreen(
-                viewModel = registerViewModel,
                 navigateToScreen = { route -> navController.navigate(route) }
             )
         }
         composable(RmcScreen.Login.name) {
             LoginScreen(
-                viewModel = loginViewModel,
                 navigateToScreen = { route -> navController.navigate(route) }
             )
         }

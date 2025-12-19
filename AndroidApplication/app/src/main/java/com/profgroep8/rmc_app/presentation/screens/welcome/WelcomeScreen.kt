@@ -35,10 +35,11 @@ import com.profgroep8.rmc_app.presentation.components.RmcLogoText
 import com.profgroep8.rmc_app.presentation.components.RmcSpacer
 import com.profgroep8.rmc_app.presentation.screens.welcome.WelcomeViewModel
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun WelcomeScreen(
-    viewModel: WelcomeViewModel,
+    viewModel: WelcomeViewModel = koinViewModel(),
     navigateToScreen: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()

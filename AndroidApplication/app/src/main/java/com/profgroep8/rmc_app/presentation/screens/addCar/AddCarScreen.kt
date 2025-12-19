@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.presentation.components.RmcAppBar
 import com.profgroep8.rmc_app.presentation.components.RmcTextField
+import org.koin.compose.viewmodel.koinViewModel
 
 @Preview
 @Composable
@@ -33,7 +34,7 @@ fun AddCarScreenPreview() {
 
 @Composable
 fun AddCarScreen(
-    viewModel: AddCarViewModel,
+    viewModel: AddCarViewModel = koinViewModel(),
     navigateToScreen: (String) -> Unit
 ) {
     Surface(
