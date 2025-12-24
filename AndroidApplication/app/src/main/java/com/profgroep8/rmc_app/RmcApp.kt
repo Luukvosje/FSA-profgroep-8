@@ -10,12 +10,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.digitalarchitects.rmc_app.presentation.screens.welcome.WelcomeScreen
 import com.profgroep8.rmc_app.R
-import com.profgroep8.rmc_app.presentation.screens.AddCar.AddCarScreen
-import com.profgroep8.rmc_app.presentation.screens.CarInformation.CarInformationScreen
-import com.profgroep8.rmc_app.presentation.screens.home.HomeScreen
-import com.profgroep8.rmc_app.presentation.screens.login.LoginScreen
-import com.profgroep8.rmc_app.presentation.screens.register.RegisterScreen
-import com.profgroep8.rmc_app.presentation.screens.showCars.AllCarsScreen
+import com.profgroep8.rmc_app.ui.screens.AddCar.AddCarScreen
+import com.profgroep8.rmc_app.ui.screens.CarInformation.CarInformationScreen
+import com.profgroep8.rmc_app.ui.screens.home.HomeScreen
+import com.profgroep8.rmc_app.ui.screens.login.LoginScreen
+import com.profgroep8.rmc_app.ui.screens.register.RegisterScreen
+import com.profgroep8.rmc_app.ui.screens.showCars.AllCarsScreen
 import com.profgroep8.rmc_app.ui.theme.RMCappTheme
 
 enum class RmcScreen(@StringRes val title: Int){
@@ -39,29 +39,29 @@ fun RmcApp(
         startDestination.name
     ) {
         composable(RmcScreen.Welcome.name) {
-            WelcomeScreen(
+            _root_ide_package_.com.digitalarchitects.rmc_app.presentation.screens.welcome.WelcomeScreen(
                 navigateToScreen = { route -> navController.navigate(route) }
             )
         }
         composable(RmcScreen.Register.name) {
-            RegisterScreen(
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.register.RegisterScreen(
                 navigateToScreen = { route -> navController.navigate(route) }
             )
         }
         composable(RmcScreen.Login.name) {
-            LoginScreen(
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.login.LoginScreen(
                 navigateToScreen = { route -> navController.navigate(route) }
             )
         }
         composable(RmcScreen.Home.name){
-            HomeScreen(
-                navigateToScreen = { navController.navigate(it)},
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.home.HomeScreen(
+                navigateToScreen = { navController.navigate(it) },
                 userName = "LoekTEST"
             )
         }
         composable(RmcScreen.AddCar.name) {
-            AddCarScreen(
-                navigateToScreen = {navController.navigate((it))}
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.AddCar.AddCarScreen(
+                navigateToScreen = { navController.navigate((it)) }
             )
         }
         composable(
@@ -69,14 +69,14 @@ fun RmcApp(
             arguments = listOf(navArgument("carId") { type = NavType.IntType })
         ) { backStackEntry ->
             val carId = backStackEntry.arguments?.getInt("carId");
-            CarInformationScreen(
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.CarInformation.CarInformationScreen(
                 carId = carId,
-                navigateToScreen = {navController.navigate(it)}
+                navigateToScreen = { navController.navigate(it) }
             )
         }
         composable(RmcScreen.AllCars.name) {
-            AllCarsScreen(
-                navigateToScreen = {navController.navigate(it)}
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.showCars.AllCarsScreen(
+                navigateToScreen = { navController.navigate(it) }
             )
         }
     }

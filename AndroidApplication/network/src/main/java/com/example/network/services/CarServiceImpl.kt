@@ -7,9 +7,15 @@ import com.example.network.models.remote.CalculateCarRequestDTO
 import com.example.network.models.remote.CreateCarDTO
 import com.example.network.models.remote.RemoteCalculateCar
 import com.example.network.models.remote.RemoteCar
+import com.example.network.models.remote.RemoteImage
 import com.example.network.models.remote.UpdateCarDTO
+import com.example.network.models.remote.toBoolean
 import com.example.network.models.remote.toDomainCar
 import com.example.network.models.remote.toDomainCarTCOResult
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.http.HttpHeaders
+import java.io.File
 import java.util.Date
 
 internal class CarServiceImpl : BaseServiceImpl(), CarService {
@@ -69,7 +75,18 @@ internal class CarServiceImpl : BaseServiceImpl(), CarService {
         }
     }
 
-    // TODO(Upload Image)
+    override  suspend fun uploadImage(carID: Int, image: File): ApiResult<Boolean> {
+        require(image.exists()) { "Image file does not exist" }
+
+        return safeExecute {
+            postMultipart<RemoteImage>(
+                url = "cars/$carID/image"
+            ) {
+                appendFile("image", image)
+            }.toBoolean()
+
+        }
+    }
 
     override suspend fun deleteCar(carID: Int): ApiResult<Boolean> {
         return safeExecute {

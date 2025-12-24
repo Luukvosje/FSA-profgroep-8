@@ -77,3 +77,15 @@ fun RemoteCalculateCar.toDomainCarTCOResult(): CarTCOResult {
         costPerKm = costPerKm,
     )
 }
+
+@Serializable
+data class RemoteImage(
+    val imagePath: String,
+)
+
+fun RemoteImage.toBoolean(): Boolean {
+    if(imagePath == "null") {
+        return false
+    }
+    return true
+}

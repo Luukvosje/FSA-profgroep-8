@@ -6,6 +6,7 @@ import com.example.network.models.remote.CalculateCarRequestDTO
 import com.example.network.models.remote.CreateCarDTO
 import com.example.network.models.remote.UpdateCarDTO
 import com.example.network.services.ApiResult
+import java.io.File
 import java.util.Date
 
 interface CarService {
@@ -19,4 +20,6 @@ interface CarService {
     suspend fun calculateCarTCO(carID: Int, request: CalculateCarRequestDTO): ApiResult<CarTCOResult>
     suspend fun updateCar(carID: Int, request: UpdateCarDTO): ApiResult<Car>
     suspend fun deleteCar(carID: Int): ApiResult<Boolean>
+    suspend fun uploadImage(carID: Int, image: File): ApiResult<Boolean>
 }
+

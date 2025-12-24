@@ -28,6 +28,8 @@
     <string name="address">Adres</string>
 
     <string name="button_next">Verder</string>
+    <string name="button_ok">Oke</string>
+    <string name="button_cancel">Annuleren</string>
     <string name="button_back">Terug</string>
 
     <string name="car_information">Auto informatie</string>
@@ -36,4 +38,9 @@
     <string name="upload_car_image">Foto toevoegen</string>
 
     <string name="manage_cars_sub">"Lijst van alle auto\'s</string>
+    <string name="add_photo">Foto toevoegen</string>
+    <string name="take_photo">Foto maken</string>
+    <string name="choose_from_gallery">Kies uit gallerij</string>
+    <string name="permission_required">Toestemming verijst</string>
+    <string name="to_add_photos_please_grant_camera_and_storage_permissions_in_your_device_settings">Geef eerst toestemming om foto\'s te mogen toevoegen</string>
 </resources>

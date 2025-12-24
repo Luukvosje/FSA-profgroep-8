@@ -11,13 +11,20 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.plugins.plugin
 import io.ktor.client.request.delete
+import io.ktor.client.request.forms.FormBuilder
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import java.io.File
 
 internal abstract class BaseServiceImpl {
     protected var token: String?
@@ -57,6 +64,7 @@ internal abstract class BaseServiceImpl {
         return client.post(url) { setBody(requestBody) }.body<TResult>()
     }
 
+
     protected suspend inline fun <reified TResult, reified TRequest> put(url: String, requestBody: TRequest): TResult {
         return client.put(url) { setBody(requestBody) }.body<TResult>()
     }
@@ -64,6 +72,37 @@ internal abstract class BaseServiceImpl {
     protected suspend inline fun <reified TResult> delete(url: String): TResult {
         return client.delete(url).body<TResult>()
     }
+
+    protected fun FormBuilder.appendFile(
+        name: String,
+        file: File,
+        contentType: ContentType = ContentType.Image.JPEG
+    ) {
+        append(
+            key = name,
+            value = file.readBytes(),
+            headers = Headers.build {
+                append(
+                    HttpHeaders.ContentDisposition,
+                    "form-data; name=\"$name\"; filename=\"${file.name}\""
+                )
+                append(HttpHeaders.ContentType, contentType.toString())
+            }
+        )
+    }
+    protected suspend inline fun <reified TResult> postMultipart(
+        url: String,
+        noinline formData: FormBuilder.() -> Unit
+    ): TResult {
+        return client.post(url) {
+            setBody(
+                MultiPartFormDataContent(
+                    parts = formData(formData)
+                )
+            )
+        }.body()
+    }
+
 
     protected inline fun <T> safeExecute(apiCall: () -> T): ApiResult<T> {
         return try {
