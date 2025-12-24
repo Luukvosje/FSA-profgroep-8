@@ -2,6 +2,7 @@ package com.profgroep8.rmc_app.presentation.screens.login
 
 
 import RmcFilledButton
+import RmcScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -94,9 +95,9 @@ fun LoginScreen(
     Scaffold (
         topBar = {
             RmcAppBar (
-                title = R.string.login,
+                title = stringResource(R.string.login),
                 navigationIcon = Icons.AutoMirrored.Rounded.ArrowBack,
-                navigateUp = navigateBack // Gebruik navigateBack in plaats van direct navigateToScreen
+                onNavigateUp = navigateBack
             )
         }
     ) { innerPadding ->

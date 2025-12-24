@@ -1,5 +1,6 @@
 package com.profgroep8.rmc_app.presentation.screens.home
 import RmcFilledButton
+import RmcScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -80,7 +81,7 @@ fun HomeScreen(
 
                     RmcFilledButton(
                         value = stringResource(id = R.string.home_manage_cars),
-                        onClick = { navigateToScreen(RmcScreen.Home.name) }
+                        onClick = { navigateToScreen(RmcScreen.AllCars.name) }
                     )
 
                     RmcFilledButton(

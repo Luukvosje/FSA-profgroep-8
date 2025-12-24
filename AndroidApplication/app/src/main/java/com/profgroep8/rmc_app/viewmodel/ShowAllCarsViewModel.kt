@@ -1,0 +1,42 @@
+    package com.profgroep8.rmc_app.viewmodel
+
+    import androidx.lifecycle.viewModelScope
+    import com.example.network.interfaces.services.ServiceFactory
+    import com.example.network.models.domain.Car
+    import kotlinx.coroutines.flow.MutableStateFlow
+    import kotlinx.coroutines.flow.StateFlow
+    import kotlinx.coroutines.flow.asStateFlow
+    import kotlinx.coroutines.flow.update
+    import kotlinx.coroutines.launch
+
+    data class ShowAllCarsUiState(
+        val cars: List<Car> = listOf()
+    )
+
+    class ShowAllCarsViewModel(
+        private val sf : ServiceFactory,
+    ): BaseViewModel() {
+
+        private val _uiState = MutableStateFlow(ShowAllCarsUiState())
+        val uiState: StateFlow<ShowAllCarsUiState> = _uiState.asStateFlow()
+
+        init {
+            sf.setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjYXJfcmVudGFsX3VzZXJzIiwiaXNzIjoiY29tLnByb2Zncm9lcDguY2FycmVudGFsIiwidXNlcklkIjoiMSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsImV4cCI6MTc2NjY2NTcxMX0.1zYuXc5w_kOfA2bUbMxftnUkMRyXqg1gt9fdfc1oGw0   ")
+            getAllCars()
+        }
+
+        private fun getAllCars() {
+            viewModelScope.launch {
+                withLoading {
+                    val cars = sf.carService.getAllCars();
+                    cars.onSuccess { items ->
+                        _uiState.update { it.copy(cars = items) }
+                    }
+                }
+            }
+        }
+
+        fun refreshCars () {
+            getAllCars()
+        }
+    }

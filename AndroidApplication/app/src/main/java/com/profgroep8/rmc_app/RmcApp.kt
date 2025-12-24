@@ -1,23 +1,21 @@
 
 import androidx.annotation.StringRes
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.digitalarchitects.rmc_app.presentation.screens.welcome.WelcomeScreen
 import com.profgroep8.rmc_app.R
+import com.profgroep8.rmc_app.presentation.screens.AddCar.AddCarScreen
 import com.profgroep8.rmc_app.presentation.screens.CarInformation.CarInformationScreen
-import com.profgroep8.rmc_app.presentation.screens.addCar.AddCarScreen
 import com.profgroep8.rmc_app.presentation.screens.home.HomeScreen
 import com.profgroep8.rmc_app.presentation.screens.login.LoginScreen
-import com.profgroep8.rmc_app.presentation.screens.login.LoginViewModel
 import com.profgroep8.rmc_app.presentation.screens.register.RegisterScreen
-import com.profgroep8.rmc_app.presentation.screens.register.RegisterViewModel
-import com.profgroep8.rmc_app.presentation.screens.welcome.WelcomeViewModel
+import com.profgroep8.rmc_app.presentation.screens.showCars.AllCarsScreen
 import com.profgroep8.rmc_app.ui.theme.RMCappTheme
 
 enum class RmcScreen(@StringRes val title: Int){
@@ -26,14 +24,15 @@ enum class RmcScreen(@StringRes val title: Int){
     Login(R.string.login),
     Home(R.string.home),
     AddCar(R.string.home_add_car),
-    CarInformation(R.string.car_information)
+    CarInformation(R.string.car_information),
+    AllCars(R.string.home_manage_cars)
 }
 
 @Composable
 fun RmcApp(
     navController: NavHostController = rememberNavController()
 ) {
-    val startDestination = RmcScreen.AddCar
+    val startDestination = RmcScreen.AllCars
 
     NavHost(
         navController,
@@ -63,12 +62,20 @@ fun RmcApp(
         composable(RmcScreen.AddCar.name) {
             AddCarScreen(
                 navigateToScreen = {navController.navigate((it))}
-
             )
         }
-        composable(RmcScreen.CarInformation.name) {
+        composable(
+            route = "${RmcScreen.CarInformation.name}/{carId}",
+            arguments = listOf(navArgument("carId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val carId = backStackEntry.arguments?.getInt("carId");
             CarInformationScreen(
-                car = null,
+                carId = carId,
+                navigateToScreen = {navController.navigate(it)}
+            )
+        }
+        composable(RmcScreen.AllCars.name) {
+            AllCarsScreen(
                 navigateToScreen = {navController.navigate(it)}
             )
         }

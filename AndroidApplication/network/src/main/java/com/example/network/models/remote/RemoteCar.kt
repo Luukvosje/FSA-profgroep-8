@@ -12,18 +12,17 @@ data class RemoteCar(
     val brand: String,
     val model: String,
     val year: Int,
-    val fuelType: String,
+    val fuelType: Int,
     val price: Int,
     val userID: Int,
-) {
-}
+)
 
 fun RemoteCar.toDomainCar(): Car {
-    val carFuelType = when (fuelType.lowercase()) {
-        "gasoline" -> CarFuelType.Gasoline
-        "diesel" -> CarFuelType.Diesel
-        "electric" -> CarFuelType.Electric
-        "hybrid" -> CarFuelType.Hybrid
+    val carFuelType = when (fuelType) {
+        0 -> CarFuelType.Gasoline
+        1 -> CarFuelType.Diesel
+        2 -> CarFuelType.Electric
+        3 -> CarFuelType.Hybrid
         else -> CarFuelType.Unknown
     }
 

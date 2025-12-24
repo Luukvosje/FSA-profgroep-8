@@ -179,7 +179,7 @@ fun RmcFilledTonalIconButton(
 @Composable
 fun RmcOutlinedIconButton(
     icon: ImageVector,
-    @StringRes label: Int,
+    label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -189,7 +189,7 @@ fun RmcOutlinedIconButton(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = stringResource(label)
+            contentDescription = label
         )
     }
 }

@@ -6,8 +6,8 @@ import com.example.network.models.domain.CarTCOResult
 import com.example.network.models.remote.CalculateCarRequestDTO
 import com.example.network.models.remote.CreateCarDTO
 import com.example.network.models.remote.RemoteCalculateCar
-import com.example.network.models.remote.UpdateCarDTO
 import com.example.network.models.remote.RemoteCar
+import com.example.network.models.remote.UpdateCarDTO
 import com.example.network.models.remote.toDomainCar
 import com.example.network.models.remote.toDomainCarTCOResult
 import java.util.Date

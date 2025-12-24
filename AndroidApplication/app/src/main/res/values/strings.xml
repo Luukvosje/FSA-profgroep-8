@@ -34,4 +34,6 @@
     <string name="edit_car">Auto aanpassen</string>
     <string name="delete_car">Auto verwijderen</string>
     <string name="upload_car_image">Foto toevoegen</string>
+
+    <string name="manage_cars_sub">"Lijst van alle auto\'s</string>
 </resources>

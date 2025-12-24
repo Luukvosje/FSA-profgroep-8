@@ -37,41 +37,59 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.network.models.domain.Car
 import com.example.network.models.domain.CarFuelType
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.presentation.components.CarInfoItem
 import com.profgroep8.rmc_app.presentation.components.RmcSpacer
+import com.profgroep8.rmc_app.viewmodel.CarInformationViewModel
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
 fun CarInformationScreenPreview() {
-    CarInformationScreen (
-        car = Car(
+    CarInformationScreenUI (
+        car=Car(
             carID = 1,
-            licensePlate = "AB-123-CD",
-            brand = "Toyota",
-            model = "Corolla",
-            year = 2020,
-            fuelType = CarFuelType.Diesel,
-            userID = 1,
-            price = 20000
+            licensePlate = "AB-123-C",
+            brand = "Tesla",
+            model = "Model 3",
+            year = 2022,
+            fuelType = CarFuelType.Electric,
+            price = 45000,
+            userID = 1
         ),
-        navigateToScreen = { string -> println(string)}
+        navigateToScreen = {}
+    )
+}
+
+@Composable
+fun CarInformationScreen(
+    carId: Int?,
+    navigateToScreen: (route: String) -> Unit,
+    viewModel: CarInformationViewModel = koinViewModel(parameters = { parametersOf(carId) }),
+){
+    if (carId == null) {
+        navigateToScreen(RmcScreen.Home.name);
+        return;
+    }
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    CarInformationScreenUI(
+        car=uiState.car,
+        navigateToScreen = navigateToScreen
     )
 }
 
 
 @Composable
-fun CarInformationScreen(
+fun CarInformationScreenUI(
     car: Car?,
-    navigateToScreen: (route: String) -> Unit
+    navigateToScreen: (route: String)-> Unit
 ) {
-    if (car == null) {
-        navigateToScreen(RmcScreen.Home.name);
-        return;
-    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -94,31 +112,33 @@ fun CarInformationScreen(
             )
 
 
+    if(car != null) {
 
-            CarInfoItem(
-                label = stringResource(R.string.license_plate),
-                value = car.licensePlate
-            )
+        CarInfoItem(
+            label = stringResource(R.string.license_plate),
+            value = car.licensePlate
+        )
 
-            CarInfoItem(
-                label = stringResource(R.string.brand),
-                value = car.brand
-            )
+        CarInfoItem(
+            label = stringResource(R.string.brand),
+            value = car.brand
+        )
 
-            CarInfoItem(
-                label = stringResource(R.string.model),
-                value = car.model
-            )
+        CarInfoItem(
+            label = stringResource(R.string.model),
+            value = car.model
+        )
 
-            CarInfoItem(
-                label = stringResource(R.string.year),
-                value = car.year.toString()
-            )
+        CarInfoItem(
+            label = stringResource(R.string.year),
+            value = car.year.toString()
+        )
 
-            CarInfoItem(
-                label = stringResource(R.string.fuelType),
-                value = car.fuelType.displayName
-            )
+        CarInfoItem(
+            label = stringResource(R.string.fuelType),
+            value = car.fuelType.displayName
+        )
+    }
             RmcSpacer(height = 24)
 
             CarImageUpload(

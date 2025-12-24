@@ -1,6 +1,7 @@
 package com.profgroep8.rmc_app.presentation.screens.register
 
 import RmcFilledButton
+import RmcScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +48,6 @@ fun RegisterScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Handler voor systeem back-button
     BackHandler {
         navigateBack()
     }
@@ -55,9 +55,9 @@ fun RegisterScreen(
     Scaffold (
         topBar = {
             RmcAppBar (
-                title = R.string.register,
+                title = stringResource(R.string.register),
                 navigationIcon = Icons.AutoMirrored.Rounded.ArrowBack,
-                navigateUp = navigateBack
+                onNavigateUp = navigateBack
             )
         }
     ) { innerPadding ->
