@@ -1,13 +1,13 @@
     package com.profgroep8.rmc_app.viewmodel
 
     import androidx.lifecycle.viewModelScope
-    import com.example.network.interfaces.services.ServiceFactory
-    import com.example.network.models.domain.Car
-    import kotlinx.coroutines.flow.MutableStateFlow
-    import kotlinx.coroutines.flow.StateFlow
-    import kotlinx.coroutines.flow.asStateFlow
-    import kotlinx.coroutines.flow.update
-    import kotlinx.coroutines.launch
+import com.example.network.interfaces.services.ServiceFactory
+import com.example.network.models.domain.Car
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
     data class ShowAllCarsUiState(
         val cars: List<Car> = listOf()
@@ -38,5 +38,21 @@
 
         fun refreshCars () {
             getAllCars()
+        }
+
+        fun deleteCar(car: Car){
+            viewModelScope.launch {
+                withLoading {
+                    val res = sf.carService.deleteCar(car.carID)
+
+                    res.onSuccess {
+                        if (it) {
+                            getAllCars();
+                        } else {
+                            TODO("Show Toast")
+                        }
+                    }
+                }
+            }
         }
     }

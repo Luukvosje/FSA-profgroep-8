@@ -50,7 +50,8 @@ fun AllCarsScreenPreview() {
         ),
         navigateToScreen = {},
         isLoading = false,
-        refreshCars = {}
+        refreshCars = {},
+        onDeleteClick = {}
     )
 }
 
@@ -68,6 +69,7 @@ fun AllCarsScreen(
         navigateToScreen = navigateToScreen,
         isLoading = isLoading,
         refreshCars = { viewModel.refreshCars() },
+        onDeleteClick = { viewModel.deleteCar(it) }
     )
 }
 
@@ -77,6 +79,7 @@ fun CarScreenContent(
     navigateToScreen: (String) -> Unit,
     isLoading: Boolean,
     refreshCars: () -> Unit,
+    onDeleteClick: (Car) -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -112,7 +115,7 @@ fun CarScreenContent(
                                 items(state.cars) { car ->
                                     CarItem(
                                         car = car,
-                                        onDeleteClick = {},
+                                        onDeleteClick = { onDeleteClick(car) },
                                         onClick = { navigateToScreen("${RmcScreen.CarInformation.name}/${car.carID}") },
                                     )
                                 }
@@ -121,7 +124,9 @@ fun CarScreenContent(
                                     Text(
                                         text = stringResource(R.string.no_cars_found),
                                         style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                                        modifier = Modifier
+                                            .padding(16.dp)
+                                            .fillMaxWidth(),
                                         textAlign = TextAlign.Center
                                     )
                                 }
