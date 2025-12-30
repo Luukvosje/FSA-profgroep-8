@@ -60,6 +60,13 @@ internal class CarServiceImpl : BaseServiceImpl(), CarService {
         }
     }
 
+    override suspend fun createCarByLicense(request: String): ApiResult<Car> {
+        return safeExecute {
+            post<RemoteCar, Any>("cars/license/${request}", null).toDomainCar()
+        }
+    }
+
+
     override suspend fun calculateCarTCO(carID: Int, request: CalculateCarRequestDTO): ApiResult<CarTCOResult> {
         return safeExecute {
             put<RemoteCalculateCar, CalculateCarRequestDTO>("cars/$carID/calculate", request).toDomainCarTCOResult()
@@ -81,7 +88,6 @@ internal class CarServiceImpl : BaseServiceImpl(), CarService {
             ) {
                 appendFile("image", image)
             }.toBoolean()
-
         }
     }
 

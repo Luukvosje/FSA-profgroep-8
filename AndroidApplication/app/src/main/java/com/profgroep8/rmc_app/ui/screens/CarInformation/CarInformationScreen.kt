@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -161,6 +162,7 @@ fun CarInformationScreenUI(
                 },
                 onDeleteClick = {
 //                    navigateToScreen(RmcScreen.DeleteCar.name)
+                    viewModel.deleteCar(navigateToScreen)
                 }
             )
 
@@ -192,7 +194,7 @@ fun CarInformationScreenUI(
 
         CarInfoItem(
             label = stringResource(R.string.fuelType),
-            value = car?.fuelType?.displayName,
+            value =  car?.fuelType?.displayName,
             loading = car == null
         )
             RmcSpacer(height = 24)
@@ -206,6 +208,7 @@ fun CarInformationScreenUI(
                         photoPermissionHandler.requestPermissions(photoPermissionLauncher)
                     }
                 },
+                isLoading = uistate.isImageLoading,
                 onDeleteClick = { viewModel.deleteCarImage() }
             )
 
@@ -272,6 +275,7 @@ fun CarInformationTopBar(
 @Composable
 fun CarImageUpload(
     imageBytes: ByteArray?,
+    isLoading: Boolean,
     onUploadClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -281,47 +285,43 @@ fun CarImageUpload(
             .height(200.dp)
             .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable { if (imageBytes == null) onUploadClick() }
+            .clickable { if (imageBytes == null) onUploadClick() },
+        contentAlignment = Alignment.Center
     ) {
-
-        if (imageBytes == null) {
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FileUpload,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp)
-                )
-                Text(text = stringResource(R.string.upload_car_image))
+        when {
+            isLoading -> {
+                CircularProgressIndicator()
             }
-        } else {
-            AsyncImage(
-                model = imageBytes,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize()
-            )
 
-            IconButton(
-                onClick = onDeleteClick,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp)
-                    .background(
-                        MaterialTheme.colorScheme.surface,
-                        CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete image"
+            imageBytes == null -> {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.FileUpload, null, Modifier.size(48.dp))
+                    Text(stringResource(R.string.upload_car_image))
+                }
+            }
+
+            else -> {
+                AsyncImage(
+                    model = imageBytes,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
                 )
+
+                IconButton(
+                    onClick = onDeleteClick,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .background(MaterialTheme.colorScheme.surface, CircleShape)
+                ) {
+                    Icon(Icons.Default.Delete, null)
+                }
             }
         }
     }
 }
+
 
 @Composable
 private fun CarInformationDialogs(

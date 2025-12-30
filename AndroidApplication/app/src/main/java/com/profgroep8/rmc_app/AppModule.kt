@@ -1,6 +1,6 @@
 package com.profgroep8.rmc_app
 
-import com.profgroep8.rmc_app.ui.screens.login.LoginViewModel
+import com.profgroep8.rmc_app.viewmodel.AddCarViewModel
 import com.profgroep8.rmc_app.viewmodel.CarInformationViewModel
 import com.profgroep8.rmc_app.viewmodel.ShowAllCarsViewModel
 import org.koin.core.module.dsl.viewModel
@@ -14,4 +14,6 @@ val viewModelModule = module {
             sf = get(),
             carId = carId
         )
-    }}
+    }
+    viewModel { AddCarViewModel(get()) }
+}

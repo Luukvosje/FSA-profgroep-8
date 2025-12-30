@@ -17,6 +17,7 @@ interface CarService {
     suspend fun getSingleCar(carID: Int): ApiResult<Car>
     suspend fun getSingleCar(licensePlate: String): ApiResult<Car>
     suspend fun createCar(request: CreateCarDTO): ApiResult<Car>
+    suspend fun createCarByLicense(request: String): ApiResult<Car>
     suspend fun calculateCarTCO(carID: Int, request: CalculateCarRequestDTO): ApiResult<CarTCOResult>
     suspend fun updateCar(carID: Int, request: UpdateCarDTO): ApiResult<Car>
     suspend fun deleteCar(carID: Int): ApiResult<Boolean>

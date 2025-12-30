@@ -33,12 +33,11 @@ internal abstract class BaseServiceImpl {
 
     protected val client = HttpClient(OkHttp) {
         defaultRequest {
-            println("esfdkjnefjnkfejnkfes found ${token}")
             url("http://10.0.2.2:8080/")
             header("Content-Type", "application/json")
             header("Accept", "application/json")
         }
-
+            expectSuccess = true
         install(Logging) {
             logger = Logger.SIMPLE
         }
@@ -60,7 +59,7 @@ internal abstract class BaseServiceImpl {
         return client.get(url).body<TResult>()
     }
 
-    protected suspend inline fun <reified TResult, reified TRequest> post(url: String, requestBody: TRequest): TResult {
+    protected suspend inline fun <reified TResult, reified TRequest> post(url: String, requestBody: TRequest?): TResult {
         return client.post(url) { setBody(requestBody) }.body<TResult>()
     }
 

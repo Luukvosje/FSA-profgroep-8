@@ -76,7 +76,7 @@ fun HomeScreen(
 
                     RmcFilledButton(
                         value = stringResource(id = R.string.home_add_car),
-                        onClick = { navigateToScreen(RmcScreen.Home.name) }
+                        onClick = { navigateToScreen(RmcScreen.AddCar.name) }
                     )
 
                     RmcFilledButton(

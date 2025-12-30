@@ -1,6 +1,7 @@
 package com.profgroep8.rmc_app.viewmodel
 
 import PhotoUtils
+import RmcScreen
 import android.content.Context
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
@@ -16,7 +17,9 @@ import kotlinx.coroutines.launch
 data class CarInformationUiState(
     val car: Car? = null,
     val showImageSourceDialog: Boolean = false,
-    val showPermissionDeniedWarning: Boolean = false ,
+    val showPermissionDeniedWarning: Boolean = false,
+    val isImageLoading: Boolean = false,
+    val errorMessage: String? = null
 )
 
 class CarInformationViewModel(
@@ -34,6 +37,7 @@ class CarInformationViewModel(
     private fun getCar(carId: Int) {
         viewModelScope.launch {
             withLoading {
+
                 val carDeferred = async { sf.carService.getSingleCar(carId) }
                 val imageDeferred = async { sf.carService.getImage(carId) }
 
@@ -41,20 +45,25 @@ class CarInformationViewModel(
                 val imageResult = imageDeferred.await()
 
                 carResult.onSuccess { car ->
-                        _uiState.update { it.copy(car = car) }
+                        _uiState.update { it.copy(car = car, isImageLoading = true) }
+
                     imageResult.onSuccess { bytes ->
-                        val updatedCar = car.copy(imageBytes = bytes)
                         _uiState.update {
-                            it.copy(car = updatedCar)
-                        }
-                    }
-                    imageResult.onError {
-                        _uiState.update {
-                            it.copy(car = car.copy(imageBytes = null))
+                            it.copy(
+                                car = car.copy(imageBytes = bytes),
+                                isImageLoading = false
+                            )
                         }
                     }
 
-                    println("AAP, $imageResult")
+                    imageResult.onError {
+                        _uiState.update {
+                            it.copy(
+                                car = car.copy(imageBytes = null),
+                                isImageLoading = false
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -63,21 +72,27 @@ class CarInformationViewModel(
     fun addPhoto(uri: String, context: Context) {
         viewModelScope.launch {
             withLoading {
-                if(uiState.value.car == null){
+                if (uiState.value.car == null) {
                     throw Error();
                 }
                 val file = PhotoUtils.getFileFromUri(context, uri.toUri())
 
-                if(file == null){
-                    throw Error("File missing");
+                if (file == null) {
+                   return@withLoading
                 }
 
                 val uploadImage = sf.carService.uploadImage(
                     carID = uiState.value.car!!.carID,
                     image = file,
                 );
-                uploadImage.onSuccess { it ->
+                _uiState.update { it.copy(isImageLoading = true) }
+
+                uploadImage.onSuccess {
                     getCar(carId)
+                    _uiState.update { it.copy(isImageLoading = false) }
+                }
+                uploadImage.onError {
+                    _uiState.update { it.copy(isImageLoading = false) }
                 }
             }
         }
@@ -87,14 +102,17 @@ class CarInformationViewModel(
         viewModelScope.launch {
             withLoading {
                 val car = uiState.value.car ?: return@withLoading
+                _uiState.update { it.copy(isImageLoading = true) }
                 sf.carService.deleteImage(car.carID)
                     .onSuccess {
                         _uiState.update {
                             it.copy(
-                                car = car.copy(imageBytes = null)
+                                car = car.copy(imageBytes = null),
+                                isImageLoading = false
                             )
                         }
                     }
+                    .onError { _uiState.update { it.copy(isImageLoading = false) } }
             }
         }
     }
@@ -113,6 +131,23 @@ class CarInformationViewModel(
             showImageSourceDialog()
         } else {
             _uiState.update { it.copy(showPermissionDeniedWarning = true) }
+        }
+    }
+
+    fun deleteCar(navigateToScreen: (route: String) -> Unit){
+        viewModelScope.launch {
+            withLoading {
+                val car = uiState.value.car ?: return@withLoading
+                val res = sf.carService.deleteCar(car.carID)
+                
+                res.onSuccess {
+                    if (it) {
+                        navigateToScreen(RmcScreen.AllCars.name);
+                    } else {
+                        TODO("Show Toast")
+                    }
+                }
+            }
         }
     }
 

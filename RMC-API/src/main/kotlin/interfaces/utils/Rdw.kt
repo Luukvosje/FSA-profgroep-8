@@ -17,12 +17,12 @@ data class RdwFuel(
 )
 
 enum class RdwFuelTypes(val code: Int) {
-    Unknown(0),
-    Elektriciteit(1),
-    Diesel(2),
-    Benzine(3),
-    Lpg(4),
-    Waterstof(5);
+    Unknown(-1),
+    Elektriciteit(2),
+    Diesel(1),
+    Benzine(0),
+    Lpg(3),
+    Waterstof(3);
 
     companion object {
         fun fromString(value: String): Int? {
