@@ -32,7 +32,7 @@ enum class RmcScreen(@StringRes val title: Int){
 fun RmcApp(
     navController: NavHostController = rememberNavController()
 ) {
-    val startDestination = RmcScreen.AllCars
+    val startDestination = RmcScreen.Welcome
 
     NavHost(
         navController,

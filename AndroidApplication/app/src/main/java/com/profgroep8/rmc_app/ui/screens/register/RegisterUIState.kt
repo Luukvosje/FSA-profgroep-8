@@ -1,14 +1,17 @@
 package com.profgroep8.rmc_app.ui.screens.register
 
 data class RegisterUIState(
-    var isLoading: Boolean = false,
-    var fullName: String = "",
-    var email: String = "",
-    var password: String = "",
-    var phone: String = "",
-    var address: String = "",
-    var zipcode: String = "",
-    var city: String = "",
-    var countryISO: String = "",
-    var points: String = "0"
+    val isLoading: Boolean = false,
+
+    val fullName: String = "",
+    val email: String = "",
+    val password: String = "",
+    val phone: String = "",
+    val address: String = "",
+    val zipcode: String = "",
+    val city: String = "",
+    val countryISO: String = "",
+
+    val errorMessage: String? = null,
+    val isSuccess: Boolean = false
 )

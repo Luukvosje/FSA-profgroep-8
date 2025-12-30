@@ -9,6 +9,7 @@ sealed interface RegisterUIEvent {
     data class ZipcodeChanged(val value: String) : RegisterUIEvent
     data class CityChanged(val value: String) : RegisterUIEvent
     data class CountryISOChanged(val value: String) : RegisterUIEvent
-    data class PointsChanged(val value: String) : RegisterUIEvent
+
     object RegisterButtonClicked : RegisterUIEvent
+    object ErrorShown : RegisterUIEvent
 }
