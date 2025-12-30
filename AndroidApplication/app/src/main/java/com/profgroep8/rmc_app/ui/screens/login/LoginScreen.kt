@@ -1,17 +1,10 @@
 package com.profgroep8.rmc_app.ui.screens.login
 
-
 import RmcFilledButton
 import RmcScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -19,82 +12,61 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.profgroep8.rmc_app.R
-import com.profgroep8.rmc_app.ui.components.ClickableLoginTextComponent
-import com.profgroep8.rmc_app.ui.components.DividerTextComponent
-import com.profgroep8.rmc_app.ui.components.RmcAppBar
-import com.profgroep8.rmc_app.ui.components.RmcSpacer
-import com.profgroep8.rmc_app.ui.components.RmcTextField
-import org.koin.compose.viewmodel.koinViewModel
+import com.profgroep8.rmc_app.ui.components.*
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = koinViewModel(),
+    viewModel: LoginViewModel = viewModel(),
     navigateToScreen: (String) -> Unit,
-    navigateBack: () -> Unit = { navigateToScreen(RmcScreen.Welcome.name) } // Optionele parameter
+    navigateBack: () -> Unit = { navigateToScreen(RmcScreen.Welcome.name) }
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
-    // Handler voor systeem back-button
-    BackHandler {
-        navigateBack()
+    BackHandler { navigateBack() }
+
+    // ✅ Navigate EXACTLY ONCE after successful login (token already stored)
+    LaunchedEffect(Unit) {
+        snapshotFlow { uiState.isSuccess }
+            .collect { success ->
+                if (success) {
+                    navigateToScreen(RmcScreen.Home.name)
+                }
+            }
     }
 
-    LaunchedEffect(viewModel, context) {
-//        viewModel.authResult.collect { result ->
-//            when (result) {
-//                is AuthResult.Authorized -> {
-//                    viewModel.getDataFromRemoteSource()
-//                    navigateToScreen(RmcScreen.RentACar.name)
-//                }
-//
-//                is AuthResult.Unauthorized -> {
-//                    Toast.makeText(
-//                        context,
-//                        R.string.wrong_email_or_password_please_try_again,
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//
-//                is AuthResult.NoConnectionError -> {
-//                    Toast.makeText(
-//                        context,
-//                        R.string.no_connection_please_try_again_later,
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//
-//                is AuthResult.UnknownError -> {
-//                    Toast.makeText(
-//                        context,
-//                        R.string.unknown_error_occurred_please_try_again_later,
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                }
-//            }
-//        }
+    // ❌ Error dialog
+    uiState.errorMessage?.let { error ->
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.onEvent(LoginUIEvent.ErrorShown)
+            },
+            confirmButton = {
+                RmcFilledButton(
+                    value = "OK",
+                    onClick = {
+                        viewModel.onEvent(LoginUIEvent.ErrorShown)
+                    }
+                )
+            },
+            title = { Text("Login failed") },
+            text = { Text(error) }
+        )
     }
 
-    Scaffold (
+    Scaffold(
         topBar = {
-            RmcAppBar (
+            RmcAppBar(
                 title = stringResource(R.string.login),
                 navigationIcon = Icons.AutoMirrored.Rounded.ArrowBack,
                 onNavigateUp = navigateBack
@@ -107,68 +79,75 @@ fun LoginScreen(
                 .fillMaxSize(),
             color = MaterialTheme.colorScheme.surface
         ) {
-            Column (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = dimensionResource(R.dimen.padding_large))
-                    .verticalScroll(rememberScrollState())
-            ) {
-                RmcTextField(
-                    label = stringResource(id = R.string.email),
-                    leadingIcon = Icons.Filled.Email,
-                    value = uiState.email,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
-                    onValueChange = {
-                        viewModel.onEvent(LoginUIEvent.EmailChanged(it))
-                    }
-                )
+            Box(modifier = Modifier.fillMaxSize()) {
 
-                RmcSpacer(8)
-
-                RmcTextField(
-                    label = stringResource(id = R.string.password),
-                    leadingIcon = Icons.Filled.Lock,
-                    value = uiState.password,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
-                    ),
-                    isPassword = true,
-                    onValueChange = {
-                        viewModel.onEvent(LoginUIEvent.PasswordChanged(it))
-                    }
-                )
-
-                RmcSpacer(16)
-
-                // UnderLinedTextComponent(value = stringResource(id = R.string.forgot_password))
-
-                RmcFilledButton(
-                    value = stringResource(id = R.string.login),
-                    isEnabled = uiState.email.isNotEmpty() && uiState.password.isNotEmpty(),
-                    onClick = { viewModel.onEvent(LoginUIEvent.LoginButtonClicked) }
-                )
-
-                DividerTextComponent()
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = dimensionResource(R.dimen.padding_large))
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    ClickableLoginTextComponent(
-                        tryingToLogin = false,
-                        onTextSelected = { navigateToScreen(RmcScreen.Register.name) }
+
+                    RmcTextField(
+                        label = stringResource(R.string.email),
+                        leadingIcon = Icons.Filled.Email,
+                        value = uiState.email,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        onValueChange = {
+                            viewModel.onEvent(LoginUIEvent.EmailChanged(it))
+                        }
                     )
+
+                    RmcSpacer(8)
+
+                    RmcTextField(
+                        label = stringResource(R.string.password),
+                        leadingIcon = Icons.Filled.Lock,
+                        value = uiState.password,
+                        isPassword = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        onValueChange = {
+                            viewModel.onEvent(LoginUIEvent.PasswordChanged(it))
+                        }
+                    )
+
+                    RmcSpacer(16)
+
+                    RmcFilledButton(
+                        value = stringResource(R.string.login),
+                        isEnabled = !uiState.isLoading,
+                        onClick = {
+                            viewModel.onEvent(LoginUIEvent.LoginButtonClicked)
+                        }
+                    )
+
+                    DividerTextComponent()
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        ClickableLoginTextComponent(
+                            tryingToLogin = false,
+                            onTextSelected = {
+                                navigateToScreen(RmcScreen.Register.name)
+                            }
+                        )
+                    }
                 }
 
+                // ⏳ Loading overlay
                 if (uiState.isLoading) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.White),
+                            .background(Color.White.copy(alpha = 0.7f)),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()

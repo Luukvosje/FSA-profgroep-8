@@ -26,7 +26,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import java.io.File
 
-internal abstract class BaseServiceImpl {
+public abstract class BaseServiceImpl {
     protected var token: String?
         get() = TokenProvider.token
         set(value) { TokenProvider.token = value }

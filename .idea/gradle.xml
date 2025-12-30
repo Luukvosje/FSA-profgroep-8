@@ -5,8 +5,7 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/RMC-API" />
-        <option name="gradleHome" value="C:\Gradle\gradle-8.3" />
-        <option name="gradleJvm" value="liberica-full-23" />
+        <option name="gradleJvm" value="openjdk-24" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/RMC-API" />
