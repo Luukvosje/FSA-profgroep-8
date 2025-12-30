@@ -14,14 +14,14 @@ import kotlinx.coroutines.launch
 
 class RegisterViewModel : ViewModel() {
 
-    // ✅ Create service directly (no DI → no crash)
-    private val userService = UserServiceImpl()
+    private val userService = object : UserServiceImpl() {}
 
     private val _uiState = MutableStateFlow(RegisterUIState())
     val uiState: StateFlow<RegisterUIState> = _uiState.asStateFlow()
 
     fun onEvent(event: RegisterUIEvent) {
         when (event) {
+
             is RegisterUIEvent.FullNameChanged ->
                 _uiState.update { it.copy(fullName = event.value) }
 
@@ -98,7 +98,7 @@ class RegisterViewModel : ViewModel() {
                         it.copy(isLoading = false, isSuccess = true)
                     }
 
-                is ApiResult.Error -> {
+                is ApiResult.Error ->
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -106,7 +106,6 @@ class RegisterViewModel : ViewModel() {
                                 ?: "Registration failed"
                         )
                     }
-                }
             }
         }
     }

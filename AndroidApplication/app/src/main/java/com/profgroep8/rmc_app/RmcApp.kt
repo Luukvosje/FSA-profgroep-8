@@ -53,12 +53,12 @@ fun RmcApp(
                 navigateToScreen = { route -> navController.navigate(route) }
             )
         }
-        composable(RmcScreen.Home.name){
-            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.home.HomeScreen(
-                navigateToScreen = { navController.navigate(it) },
-                userName = "LoekTEST"
+        composable(RmcScreen.Home.name) {
+            com.profgroep8.rmc_app.ui.screens.home.HomeScreen(
+                navigateToScreen = { navController.navigate(it) }
             )
         }
+
         composable(RmcScreen.AddCar.name) {
             _root_ide_package_.com.profgroep8.rmc_app.ui.screens.AddCar.AddCarScreen(
                 navigateToScreen = { navController.navigate((it)) }

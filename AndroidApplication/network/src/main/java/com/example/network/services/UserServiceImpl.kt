@@ -5,7 +5,7 @@ import com.example.network.models.domain.User
 import com.example.network.models.remote.*
 import com.example.network.services.ApiResult
 
-class UserServiceImpl : BaseServiceImpl(), UserService {
+abstract class UserServiceImpl : BaseServiceImpl(), UserService {
 
     override suspend fun register(request: CreateUserDTO): ApiResult<User> {
         return safeExecute {
@@ -16,7 +16,7 @@ class UserServiceImpl : BaseServiceImpl(), UserService {
         }
     }
 
-     suspend fun login(request: LoginUserDTO): ApiResult<User> {
+     override suspend fun login(request: LoginUserDTO): ApiResult<User> {
         return safeExecute {
             val response = post<RemoteLoginResponse, LoginUserDTO>(
                 "users/login",
@@ -26,5 +26,15 @@ class UserServiceImpl : BaseServiceImpl(), UserService {
             updateToken(response.token)
             response.user.toDomainUser()
         }
+    }
+
+    override suspend fun getMe(): ApiResult<User> {
+        return safeExecute {
+            get<RemoteUser>("users/me").toDomainUser()
+        }
+    }
+
+    override fun logout() {
+        updateToken(null)
     }
 }

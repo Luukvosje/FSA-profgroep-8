@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
-    private val userService = UserServiceImpl()
+
+    private val userService = object : UserServiceImpl() {}
 
     private val _uiState = MutableStateFlow(LoginUIState())
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
@@ -55,16 +56,12 @@ class LoginViewModel : ViewModel() {
             )
 
             when (result) {
-                is ApiResult.Success -> {
+                is ApiResult.Success ->
                     _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isSuccess = true
-                        )
+                        it.copy(isLoading = false, isSuccess = true)
                     }
-                }
 
-                is ApiResult.Error -> {
+                is ApiResult.Error ->
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -72,7 +69,6 @@ class LoginViewModel : ViewModel() {
                                 ?: "Invalid email or password"
                         )
                     }
-                }
             }
         }
     }
