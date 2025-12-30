@@ -27,11 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.network.models.domain.Car
-import com.example.network.models.domain.CarFuelType
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.RmcAppBar
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
@@ -45,16 +45,7 @@ fun AllCarsScreenPreview() {
     CarScreenContent(
         state = ShowAllCarsUiState(
             cars = listOf(
-                Car(
-                    carID = 1,
-                    licensePlate = "AB-123-C",
-                    brand = "Tesla",
-                    model = "Model 3",
-                    year = 2022,
-                    fuelType = CarFuelType.Electric,
-                    price = 45000,
-                    userID = 1
-                )
+
             )
         ),
         navigateToScreen = {},
@@ -117,12 +108,23 @@ fun CarScreenContent(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            items(state.cars) { car ->
-                                CarItem(
-                                    car = car,
-                                    onDeleteClick = {},
-                                    onClick = { navigateToScreen("${RmcScreen.CarInformation.name}/${car.carID}") },
-                                )
+                            if (state.cars.count() > 0) {
+                                items(state.cars) { car ->
+                                    CarItem(
+                                        car = car,
+                                        onDeleteClick = {},
+                                        onClick = { navigateToScreen("${RmcScreen.CarInformation.name}/${car.carID}") },
+                                    )
+                                }
+                            } else {
+                                item {
+                                    Text(
+                                        text = stringResource(R.string.no_cars_found),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
                         }
                     }

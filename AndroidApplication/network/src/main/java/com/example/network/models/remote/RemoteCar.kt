@@ -34,7 +34,8 @@ fun RemoteCar.toDomainCar(): Car {
         year = year,
         fuelType = carFuelType,
         price = price,
-        userID = userID
+        userID = userID,
+        imageBytes = null,
     )
 }
 

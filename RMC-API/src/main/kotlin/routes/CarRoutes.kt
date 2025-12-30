@@ -4,10 +4,15 @@ import com.profgroep8.exceptions.ConflictException
 import com.profgroep8.exceptions.UnauthorizedException
 import com.profgroep8.interfaces.services.ServiceFactory
 import com.profgroep8.models.dto.*
+import com.profgroep8.utils.FindImage
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.http.content.file
+import io.ktor.server.http.content.files
+import io.ktor.server.http.content.static
+import io.ktor.server.http.content.staticFiles
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -22,6 +27,7 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
     routing {
         authenticate("jwt") {
+
             route("/cars") {
                 // GET: Get all cars
                 get() {
@@ -194,6 +200,44 @@ fun Application.carRoutes(serviceFactory: ServiceFactory) {
 
                         call.respond(mapOf("imagePath" to filePath))
                     }
+
+                    get("/image") {
+                        val carId = call.parameters["carID"]?.toIntOrNull() ?: throw BadRequestException("Invalid car ID")
+                        val uploadDir = FindImage(
+                            carID = carId,
+                            serviceFactory = serviceFactory,
+                            userID = call.requireUserContext().userID,
+                        )
+
+                        val imageFile = uploadDir.listFiles()
+                            ?.firstOrNull { it.name.startsWith("car_$carId.") }
+                            ?: throw NotFoundException("Image not found")
+
+                        call.respondFile(imageFile)
+                    }
+                    // DELETE: Remove image from a car
+                    delete("/image") {
+                        val carId = call.parameters["carID"]?.toIntOrNull() ?: throw BadRequestException("Invalid car ID")
+                        val uploadDir = FindImage(
+                            carID = carId,
+                            serviceFactory = serviceFactory,
+                            userID = call.requireUserContext().userID,
+                        )
+
+                        if (!uploadDir.exists()) throw NotFoundException("Upload directory not found")
+
+
+                        val imageFile = uploadDir.listFiles()
+                            ?.firstOrNull { it.name.startsWith("car_$carId.") }
+                            ?: throw NotFoundException("Image not found")
+
+                        if (!imageFile.delete()) {
+                            throw BadRequestException("Failed to delete image")
+                        }
+
+                        call.respond(true)
+                    }
+
                 }
 
                 // GET: Get car from RdwClient by license plate

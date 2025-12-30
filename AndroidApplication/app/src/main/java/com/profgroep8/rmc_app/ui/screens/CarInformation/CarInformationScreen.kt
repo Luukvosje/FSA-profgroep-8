@@ -71,8 +71,6 @@ fun CarInformationScreen(
     navigateToScreen: (route: String) -> Unit,
     viewModel: CarInformationViewModel = koinViewModel(parameters = { parametersOf(carId) }),
 ){
-
-
     if (carId == null) {
         navigateToScreen(RmcScreen.Home.name);
         return;
@@ -80,8 +78,6 @@ fun CarInformationScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val loading by viewModel.isLoading.collectAsStateWithLifecycle()
-
-
 
     CarInformationScreenUI(
         car=uiState.car,
@@ -91,7 +87,6 @@ fun CarInformationScreen(
         viewModel = viewModel
     )
 }
-
 
 @Composable
 fun CarInformationScreenUI(
@@ -203,7 +198,7 @@ fun CarInformationScreenUI(
             RmcSpacer(height = 24)
 
             CarImageUpload(
-                imageUri = null,
+                imageBytes = car?.imageBytes,
                 onUploadClick = {
                     if (photoPermissionHandler.hasPermissions()) {
                         viewModel.showImageSourceDialog()
@@ -211,9 +206,7 @@ fun CarInformationScreenUI(
                         photoPermissionHandler.requestPermissions(photoPermissionLauncher)
                     }
                 },
-                onDeleteClick = {
-
-                }
+                onDeleteClick = { viewModel.deleteCarImage() }
             )
 
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
@@ -257,13 +250,13 @@ fun CarInformationTopBar(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.edit_car)) },
-                    onClick = {
-                        expanded = false
-                        onEditClick()
-                    }
-                )
+//                DropdownMenuItem(
+//                    text = { Text(stringResource(R.string.edit_car)) },
+//                    onClick = {
+//                        expanded = false
+//                        onEditClick()
+//                    }
+//                )
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.delete_car)) },
                     onClick = {
@@ -278,7 +271,7 @@ fun CarInformationTopBar(
 
 @Composable
 fun CarImageUpload(
-    imageUri: Uri?,
+    imageBytes: ByteArray?,
     onUploadClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -288,10 +281,10 @@ fun CarImageUpload(
             .height(200.dp)
             .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable { if (imageUri == null) onUploadClick() }
+            .clickable { if (imageBytes == null) onUploadClick() }
     ) {
 
-        if (imageUri == null) {
+        if (imageBytes == null) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -305,9 +298,9 @@ fun CarImageUpload(
             }
         } else {
             AsyncImage(
-                model = imageUri,
+                model = imageBytes,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize()
             )
 

@@ -12,9 +12,6 @@ import com.example.network.models.remote.UpdateCarDTO
 import com.example.network.models.remote.toBoolean
 import com.example.network.models.remote.toDomainCar
 import com.example.network.models.remote.toDomainCarTCOResult
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
-import io.ktor.http.HttpHeaders
 import java.io.File
 import java.util.Date
 
@@ -85,6 +82,18 @@ internal class CarServiceImpl : BaseServiceImpl(), CarService {
                 appendFile("image", image)
             }.toBoolean()
 
+        }
+    }
+
+    override suspend fun getImage(carID: Int): ApiResult<ByteArray> {
+        return safeExecute {
+            get<ByteArray>("cars/$carID/image")
+        }
+    }
+
+    override suspend fun deleteImage(carID: Int): ApiResult<Boolean> {
+        return safeExecute {
+            delete<Boolean>("cars/$carID/image")
         }
     }
 

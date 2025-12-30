@@ -6,6 +6,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.models.domain.Car
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,9 +34,27 @@ class CarInformationViewModel(
     private fun getCar(carId: Int) {
         viewModelScope.launch {
             withLoading {
-                val cars = sf.carService.getSingleCar(carId);
-                cars.onSuccess { items ->
-                    _uiState.update { it.copy(car = items) }
+                val carDeferred = async { sf.carService.getSingleCar(carId) }
+                val imageDeferred = async { sf.carService.getImage(carId) }
+
+                val carResult = carDeferred.await()
+                val imageResult = imageDeferred.await()
+
+                carResult.onSuccess { car ->
+                        _uiState.update { it.copy(car = car) }
+                    imageResult.onSuccess { bytes ->
+                        val updatedCar = car.copy(imageBytes = bytes)
+                        _uiState.update {
+                            it.copy(car = updatedCar)
+                        }
+                    }
+                    imageResult.onError {
+                        _uiState.update {
+                            it.copy(car = car.copy(imageBytes = null))
+                        }
+                    }
+
+                    println("AAP, $imageResult")
                 }
             }
         }
@@ -48,7 +67,7 @@ class CarInformationViewModel(
                     throw Error();
                 }
                 val file = PhotoUtils.getFileFromUri(context, uri.toUri())
-                println("aap, $file")
+
                 if(file == null){
                     throw Error("File missing");
                 }
@@ -58,15 +77,26 @@ class CarInformationViewModel(
                     image = file,
                 );
                 uploadImage.onSuccess { it ->
-                    updateCarImage();
+                    getCar(carId)
                 }
             }
         }
     }
 
-    fun updateCarImage(){
-        //retrieve image and update car image
-        
+    fun deleteCarImage() {
+        viewModelScope.launch {
+            withLoading {
+                val car = uiState.value.car ?: return@withLoading
+                sf.carService.deleteImage(car.carID)
+                    .onSuccess {
+                        _uiState.update {
+                            it.copy(
+                                car = car.copy(imageBytes = null)
+                            )
+                        }
+                    }
+            }
+        }
     }
 
     fun showImageSourceDialog() =

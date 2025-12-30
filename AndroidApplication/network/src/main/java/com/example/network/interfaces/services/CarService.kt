@@ -21,5 +21,7 @@ interface CarService {
     suspend fun updateCar(carID: Int, request: UpdateCarDTO): ApiResult<Car>
     suspend fun deleteCar(carID: Int): ApiResult<Boolean>
     suspend fun uploadImage(carID: Int, image: File): ApiResult<Boolean>
+    suspend fun getImage(carID: Int): ApiResult<ByteArray>
+    suspend fun deleteImage(carID: Int): ApiResult<Boolean>
 }
 

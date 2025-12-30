@@ -37,7 +37,8 @@
     <string name="delete_car">Auto verwijderen</string>
     <string name="upload_car_image">Foto toevoegen</string>
 
-    <string name="manage_cars_sub">"Lijst van alle auto\'s</string>
+    <string name="manage_cars_sub">Lijst van alle auto\'s</string>
+    <string name="no_cars_found">Geen auto\'s gevonden</string>
     <string name="add_photo">Foto toevoegen</string>
     <string name="take_photo">Foto maken</string>
     <string name="choose_from_gallery">Kies uit gallerij</string>
