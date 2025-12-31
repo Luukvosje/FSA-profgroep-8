@@ -25,7 +25,8 @@ enum class RmcScreen(@StringRes val title: Int){
     Home(R.string.home),
     AddCar(R.string.home_add_car),
     CarInformation(R.string.car_information),
-    AllCars(R.string.home_manage_cars)
+    AllCars(R.string.home_manage_cars),
+    ViewPoints(R.string.home_view_points)
 }
 
 @Composable
@@ -76,6 +77,12 @@ fun RmcApp(
         }
         composable(RmcScreen.AllCars.name) {
             _root_ide_package_.com.profgroep8.rmc_app.ui.screens.showCars.AllCarsScreen(
+                navigateToScreen = { navController.navigate(it) }
+            )
+        }
+
+        composable(RmcScreen.ViewPoints.name) {
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.bonuspoints.BonusPointsScreen(
                 navigateToScreen = { navController.navigate(it) }
             )
         }

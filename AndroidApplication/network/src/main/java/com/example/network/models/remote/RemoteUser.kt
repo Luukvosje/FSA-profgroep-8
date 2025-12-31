@@ -57,3 +57,8 @@ data class RemoteLoginResponse(
 fun RemoteLoginResponse.toDomain(): Pair<User, String> {
     return user.toDomainUser() to token
 }
+
+@Serializable
+data class RemoteBonusPointsResponse(
+    val bonusPoints: Int
+)

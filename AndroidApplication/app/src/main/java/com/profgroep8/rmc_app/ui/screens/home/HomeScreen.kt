@@ -114,7 +114,7 @@ fun HomeScreen(
 
                         RmcFilledButton(
                             value = stringResource(id = R.string.home_view_points),
-                            onClick = { navigateToScreen(RmcScreen.Home.name) } // keep placeholder
+                            onClick = { navigateToScreen(RmcScreen.ViewPoints.name) }
                         )
                     }
                 }

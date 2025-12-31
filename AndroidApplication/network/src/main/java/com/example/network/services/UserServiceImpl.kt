@@ -34,6 +34,14 @@ abstract class UserServiceImpl : BaseServiceImpl(), UserService {
         }
     }
 
+    override suspend fun getBonusPoints(userId: Int): ApiResult<Int> {
+        return safeExecute {
+            get<RemoteBonusPointsResponse>(
+                "users/$userId/bonuspoints"
+            ).bonusPoints
+        }
+    }
+
     override fun logout() {
         updateToken(null)
     }

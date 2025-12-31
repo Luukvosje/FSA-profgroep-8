@@ -10,4 +10,5 @@ interface UserService {
     suspend fun login(request: LoginUserDTO): ApiResult<User>
     suspend fun getMe(): ApiResult<User>
     fun logout()
+    suspend fun getBonusPoints(userId: Int): ApiResult<Int>
 }
