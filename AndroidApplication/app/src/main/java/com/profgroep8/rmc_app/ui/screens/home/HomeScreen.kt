@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
+import com.profgroep8.rmc_app.viewmodel.HomeViewModel
 
 @Preview(showBackground = true)
 @Composable

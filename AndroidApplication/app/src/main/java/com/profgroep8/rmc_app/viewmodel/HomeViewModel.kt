@@ -1,4 +1,4 @@
-package com.profgroep8.rmc_app.ui.screens.home
+package com.profgroep8.rmc_app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.*
+import com.profgroep8.rmc_app.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(

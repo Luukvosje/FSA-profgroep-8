@@ -1,4 +1,4 @@
-package com.profgroep8.rmc_app.ui.screens.register
+package com.profgroep8.rmc_app.viewmodel
 
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.network.models.remote.CreateUserDTO
 import com.example.network.services.ApiResult
 import com.example.network.services.UserServiceImpl
+import com.profgroep8.rmc_app.ui.screens.register.RegisterUIEvent
+import com.profgroep8.rmc_app.ui.screens.register.RegisterUIState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

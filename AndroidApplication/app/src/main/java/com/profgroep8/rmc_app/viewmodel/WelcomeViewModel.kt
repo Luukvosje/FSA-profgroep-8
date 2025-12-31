@@ -1,8 +1,8 @@
-package com.profgroep8.rmc_app.ui.screens.welcome
+package com.profgroep8.rmc_app.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.profgroep8.rmc_app.ui.screens.welcome.WelcomeUIState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

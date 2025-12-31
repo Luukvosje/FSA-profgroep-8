@@ -1,10 +1,12 @@
-package com.profgroep8.rmc_app.ui.screens.login
+package com.profgroep8.rmc_app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.network.models.remote.LoginUserDTO
 import com.example.network.services.ApiResult
 import com.example.network.services.UserServiceImpl
+import com.profgroep8.rmc_app.ui.screens.login.LoginUIEvent
+import com.profgroep8.rmc_app.ui.screens.login.LoginUIState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
