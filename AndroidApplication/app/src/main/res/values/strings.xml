@@ -53,4 +53,8 @@
     <string name="reset">Reset</string>
     <string name="filter_cars">Auto\'s zoeken</string>
     <string name="filter_cars_sub">Zoek auto\'s met filters</string>
+
+    <string name="all_rentals">Alle huurauto\'s</string>
+    <string name="all_rentals_sub">Lijst van alle huurauto\'s</string>
+    <string name="rental_information">Huurauto Informatie</string>
 </resources>

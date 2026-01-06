@@ -5,6 +5,7 @@ import com.profgroep8.rmc_app.viewmodel.CarInformationViewModel
 import com.profgroep8.rmc_app.viewmodel.FilterCarsViewModel
 import com.profgroep8.rmc_app.viewmodel.LoginViewModel
 import com.profgroep8.rmc_app.viewmodel.ShowAllCarsViewModel
+import com.profgroep8.rmc_app.viewmodel.ShowAllRentalsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -19,5 +20,6 @@ val viewModelModule = module {
     }
     viewModel { AddCarViewModel(get()) }
     viewModel { FilterCarsViewModel(get()) }
+    viewModel { ShowAllRentalsViewModel(get()) }
 }
 

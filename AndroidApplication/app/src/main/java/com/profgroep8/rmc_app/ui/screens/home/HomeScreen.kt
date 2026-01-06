@@ -101,7 +101,7 @@ fun HomeScreen(
 
                         RmcFilledButton(
                             value = stringResource(id = R.string.home_reservations),
-                            onClick = { navigateToScreen(RmcScreen.Home.name) } // keep placeholder
+                            onClick = { navigateToScreen(RmcScreen.Rentals.name) }
                         )
 
                         RmcFilledButton(

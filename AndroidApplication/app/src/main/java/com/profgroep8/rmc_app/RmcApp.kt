@@ -27,7 +27,9 @@ enum class RmcScreen(@StringRes val title: Int){
     CarInformation(R.string.car_information),
     FilterCars(R.string.home_search_car),
     AllCars(R.string.home_manage_cars),
-    ViewPoints(R.string.home_view_points)
+    ViewPoints(R.string.home_view_points),
+    Rentals(R.string.home_reservations),
+    RentalInformation(R.string.rental_information)
 }
 
 @Composable
@@ -92,6 +94,23 @@ fun RmcApp(
 
         composable(RmcScreen.ViewPoints.name) {
             _root_ide_package_.com.profgroep8.rmc_app.ui.screens.bonuspoints.BonusPointsScreen(
+                navigateToScreen = { navController.navigate(it) }
+            )
+        }
+
+        composable(RmcScreen.Rentals.name) {
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.showRentals.AllRentalsScreen(
+                navigateToScreen = { navController.navigate(it)}
+            )
+        }
+        
+        composable(
+            route = "${RmcScreen.RentalInformation.name}/{rentalId}",
+            arguments = listOf(navArgument("rentalId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val rentalId = backStackEntry.arguments?.getInt("rentalId")
+            com.profgroep8.rmc_app.ui.screens.RentalInformation.RentalInformationScreen(
+                rentalId = rentalId,
                 navigateToScreen = { navController.navigate(it) }
             )
         }
