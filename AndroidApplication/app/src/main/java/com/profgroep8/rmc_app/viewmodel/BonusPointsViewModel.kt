@@ -50,9 +50,9 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
     private var routeIndex: Int = 0
 
     // ----- physics -----
-    private val vehicleMass = 1500.0
+    private val vehicleMass = 1200.0  // Lighter car for faster acceleration
     private val wheelRadius = 0.32
-    private val maxEngineTorque = 250.0
+    private val maxEngineTorque = 500.0  // Much higher torque for realistic acceleration
     private val gearRatios = listOf(3.6, 2.1, 1.4, 1.0, 0.8)
     private val finalDrive = 3.4
 
@@ -400,9 +400,8 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
     }
 
     /**
-     * ✅ UPDATED: Dynamic driver behavior with random speed variations
-     * Driver aims for speed limit with a random offset between -5 and -1 km/h
-     * Changes target every 20-40 ticks (2-4 seconds) for realistic variation
+     * ✅ FIXED: Realistic driver behavior that actually reaches speed limit
+     * Target speed is (limit - 1 to 5) km/h, changes every 2-4 seconds
      */
     private fun driverModelBySpeedLimit(limitKmh: Int) {
         // Change target offset randomly every 2-4 seconds
@@ -412,22 +411,22 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
             ticksSinceLastChange = 0
         }
 
+        // Target is speed limit minus 1-5 km/h
         val target = limitKmh.toDouble() + targetSpeedOffset
         val diff = target - speed
 
-        // More aggressive driving for realistic behavior
+        // Full throttle until close to target - like a real driver
         throttle = when {
-            diff > 20 -> 0.9
-            diff > 10 -> 0.7
-            diff > 5 -> 0.5
-            diff > 2 -> 0.3
-            else -> 0.0
+            diff > 3 -> 1.0       // Full throttle when far from target
+            diff > 1 -> 0.6       // Ease off when getting close
+            diff > 0.3 -> 0.3     // Gentle throttle to maintain
+            else -> 0.0           // Coast when at speed
         }
 
+        // Only brake if significantly over target
         brake = when {
-            diff < -15 -> 0.7
-            diff < -8 -> 0.5
-            diff < -3 -> 0.3
+            diff < -5 -> 0.7
+            diff < -2 -> 0.4
             else -> 0.0
         }
     }
@@ -437,14 +436,16 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         val wheelTorque = throttle * maxEngineTorque * gearRatio * finalDrive
         val driveForce = wheelTorque / wheelRadius
 
-        val dragForce = 0.5 * 1.2 * 0.32 * (speed / 3.6).pow(2)
-        val rollingResistance = 0.015 * vehicleMass * 9.81
-        val brakeForce = brake * 8000
+        // Reduced drag for faster acceleration
+        val dragForce = 0.5 * 1.2 * 0.25 * (speed / 3.6).pow(2)
+        val rollingResistance = 0.01 * vehicleMass * 9.81
+        val brakeForce = brake * 10000
 
         val netForce = driveForce - dragForce - rollingResistance - brakeForce
         acceleration = netForce / vehicleMass
 
-        speed += acceleration * 0.36
+        // Much faster speed increase - realistic car acceleration
+        speed += acceleration * 1.2
         speed = speed.coerceIn(0.0, 160.0)
 
         engineRpm = max(900.0, speed * gearRatio * finalDrive * 40)
