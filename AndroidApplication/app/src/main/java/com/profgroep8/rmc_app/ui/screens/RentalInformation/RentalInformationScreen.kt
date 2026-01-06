@@ -1,27 +1,51 @@
 package com.profgroep8.rmc_app.ui.screens.RentalInformation
 
+import RmcFilledButton
 import RmcScreen
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.profgroep8.rmc_app.R
+import com.profgroep8.rmc_app.ui.components.CarInfoItem
 import com.profgroep8.rmc_app.ui.components.RmcAppBar
+import com.profgroep8.rmc_app.ui.components.RmcSpacer
+import com.example.network.services.UserProvider
+import com.profgroep8.rmc_app.utils.formatDateTime
+import com.profgroep8.rmc_app.utils.formatLocation
+import com.profgroep8.rmc_app.viewmodel.RentalInformationViewModel
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview(showBackground = true)
 @Composable
@@ -36,8 +60,17 @@ fun RentalInformationScreenPreview() {
 fun RentalInformationScreen(
     rentalId: Int?,
     navigateToScreen: (String) -> Unit,
+    viewModel: RentalInformationViewModel = koinViewModel(parameters = { parametersOf(rentalId ?: 0) }),
     navigateBack: () -> Unit = { navigateToScreen(RmcScreen.Rentals.name) }
 ) {
+    if (rentalId == null) {
+        navigateToScreen(RmcScreen.Rentals.name)
+        return
+    }
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val loading by viewModel.isLoading.collectAsStateWithLifecycle()
+
     BackHandler {
         navigateBack()
     }
@@ -57,24 +90,42 @@ fun RentalInformationScreen(
                 .fillMaxSize(),
             color = MaterialTheme.colorScheme.surface
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(dimensionResource(R.dimen.padding_large)),
-                contentAlignment = androidx.compose.ui.Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = "Rental Information",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Text(
-                        text = "TODO",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            when {
+                loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                uiState.errorMessage != null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(dimensionResource(R.dimen.padding_large)),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = uiState.errorMessage ?: stringResource(R.string.unknown_error),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                        RmcSpacer(16)
+                        TextButton(
+                            onClick = { viewModel.retry() }
+                        ) {
+                            Text(stringResource(R.string.retry))
+                        }
+                    }
+                }
+                else -> {
+                    RentalInformationContent(
+                        rental = uiState.rental,
+                        car = uiState.car,
+                        navigateToScreen = navigateToScreen
                     )
                 }
             }
@@ -82,3 +133,168 @@ fun RentalInformationScreen(
     }
 }
 
+@Composable
+private fun RentalInformationContent(
+    rental: com.example.network.models.domain.RentalWithLocations?,
+    car: com.example.network.models.domain.Car?,
+    navigateToScreen: (String) -> Unit
+) {
+    val currentUserId = UserProvider.user?.userID
+    val isOwner = currentUserId != null && car?.userID == currentUserId
+    val isRenter = currentUserId != null && rental?.userID == currentUserId
+
+    val roleLabel = when {
+        isOwner -> stringResource(R.string.renting_out)
+        isRenter -> stringResource(R.string.renting)
+        else -> null
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(dimensionResource(R.dimen.padding_large))
+    ) {
+        if (car != null) {
+            CarImageSection(car = car)
+            RmcSpacer(24)
+        }
+
+        Text(
+            text = stringResource(R.string.car_information),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        RmcSpacer(16)
+
+        CarInfoItem(
+            label = stringResource(R.string.license_plate),
+            value = car?.licensePlate,
+            loading = car == null
+        )
+
+        CarInfoItem(
+            label = stringResource(R.string.brand),
+            value = car?.brand,
+            loading = car == null
+        )
+
+        CarInfoItem(
+            label = stringResource(R.string.model),
+            value = car?.model,
+            loading = car == null
+        )
+
+        CarInfoItem(
+            label = stringResource(R.string.year),
+            value = car?.year?.toString(),
+            loading = car == null
+        )
+
+        CarInfoItem(
+            label = stringResource(R.string.fuelType),
+            value = car?.fuelType?.displayName,
+            loading = car == null
+        )
+
+        if (car != null) {
+            CarInfoItem(
+                label = stringResource(R.string.price),
+                value = "€${car.price}",
+                loading = false
+            )
+        }
+
+        RmcSpacer(32)
+
+        Text(
+            text = stringResource(R.string.rental_information),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        RmcSpacer(16)
+
+        if (roleLabel != null) {
+            CarInfoItem(
+                label = "${stringResource(R.string.renting_out)}/${stringResource(R.string.renting)}:",
+                value = roleLabel,
+                loading = false
+            )
+        }
+
+        if (rental != null) {
+            CarInfoItem(
+                label = stringResource(R.string.start_date),
+                value = formatDateTime(rental.startRentalLocation.date),
+                loading = false
+            )
+
+            CarInfoItem(
+                label = stringResource(R.string.end_date),
+                value = formatDateTime(rental.endRentalLocation.date),
+                loading = false
+            )
+
+            CarInfoItem(
+                label = stringResource(R.string.start_location),
+                value = formatLocation(rental.startRentalLocation.latitude, rental.startRentalLocation.longitude),
+                loading = false
+            )
+
+            CarInfoItem(
+                label = stringResource(R.string.end_location),
+                value = formatLocation(rental.endRentalLocation.latitude, rental.endRentalLocation.longitude),
+                loading = false
+            )
+
+            CarInfoItem(
+                label = stringResource(R.string.status),
+                value = when (rental.state) {
+                    0 -> stringResource(R.string.completed)
+                    1 -> stringResource(R.string.rented)
+                    else -> stringResource(R.string.unknown)
+                },
+                loading = false
+            )
+        }
+
+        RmcSpacer(32)
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            RmcFilledButton(
+                value = stringResource(R.string.button_back),
+                onClick = { navigateToScreen(RmcScreen.Rentals.name) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun CarImageSection(car: com.example.network.models.domain.Car) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center
+    ) {
+        if (car.imageBytes != null) {
+            AsyncImage(
+                model = car.imageBytes,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.no_photo_found),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}

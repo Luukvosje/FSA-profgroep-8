@@ -21,14 +21,14 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.*
 import com.profgroep8.rmc_app.viewmodel.LoginViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(),
+    viewModel: LoginViewModel = koinViewModel(),
     navigateToScreen: (String) -> Unit,
     navigateBack: () -> Unit = { navigateToScreen(RmcScreen.Welcome.name) }
 ) {

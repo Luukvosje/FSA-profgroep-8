@@ -13,10 +13,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
 import com.profgroep8.rmc_app.viewmodel.HomeViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Preview(showBackground = true)
 @Composable
@@ -29,7 +29,7 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreen(
     navigateToScreen: (String) -> Unit,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

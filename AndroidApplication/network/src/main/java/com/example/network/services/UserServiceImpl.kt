@@ -11,7 +11,7 @@ import com.example.network.models.remote.RemoteLoginResponse
 import com.example.network.models.remote.RemoteUser
 import com.example.network.models.remote.toDomainUser
 
-abstract class UserServiceImpl : BaseServiceImpl(), UserService {
+internal final class UserServiceImpl : BaseServiceImpl(), UserService {
 
     @Serializable
     private data class RemoteBonusPointsResponse(val bonusPoints: Int)

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.network.models.domain.RentalWithCarInfo
+import com.example.network.services.UserProvider
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.RmcAppBar
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
@@ -46,8 +47,7 @@ import org.koin.compose.viewmodel.koinViewModel
 data class ShowAllRentalsUIState(
     val rentals: List<RentalWithCarInfo> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val currentUserId: Int? = null
+    val errorMessage: String? = null
 )
 
 sealed interface ShowAllRentalsUIEvent {
@@ -142,8 +142,7 @@ fun AllRentalsScreen(
                 else -> {
                     RentalsDisplay(
                         rentals = uiState.rentals,
-                        navigateToScreen = navigateToScreen,
-                        currentUserId = uiState.currentUserId
+                        navigateToScreen = navigateToScreen
                     )
                 }
             }
@@ -154,9 +153,10 @@ fun AllRentalsScreen(
 @Composable
 private fun RentalsDisplay(
     rentals: List<RentalWithCarInfo>,
-    navigateToScreen: (String) -> Unit,
-    currentUserId: Int?
+    navigateToScreen: (String) -> Unit
 ) {
+    val currentUserId = UserProvider.user?.userID
+    
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(

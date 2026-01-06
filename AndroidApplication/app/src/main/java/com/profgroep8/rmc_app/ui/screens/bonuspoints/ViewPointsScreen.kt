@@ -12,19 +12,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
 import com.profgroep8.rmc_app.ui.components.RmcTextField
 import com.profgroep8.rmc_app.viewmodel.BonusPointsViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun BonusPointsScreen(
     navigateToScreen: (String) -> Unit,
-    viewModel: BonusPointsViewModel = viewModel()
+    viewModel: BonusPointsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Redirect to login if unauthorized
     LaunchedEffect(uiState.isUnauthorized) {
         if (uiState.isUnauthorized) {
             navigateToScreen(RmcScreen.Login.name)
@@ -38,7 +37,6 @@ fun BonusPointsScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
         ) {
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -64,18 +62,22 @@ fun BonusPointsScreen(
 
                 uiState.errorMessage?.let { err ->
                     RmcSpacer(8)
-                    Text(text = err, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
+                    Text(
+                        text = err,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
                 }
 
                 RmcSpacer(20)
 
-                // Start + destination
                 RmcTextField(
                     label = "Start address",
                     value = uiState.startAddress,
                     onValueChange = { viewModel.onStartAddressChanged(it) }
                 )
                 RmcSpacer(8)
+
                 RmcTextField(
                     label = "Destination address",
                     value = uiState.endAddress,
@@ -95,7 +97,6 @@ fun BonusPointsScreen(
 
                 RmcSpacer(24)
 
-                // Simulation output (same as your test project)
                 Text(text = uiState.speedText)
                 Text(text = uiState.rpmText)
                 Text(text = uiState.gearText)

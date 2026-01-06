@@ -45,6 +45,7 @@
     <string name="manage_cars_sub">Lijst van alle auto\'s</string>
     <string name="no_cars_found">Geen auto\'s gevonden</string>
     <string name="no_car_found">Geen auto gevonden</string>
+    <string name="no_photo_found">Geen foto gevonden</string>
     <string name="add_photo">Foto toevoegen</string>
     <string name="take_photo">Foto maken</string>
     <string name="choose_from_gallery">Kies uit gallerij</string>
@@ -53,6 +54,7 @@
 
     <string name="invalid_license">Kenteken is ongeldig</string>
     <string name="invalid_license_to_short">Kenteken is te kort</string>
+    <string name="price">Prijs</string>
     <string name="min_price">Min Prijs</string>
     <string name="max_price">Max Prijs</string>
     <string name="search">Zoeken</string>
@@ -62,10 +64,15 @@
 
     <string name="all_rentals">Alle huurauto\'s</string>
     <string name="all_rentals_sub">Lijst van alle huurauto\'s</string>
-    <string name="rental_information">Huurauto Informatie</string>
     <string name="no_rentals_found">Geen huurauto\'s gevonden</string>
     <string name="renting">Gehuurd</string>
     <string name="renting_out">Verhuurd</string>
+    <string name="rental_information">Verhuur Informatie</string>
+    <string name="start_date">Startdatum</string>
+    <string name="end_date">Einddatum</string>
+    <string name="start_location">Startlocatie</string>
+    <string name="end_location">Eindlocatie</string>
+    <string name="status">Status</string>
 
     <!-- Error messages -->
     <string name="unknown_error">Er is een onverwachte fout opgetreden.</string>

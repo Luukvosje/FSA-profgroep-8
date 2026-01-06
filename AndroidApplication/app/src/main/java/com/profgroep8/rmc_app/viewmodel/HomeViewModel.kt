@@ -2,8 +2,8 @@ package com.profgroep8.rmc_app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.services.ApiResult
-import com.example.network.services.UserServiceImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,9 +16,7 @@ data class HomeUIState(
     val isLoggedOut: Boolean = false
 )
 
-class HomeViewModel : ViewModel() {
-
-    private val userService = object : UserServiceImpl() {}
+class HomeViewModel(private val serviceFactory: ServiceFactory) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUIState())
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
@@ -31,7 +29,7 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            when (val result = userService.getMe()) {
+            when (val result = serviceFactory.userService.getMe()) {
                 is ApiResult.Success -> {
                     _uiState.update {
                         it.copy(
@@ -50,7 +48,7 @@ class HomeViewModel : ViewModel() {
     }
 
     fun logout() {
-        userService.logout()
+        serviceFactory.userService.logout()
         _uiState.update { it.copy(isLoggedOut = true) }
     }
 }
