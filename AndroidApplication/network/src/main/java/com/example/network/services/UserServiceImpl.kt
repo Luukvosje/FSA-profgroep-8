@@ -2,17 +2,14 @@ package com.example.network.services
 
 import com.example.network.interfaces.services.UserService
 import com.example.network.models.domain.User
-<<<<<<< Updated upstream
 import com.example.network.models.remote.*
 import kotlinx.serialization.Serializable
-=======
 import com.example.network.models.remote.CreateUserDTO
 import com.example.network.models.remote.LoginUserDTO
 import com.example.network.models.remote.RemoteBonusPointsResponse
 import com.example.network.models.remote.RemoteLoginResponse
 import com.example.network.models.remote.RemoteUser
 import com.example.network.models.remote.toDomainUser
->>>>>>> Stashed changes
 
 abstract class UserServiceImpl : BaseServiceImpl(), UserService {
 
