@@ -25,6 +25,7 @@ enum class RmcScreen(@StringRes val title: Int){
     Home(R.string.home),
     AddCar(R.string.home_add_car),
     CarInformation(R.string.car_information),
+    FilterCars(R.string.home_search_car),
     AllCars(R.string.home_manage_cars),
     ViewPoints(R.string.home_view_points)
 }
@@ -65,6 +66,7 @@ fun RmcApp(
                 navigateToScreen = { navController.navigate((it)) }
             )
         }
+
         composable(
             route = "${RmcScreen.CarInformation.name}/{carId}",
             arguments = listOf(navArgument("carId") { type = NavType.IntType })
@@ -75,8 +77,15 @@ fun RmcApp(
                 navigateToScreen = { navController.navigate(it) }
             )
         }
+
         composable(RmcScreen.AllCars.name) {
             _root_ide_package_.com.profgroep8.rmc_app.ui.screens.showCars.AllCarsScreen(
+                navigateToScreen = { navController.navigate(it) }
+            )
+        }
+
+        composable(RmcScreen.FilterCars.name) {
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.filterCars.FilterCarsScreen(
                 navigateToScreen = { navController.navigate(it) }
             )
         }

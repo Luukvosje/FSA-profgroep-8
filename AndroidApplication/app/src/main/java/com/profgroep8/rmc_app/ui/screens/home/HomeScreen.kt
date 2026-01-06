@@ -99,7 +99,7 @@ fun HomeScreen(
 
                         RmcFilledButton(
                             value = stringResource(id = R.string.home_search_car),
-                            onClick = { navigateToScreen(RmcScreen.Home.name) } // keep placeholder
+                            onClick = { navigateToScreen(RmcScreen.FilterCars.name) } // keep placeholder
                         )
 
                         RmcFilledButton(

@@ -2,6 +2,7 @@ package com.example.network.interfaces.services
 
 import com.example.network.models.domain.Car
 import com.example.network.models.domain.CarTCOResult
+import com.example.network.models.domain.FilterCar
 import com.example.network.models.remote.CalculateCarRequestDTO
 import com.example.network.models.remote.CreateCarDTO
 import com.example.network.models.remote.UpdateCarDTO
@@ -14,6 +15,7 @@ interface CarService {
     suspend fun getAllAvailableCars(date: Date): ApiResult<List<Car>>
     suspend fun getUserCars(userID: Int): ApiResult<List<Car>>
     suspend fun searchCars(keyword: String): ApiResult<List<Car>>
+    suspend fun filterCars(request: FilterCar): ApiResult<List<Car>>
     suspend fun getSingleCar(carID: Int): ApiResult<Car>
     suspend fun getSingleCar(licensePlate: String): ApiResult<Car>
     suspend fun createCar(request: CreateCarDTO): ApiResult<Car>

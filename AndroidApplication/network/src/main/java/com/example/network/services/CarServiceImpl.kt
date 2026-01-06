@@ -3,6 +3,7 @@ package com.example.network.services
 import com.example.network.interfaces.services.CarService
 import com.example.network.models.domain.Car
 import com.example.network.models.domain.CarTCOResult
+import com.example.network.models.domain.FilterCar
 import com.example.network.models.remote.CalculateCarRequestDTO
 import com.example.network.models.remote.CreateCarDTO
 import com.example.network.models.remote.RemoteCalculateCar
@@ -40,7 +41,11 @@ internal class CarServiceImpl : BaseServiceImpl(), CarService {
         }
     }
 
-    // TODO(Filter Cars)
+    override suspend fun filterCars(request: FilterCar): ApiResult<List<Car>> {
+        return safeExecute {
+            post<List<RemoteCar>, FilterCar>("cars/filter", request).map{ it.toDomainCar() }
+        }
+    }
 
     override suspend fun getSingleCar(carID: Int): ApiResult<Car> {
         return safeExecute {

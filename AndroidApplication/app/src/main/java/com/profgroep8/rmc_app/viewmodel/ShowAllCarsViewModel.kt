@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
         val uiState: StateFlow<ShowAllCarsUiState> = _uiState.asStateFlow()
 
         init {
-            sf.setToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjYXJfcmVudGFsX3VzZXJzIiwiaXNzIjoiY29tLnByb2Zncm9lcDguY2FycmVudGFsIiwidXNlcklkIjoiMSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsImV4cCI6MTc2NzE3NTQxMX0.tquyqvtbivJqq9tdjlqx9DVn618ULp6V9QpiFiRVYfM")
             getAllCars()
         }
 

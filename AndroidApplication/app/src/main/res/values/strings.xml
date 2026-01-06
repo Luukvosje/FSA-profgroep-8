@@ -47,4 +47,10 @@
 
     <string name="invalid_license">Kenteken is ongeldig</string>
     <string name="invalid_license_to_short">Kenteken is te kort</string>
+    <string name="min_price">Min Prijs</string>
+    <string name="max_price">Max Prijs</string>
+    <string name="search">Zoeken</string>
+    <string name="reset">Reset</string>
+    <string name="filter_cars">Auto\'s zoeken</string>
+    <string name="filter_cars_sub">Zoek auto\'s met filters</string>
 </resources>
