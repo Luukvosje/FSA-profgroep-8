@@ -3,7 +3,8 @@
     import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.models.domain.Car
-import kotlinx.coroutines.flow.MutableStateFlow
+    import com.example.network.services.UserProvider
+    import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -27,7 +28,8 @@ import kotlinx.coroutines.launch
         private fun getAllCars() {
             viewModelScope.launch {
                 withLoading {
-                    val cars = sf.carService.getAllCars();
+                    if(UserProvider.user == null)return@withLoading
+                    val cars = sf.carService.getUserCars(UserProvider.user!!.userID);
                     cars.onSuccess { items ->
                         _uiState.update { it.copy(cars = items) }
                     }

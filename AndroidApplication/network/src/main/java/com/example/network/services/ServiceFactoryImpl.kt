@@ -3,6 +3,7 @@ package com.example.network.services
 import com.example.network.interfaces.services.CarService
 import com.example.network.interfaces.services.RentalService
 import com.example.network.interfaces.services.ServiceFactory
+import com.example.network.models.domain.User
 
 class ServiceFactoryImpl : ServiceFactory {
     override val carService: CarService by lazy { CarServiceImpl() }
@@ -13,7 +14,15 @@ class ServiceFactoryImpl : ServiceFactory {
         TokenProvider.token = token
     }
 
+    override fun setUser(user: User) {
+        UserProvider.user = user;
+    }
 }
+
 object TokenProvider {
     var token: String? = null
+}
+
+object UserProvider {
+    var user: User? = null
 }

@@ -112,7 +112,6 @@ public abstract class BaseServiceImpl {
     }
 
     fun updateToken(jwtToken: String?) {
-        println("awkoips, $jwtToken")
         token = jwtToken
     }
 }

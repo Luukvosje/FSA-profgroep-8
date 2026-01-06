@@ -85,59 +85,58 @@ fun CarScreenContent(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.surface,
     ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            RmcAppBar(
+                title = stringResource(R.string.home_manage_cars),
+                subtitle = stringResource(R.string.manage_cars_sub),
+                navigationIcon = Icons.AutoMirrored.Filled.ArrowLeft,
+                onNavigateUp = { navigateToScreen(RmcScreen.Home.name) }
+            )
+
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(dimensionResource(id = R.dimen.padding_small))
             ) {
-                RmcAppBar(
-                    title = stringResource(R.string.home_manage_cars),
-                    subtitle = stringResource(R.string.manage_cars_sub),
-                    navigationIcon = Icons.AutoMirrored.Filled.ArrowLeft,
-                    onNavigateUp = { navigateToScreen(RmcScreen.Home.name) }
-                )
+                RmcSpacer()
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(dimensionResource(id = R.dimen.padding_small))
+                PullToRefreshBox(
+                    isRefreshing = isLoading,
+                    onRefresh = refreshCars,
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    RmcSpacer()
-
-                    PullToRefreshBox(
-                        isRefreshing = isLoading,
-                        onRefresh = refreshCars,
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            if (state.cars.count() > 0) {
-                                items(state.cars) { car ->
-                                    CarItem(
-                                        car = car,
-                                        onDeleteClick = { onDeleteClick(car) },
-                                        onClick = { navigateToScreen("${RmcScreen.CarInformation.name}/${car.carID}") },
-                                    )
-                                }
-                            } else {
-                                item {
-                                    Text(
-                                        text = stringResource(R.string.no_cars_found),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier
-                                            .padding(16.dp)
-                                            .fillMaxWidth(),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
+                        if (state.cars.count() > 0) {
+                            items(state.cars) { car ->
+                                CarItem(
+                                    car = car,
+                                    onDeleteClick = { onDeleteClick(car) },
+                                    onClick = { navigateToScreen("${RmcScreen.CarInformation.name}/${car.carID}") },
+                                )
+                            }
+                        } else {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.no_cars_found),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier
+                                        .padding(16.dp)
+                                        .fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
                             }
                         }
                     }
                 }
             }
+        }
     }
 }
-
 
 @Composable
 fun CarItem(
