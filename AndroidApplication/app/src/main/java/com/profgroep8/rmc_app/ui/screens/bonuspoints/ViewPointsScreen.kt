@@ -12,15 +12,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
 import com.profgroep8.rmc_app.ui.components.RmcTextField
 import com.profgroep8.rmc_app.viewmodel.BonusPointsViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun BonusPointsScreen(
     navigateToScreen: (String) -> Unit,
-    viewModel: BonusPointsViewModel = viewModel()
+    viewModel: BonusPointsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
