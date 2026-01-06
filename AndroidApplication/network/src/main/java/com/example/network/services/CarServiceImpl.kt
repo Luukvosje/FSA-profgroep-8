@@ -31,7 +31,7 @@ internal class CarServiceImpl : BaseServiceImpl(), CarService {
 
     override suspend fun getUserCars(userID: Int): ApiResult<List<Car>> {
         return safeExecute {
-            get<List<RemoteCar>>("cars/users/$userID").map{ it.toDomainCar() }
+            get<List<RemoteCar>>("cars/user/$userID").map{ it.toDomainCar() }
         }
     }
 

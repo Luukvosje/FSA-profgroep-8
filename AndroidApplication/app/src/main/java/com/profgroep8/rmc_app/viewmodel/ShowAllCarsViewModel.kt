@@ -28,9 +28,8 @@ import kotlinx.coroutines.launch
         private fun getAllCars() {
             viewModelScope.launch {
                 withLoading {
-                    println("${UserProvider.user} aap")
-                    if(UserProvider.user == null)return@withLoading
-                    val cars = sf.carService.getUserCars(UserProvider.user!!.userID);
+                    val userId = UserProvider.user?.userID?: return@withLoading
+                    val cars = sf.carService.getUserCars(userId);
                     cars.onSuccess { items ->
                         _uiState.update { it.copy(cars = items) }
                     }
