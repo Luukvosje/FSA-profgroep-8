@@ -39,7 +39,7 @@ fun HomeScreen(
         }
     }
 
-    val nameToShow = uiState.userName.ifBlank { "User" }
+    val nameToShow = uiState.userName.ifBlank { stringResource(R.string.user) }
     val message = stringResource(id = R.string.home_message, nameToShow)
 
     Surface(

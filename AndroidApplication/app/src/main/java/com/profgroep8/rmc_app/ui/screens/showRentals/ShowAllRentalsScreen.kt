@@ -2,6 +2,7 @@ package com.profgroep8.rmc_app.ui.screens.showRentals
 
 import RmcScreen
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +46,8 @@ import org.koin.compose.viewmodel.koinViewModel
 data class ShowAllRentalsUIState(
     val rentals: List<RentalWithCarInfo> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val currentUserId: Int? = null
 )
 
 sealed interface ShowAllRentalsUIEvent {
@@ -112,7 +114,7 @@ fun AllRentalsScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = uiState.errorMessage ?: "An error occurred",
+                            text = uiState.errorMessage ?: stringResource(R.string.unknown_error),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center
@@ -121,7 +123,7 @@ fun AllRentalsScreen(
                         TextButton(
                             onClick = { viewModel.onEvent(ShowAllRentalsUIEvent.Retry) }
                         ) {
-                            Text("Retry")
+                            Text(stringResource(R.string.retry))
                         }
                     }
                 }
@@ -131,14 +133,18 @@ fun AllRentalsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No rentals found",
+                            text = stringResource(R.string.no_rentals_found),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                     }
                 }
                 else -> {
-                    RentalsDisplay(rentals = uiState.rentals, navigateToScreen = navigateToScreen)
+                    RentalsDisplay(
+                        rentals = uiState.rentals,
+                        navigateToScreen = navigateToScreen,
+                        currentUserId = uiState.currentUserId
+                    )
                 }
             }
         }
@@ -148,7 +154,8 @@ fun AllRentalsScreen(
 @Composable
 private fun RentalsDisplay(
     rentals: List<RentalWithCarInfo>,
-    navigateToScreen: (String) -> Unit
+    navigateToScreen: (String) -> Unit,
+    currentUserId: Int?
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -162,9 +169,14 @@ private fun RentalsDisplay(
             items = rentals,
             key = { it.rental.rentalID }
         ) { rentalWithCar ->
+            val isOwner = currentUserId != null && rentalWithCar.car?.userID == currentUserId
+            val isRenter = currentUserId != null && rentalWithCar.rental.userID == currentUserId
+
             SingleRentalListItem(
                 rentalWithCar = rentalWithCar,
-                onClick = { navigateToScreen("${RmcScreen.RentalInformation.name}/${rentalWithCar.rental.rentalID}") }
+                onClick = { navigateToScreen("${RmcScreen.RentalInformation.name}/${rentalWithCar.rental.rentalID}") },
+                isOwner = isOwner,
+                isRenter = isRenter
             )
         }
     }
@@ -173,10 +185,18 @@ private fun RentalsDisplay(
 @Composable
 fun SingleRentalListItem(
     rentalWithCar: RentalWithCarInfo,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isOwner: Boolean = false,
+    isRenter: Boolean = false
 ) {
     val rental = rentalWithCar.rental
     val car = rentalWithCar.car
+
+    val roleLabel = when {
+        isOwner -> stringResource(R.string.renting_out)
+        isRenter -> stringResource(R.string.renting)
+        else -> null
+    }
     
     Surface(
         modifier = Modifier
@@ -222,19 +242,29 @@ fun SingleRentalListItem(
                         }
                     } else {
                         Text(
-                            text = "Car ID: ${rental.carID}",
+                            text = stringResource(R.string.no_car_found),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    if (roleLabel != null) {
+                        RmcSpacer(4)
+                        Text(
+                            text = roleLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
                 
                 Text(
                     text = when (rental.state) {
-                        0 -> "Completed"
-                        1 -> "Reserved"
-                        else -> "Unknown"
+                        0 -> stringResource(R.string.completed)
+                        1 -> stringResource(R.string.rented)
+                        else -> stringResource(R.string.unknown)
                     },
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,

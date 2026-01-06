@@ -11,6 +11,10 @@
     <string name="home">Home</string>
     <string name="email">Email</string>
     <string name="or">Of</string>
+    <string name="retry">Opnieuw proberen</string>
+    <string name="rented">Gehuurd</string>
+    <string name="completed">Afgerond</string>
+    <string name="unknown">Onbekend</string>
     <string name="home_add_car">Auto toevoegen</string>
     <string name="home_manage_cars">Auto\'s beheren</string>
     <string name="home_search_car">Auto\'s zoeken</string>
@@ -18,6 +22,7 @@
     <string name="home_view_route">Route bekijken</string>
     <string name="home_view_points">Punten bekijken</string>
     <string name="home_message">Hallo %s</string>
+    <string name="user">Gebruiker</string>
     <string name="add_car">Auto toevoegen</string>
     <string name="add_car_sub">Auto toevoegen via kenteken</string>
     <string name="license_plate">Kenteken</string>
@@ -39,6 +44,7 @@
 
     <string name="manage_cars_sub">Lijst van alle auto\'s</string>
     <string name="no_cars_found">Geen auto\'s gevonden</string>
+    <string name="no_car_found">Geen auto gevonden</string>
     <string name="add_photo">Foto toevoegen</string>
     <string name="take_photo">Foto maken</string>
     <string name="choose_from_gallery">Kies uit gallerij</string>
@@ -57,4 +63,10 @@
     <string name="all_rentals">Alle huurauto\'s</string>
     <string name="all_rentals_sub">Lijst van alle huurauto\'s</string>
     <string name="rental_information">Huurauto Informatie</string>
+    <string name="no_rentals_found">Geen huurauto\'s gevonden</string>
+    <string name="renting">Gehuurd</string>
+    <string name="renting_out">Verhuurd</string>
+
+    <!-- Error messages -->
+    <string name="unknown_error">Er is een onverwachte fout opgetreden.</string>
 </resources>

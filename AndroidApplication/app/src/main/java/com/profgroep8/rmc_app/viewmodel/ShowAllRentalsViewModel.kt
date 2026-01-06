@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.models.domain.RentalWithCarInfo
 import com.example.network.services.ApiResult
+import com.example.network.services.UserServiceImpl
 import com.profgroep8.rmc_app.ui.screens.showRentals.ShowAllRentalsUIEvent
 import com.profgroep8.rmc_app.ui.screens.showRentals.ShowAllRentalsUIState
 import kotlinx.coroutines.async
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 class ShowAllRentalsViewModel(
     private val serviceFactory: ServiceFactory
 ) : ViewModel() {
+    private val userService = object : UserServiceImpl() {}
     private val _uiState = MutableStateFlow(ShowAllRentalsUIState())
     val uiState: StateFlow<ShowAllRentalsUIState> = _uiState.asStateFlow()
 
@@ -42,6 +44,13 @@ class ShowAllRentalsViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             
+            val currentUserId = _uiState.value.currentUserId ?: run {
+                when (val userResult = userService.getMe()) {
+                    is ApiResult.Success -> userResult.data.userID
+                    is ApiResult.Error -> null
+                }
+            }
+            
             when (val result = serviceFactory.rentalService.getAllRentals()) {
                 is ApiResult.Success -> {
                     val rentalsWithCarInfo = result.data.map { rental ->
@@ -59,7 +68,8 @@ class ShowAllRentalsViewModel(
                         it.copy(
                             rentals = rentalsWithCarInfo,
                             isLoading = false,
-                            errorMessage = null
+                            errorMessage = null,
+                            currentUserId = currentUserId
                         )
                     }
                 }
