@@ -1,6 +1,5 @@
 package com.profgroep8.rmc_app.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
@@ -42,7 +41,7 @@ class ShowAllRentalsViewModel(
     private fun loadRentals() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            
+
             when (val result = serviceFactory.rentalService.getAllRentals()) {
                 is ApiResult.Success -> {
                     val rentalsWithCarInfo = result.data.map { rental ->

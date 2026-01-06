@@ -1,12 +1,12 @@
 package com.profgroep8.rmc_app
 
-import com.profgroep8.rmc_app.ui.screens.home.HomeScreen
 import com.profgroep8.rmc_app.viewmodel.AddCarViewModel
 import com.profgroep8.rmc_app.viewmodel.BonusPointsViewModel
 import com.profgroep8.rmc_app.viewmodel.CarInformationViewModel
 import com.profgroep8.rmc_app.viewmodel.FilterCarsViewModel
 import com.profgroep8.rmc_app.viewmodel.HomeViewModel
 import com.profgroep8.rmc_app.viewmodel.LoginViewModel
+import com.profgroep8.rmc_app.viewmodel.RentalInformationViewModel
 import com.profgroep8.rmc_app.viewmodel.RegisterViewModel
 import com.profgroep8.rmc_app.viewmodel.ShowAllCarsViewModel
 import com.profgroep8.rmc_app.viewmodel.ShowAllRentalsViewModel
@@ -28,5 +28,11 @@ val viewModelModule = module {
     viewModel { AddCarViewModel(get()) }
     viewModel { FilterCarsViewModel(get()) }
     viewModel { ShowAllRentalsViewModel(get()) }
+    viewModel { (rentalId: Int) ->
+        RentalInformationViewModel(
+            serviceFactory = get(),
+            rentalId = rentalId
+        )
+    }
 }
 
