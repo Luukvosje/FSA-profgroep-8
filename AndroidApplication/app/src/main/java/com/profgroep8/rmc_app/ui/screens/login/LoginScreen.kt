@@ -36,7 +36,6 @@ fun LoginScreen(
 
     BackHandler { navigateBack() }
 
-    // ✅ Navigate EXACTLY ONCE after successful login (token already stored)
     LaunchedEffect(Unit) {
         snapshotFlow { uiState.isSuccess }
             .collect { success ->
@@ -46,7 +45,6 @@ fun LoginScreen(
             }
     }
 
-    // ❌ Error dialog
     uiState.errorMessage?.let { error ->
         AlertDialog(
             onDismissRequest = {
@@ -143,7 +141,6 @@ fun LoginScreen(
                     }
                 }
 
-                // ⏳ Loading overlay
                 if (uiState.isLoading) {
                     Box(
                         modifier = Modifier

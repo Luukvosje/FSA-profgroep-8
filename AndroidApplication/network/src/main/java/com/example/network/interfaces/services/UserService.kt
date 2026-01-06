@@ -11,4 +11,5 @@ interface UserService {
     suspend fun getMe(): ApiResult<User>
     fun logout()
     suspend fun getBonusPoints(userId: Int): ApiResult<Int>
+    suspend fun updateBonusPoints(userId: Int, points: Int): ApiResult<User>
 }

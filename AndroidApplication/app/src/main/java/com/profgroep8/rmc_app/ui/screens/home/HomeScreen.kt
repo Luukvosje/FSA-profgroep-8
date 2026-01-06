@@ -33,7 +33,6 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // ✅ Navigate to Welcome after logout
     LaunchedEffect(uiState.isLoggedOut) {
         if (uiState.isLoggedOut) {
             navigateToScreen(RmcScreen.Welcome.name)
@@ -54,7 +53,6 @@ fun HomeScreen(
                 .padding(dimensionResource(R.dimen.padding_large))
         ) {
 
-            // ✅ Logout button
             RmcFilledButton(
                 value = stringResource(R.string.logout),
                 onClick = { viewModel.logout() },
@@ -86,7 +84,6 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                        // ✅ ALL buttons restored
                         RmcFilledButton(
                             value = stringResource(id = R.string.home_add_car),
                             onClick = { navigateToScreen(RmcScreen.AddCar.name) }

@@ -28,7 +28,7 @@ import com.profgroep8.rmc_app.viewmodel.RegisterViewModel
 
 @Composable
 fun RegisterScreen(
-    viewModel: RegisterViewModel = viewModel(), // ✅ NOT koinViewModel
+    viewModel: RegisterViewModel = viewModel(),
     navigateToScreen: (String) -> Unit,
     navigateBack: () -> Unit = { navigateToScreen(RmcScreen.Welcome.name) }
 ) {
@@ -36,9 +36,6 @@ fun RegisterScreen(
 
     BackHandler { navigateBack() }
 
-    /* =============================
-       ✅ SUCCESS DIALOG
-       ============================= */
     if (uiState.isSuccess) {
         AlertDialog(
             onDismissRequest = {},
@@ -55,9 +52,6 @@ fun RegisterScreen(
         )
     }
 
-    /* =============================
-       ❌ ERROR DIALOG
-       ============================= */
     uiState.errorMessage?.let { error ->
         AlertDialog(
             onDismissRequest = {
@@ -223,9 +217,6 @@ fun RegisterScreen(
                     }
                 }
 
-                /* =============================
-                   ⏳ LOADING OVERLAY
-                   ============================= */
                 if (uiState.isLoading) {
                     Box(
                         modifier = Modifier

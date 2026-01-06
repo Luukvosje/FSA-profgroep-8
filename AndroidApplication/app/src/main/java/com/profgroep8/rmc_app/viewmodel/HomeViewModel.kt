@@ -42,7 +42,7 @@ class HomeViewModel : ViewModel() {
                 }
 
                 is ApiResult.Error -> {
-                    // Token invalid or expired → logout
+                    // Token invalid or expired than logout
                     logout()
                 }
             }
