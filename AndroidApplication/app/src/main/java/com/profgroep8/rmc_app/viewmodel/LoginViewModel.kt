@@ -2,9 +2,9 @@ package com.profgroep8.rmc_app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.models.remote.LoginUserDTO
 import com.example.network.services.ApiResult
-import com.example.network.services.UserServiceImpl
 import com.profgroep8.rmc_app.ui.screens.login.LoginUIEvent
 import com.profgroep8.rmc_app.ui.screens.login.LoginUIState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,9 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel : BaseViewModel() {
-
-    private val userService = object : UserServiceImpl() {}
+class LoginViewModel(private val serviceFactory: ServiceFactory) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUIState())
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
@@ -50,7 +48,7 @@ class LoginViewModel : BaseViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            val result = userService.login(
+            val result = serviceFactory.userService.login(
                 LoginUserDTO(
                     email = state.email,
                     password = state.password

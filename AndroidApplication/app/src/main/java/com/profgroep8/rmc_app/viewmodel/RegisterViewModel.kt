@@ -3,9 +3,9 @@ package com.profgroep8.rmc_app.viewmodel
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.models.remote.CreateUserDTO
 import com.example.network.services.ApiResult
-import com.example.network.services.UserServiceImpl
 import com.profgroep8.rmc_app.ui.screens.register.RegisterUIEvent
 import com.profgroep8.rmc_app.ui.screens.register.RegisterUIState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,10 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RegisterViewModel : BaseViewModel() {
-
-    private val userService = object : UserServiceImpl() {}
-
+class RegisterViewModel(private val serviceFactory: ServiceFactory) : BaseViewModel() {
     private val _uiState = MutableStateFlow(RegisterUIState())
     val uiState: StateFlow<RegisterUIState> = _uiState.asStateFlow()
 
@@ -81,7 +78,7 @@ class RegisterViewModel : BaseViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            val result = userService.register(
+            val result = serviceFactory.userService.register(
                 CreateUserDTO(
                     fullName = state.fullName,
                     email = state.email,

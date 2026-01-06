@@ -1,63 +1,55 @@
 package com.profgroep8.rmc_app.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.services.ApiResult
-import com.example.network.services.UserServiceImpl
 import com.profgroep8.rmc_app.ui.screens.bonuspoints.BonusPointsUIState
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlin.math.*
+import kotlin.random.Random
 
-class BonusPointsViewModel : BaseViewModel() {
+/**
+ * If ORS gives 403: we automatically fallback to OSRM (free, no key).
+ * If you DO have a real ORS key, put it here (it usually looks like a long hex/string, not a JWT).
+ */
+private const val ORS_API_KEY: String = ""
 
-    // ===== backend user API (your own server) =====
-    private val userService = object : UserServiceImpl() {}
+private data class LatLon(val lat: Double, val lon: Double)
 
-    // ===== external APIs http client =====
+class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseViewModel() {
+
     private val http = HttpClient(OkHttp) {
-        install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
-        }
+        install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
     }
-
-    // ✅ Put your OpenRouteService key here
-    // ORS free plan exists, limits apply :contentReference[oaicite:7]{index=7}
-    private val ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjljNmNlYjFhMTQ2NzQwNDk5ZTE1ODgwOTc0MzhmYzQyIiwiaCI6Im11cm11cjY0In0="
+    private val json = Json { ignoreUnknownKeys = true }
 
     private val _uiState = MutableStateFlow(BonusPointsUIState())
     val uiState: StateFlow<BonusPointsUIState> = _uiState.asStateFlow()
 
-    // ===== jobs =====
     private var apiRefreshJob: Job? = null
     private var simJob: Job? = null
 
-    // ===== logged-in user =====
     private var cachedUserId: Int? = null
-
-    // ===== server points =====
     private var serverPoints: Int = 0
 
-    // ===== simulation bonus (added) =====
     private var simBonus: Int = 0
     private var basePointsAtSimStart: Int = 0
 
-    // ===== route geometry =====
     private var routeCoords: List<LatLon> = emptyList()
     private var routeIndex: Int = 0
 
-    // ===== simulation physics (from your test project) =====
+    // ----- physics -----
     private val vehicleMass = 1500.0
     private val wheelRadius = 0.32
     private val maxEngineTorque = 250.0
@@ -66,123 +58,26 @@ class BonusPointsViewModel : BaseViewModel() {
 
     private var currentGear = 1
     private var engineRpm = 900.0
-
-    private var speed = 0.0          // km/h
-    private var throttle = 0.0       // 0..1
-    private var brake = 0.0          // 0..1
+    private var speed = 0.0
+    private var throttle = 0.0
+    private var brake = 0.0
     private var acceleration = 0.0
-
     private var score = 100.0
 
-    // ===== strategy pattern =====
-    private interface RouteStrategy {
-        suspend fun buildRoute(start: LatLon, end: LatLon): List<LatLon>
-    }
-
-    private interface SpeedLimitStrategy {
-        suspend fun speedLimitKmhAt(point: LatLon): Int?
-    }
-
-    // ---- OpenRouteService route strategy (GeoJSON) ----
-    private val orsRouteStrategy = object : RouteStrategy {
-        override suspend fun buildRoute(start: LatLon, end: LatLon): List<LatLon> {
-            if (ORS_API_KEY.startsWith("PUT_")) {
-                throw IllegalStateException("Missing ORS_API_KEY. Put your OpenRouteService key in BonusPointsViewModel.")
-            }
-
-            // ORS supports GeoJSON format for route geometry :contentReference[oaicite:8]{index=8}
-            val res: OrsGeoJsonResponse = http.post("https://api.openrouteservice.org/v2/directions/driving-car/geojson") {
-                header("Authorization", ORS_API_KEY)
-                contentType(ContentType.Application.Json)
-                setBody(
-                    OrsRouteRequest(
-                        coordinates = listOf(
-                            listOf(start.lon, start.lat),
-                            listOf(end.lon, end.lat)
-                        )
-                    )
-                )
-            }.body()
-
-            val coords = res.features.firstOrNull()?.geometry?.coordinates.orEmpty()
-            // ORS returns [lon,lat] pairs inside coordinates
-            return coords.mapNotNull { pair ->
-                if (pair.size >= 2) LatLon(lat = pair[1], lon = pair[0]) else null
-            }
-        }
-    }
-
-    // ---- Overpass maxspeed strategy ----
-    // OSM maxspeed tag defines legal limit :contentReference[oaicite:9]{index=9}
-    private val overpassSpeedLimitStrategy = object : SpeedLimitStrategy {
-        // cache to avoid hammering Overpass
-        private var lastPoint: LatLon? = null
-        private var lastLimit: Int? = null
-        private var lastFetchTimeMs: Long = 0L
-
-        override suspend fun speedLimitKmhAt(point: LatLon): Int? {
-            val now = System.currentTimeMillis()
-            // only query at most every 2 seconds
-            if (lastPoint != null && now - lastFetchTimeMs < 2000) return lastLimit
-
-            lastPoint = point
-            lastFetchTimeMs = now
-
-            // Query ways (and nodes) around current coordinate
-            val query = """
-                [out:json][timeout:25];
-                (
-                  way(around:25,${point.lat},${point.lon})["highway"]["maxspeed"];
-                  node(around:25,${point.lat},${point.lon})["maxspeed"];
-                );
-                out tags 10;
-            """.trimIndent()
-
-            val overpass: OverpassResponse = http.post("https://overpass-api.de/api/interpreter") {
-                contentType(ContentType.Application.FormUrlEncoded)
-                setBody(listOf("data" to query).formUrlEncode())
-                header(HttpHeaders.UserAgent, "rmc-app/1.0 (student project)")
-            }.body()
-
-            val raw = overpass.elements
-                .firstOrNull { it.tags?.maxspeed != null }
-                ?.tags?.maxspeed
-
-            val parsed = parseMaxspeedKmh(raw)
-            lastLimit = parsed
-            return parsed
-        }
-    }
-
-    // chosen strategies
-    private var routeStrategy: RouteStrategy = orsRouteStrategy
-    private var speedLimitStrategy: SpeedLimitStrategy = overpassSpeedLimitStrategy
+    // ✅ Dynamic speed target
+    private var targetSpeedOffset = 0.0
+    private var ticksSinceLastChange = 0
 
     init {
         startApiRefresh()
     }
 
-    // ============================
-    // UI events
-    // ============================
-    fun onStartAddressChanged(v: String) {
-        _uiState.update { it.copy(startAddress = v) }
-    }
+    fun onStartAddressChanged(v: String) = _uiState.update { it.copy(startAddress = v) }
+    fun onEndAddressChanged(v: String) = _uiState.update { it.copy(endAddress = v) }
 
-    fun onEndAddressChanged(v: String) {
-        _uiState.update { it.copy(endAddress = v) }
-    }
-
-    fun logout() {
-        stopSimulationInternal(finalDbUpdate = false)
-        userService.logout()
-        cachedUserId = null
-        _uiState.update { it.copy(isUnauthorized = true) }
-    }
-
-    // ============================
-    // BONUSPOINTS API REFRESH (1s)
-    // ============================
+    // ---------------------------
+    // refresh DB bonuspoints each second
+    // ---------------------------
     private fun startApiRefresh() {
         if (apiRefreshJob != null) return
         apiRefreshJob = viewModelScope.launch {
@@ -196,7 +91,7 @@ class BonusPointsViewModel : BaseViewModel() {
 
     private suspend fun refreshServerPoints() {
         val userId = cachedUserId ?: run {
-            val me = userService.getMe()
+            val me = serviceFactory.userService.getMe()
             if (me is ApiResult.Error) {
                 _uiState.update { it.copy(isUnauthorized = true, isLoading = false) }
                 return
@@ -206,33 +101,25 @@ class BonusPointsViewModel : BaseViewModel() {
             id
         }
 
-        when (val pointsRes = userService.getBonusPoints(userId)) {
+        when (val pointsRes = serviceFactory.userService.getBonusPoints(userId)) {
             is ApiResult.Success -> {
                 serverPoints = pointsRes.data
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        bonusPoints = serverPoints,
-                        errorMessage = null,
-                        isUnauthorized = false
-                    )
-                }
+                _uiState.update { it.copy(bonusPoints = serverPoints, isUnauthorized = false, errorMessage = null) }
             }
             is ApiResult.Error -> {
-                _uiState.update { it.copy(errorMessage = pointsRes.exception.toString(), isLoading = false) }
+                _uiState.update { it.copy(errorMessage = pointsRes.exception.toString()) }
             }
         }
     }
 
-    // ============================
-    // START SIMULATION (route-based)
-    // ============================
+    // ---------------------------
+    // Simulation
+    // ---------------------------
     fun startSimulation() {
         if (simJob != null) return
 
         val startAddr = uiState.value.startAddress.trim()
         val endAddr = uiState.value.endAddress.trim()
-
         if (startAddr.isBlank() || endAddr.isBlank()) {
             _uiState.update { it.copy(errorMessage = "Please fill in Start and Destination addresses.") }
             return
@@ -242,20 +129,18 @@ class BonusPointsViewModel : BaseViewModel() {
             try {
                 _uiState.update { it.copy(isLoading = true, errorMessage = null, simulationStatus = "Geocoding...") }
 
-                // Nominatim usage: be gentle and cache; public API is rate-limited :contentReference[oaicite:10]{index=10}
                 val start = geocodeNominatim(startAddr)
-                delay(1100) // important: respect rate limit
+                delay(1100) // Nominatim politeness
                 val end = geocodeNominatim(endAddr)
 
                 _uiState.update { it.copy(simulationStatus = "Routing...") }
 
-                routeCoords = routeStrategy.buildRoute(start, end)
+                // ✅ ORS (if key) -> fallback OSRM (free)
+                routeCoords = fetchRouteWithFallback(start, end)
                 if (routeCoords.size < 2) throw IllegalStateException("Route not found.")
 
-                // Reset sim state
-                resetSimulationState()
+                resetSim()
                 routeIndex = 0
-
                 basePointsAtSimStart = serverPoints
                 simBonus = 0
 
@@ -267,32 +152,24 @@ class BonusPointsViewModel : BaseViewModel() {
                     )
                 }
 
-                // main loop: 100ms ticks (like your test project)
                 while (true) {
                     if (!uiState.value.isSimulationRunning) break
 
                     val current = routeCoords[routeIndex]
                     val dest = routeCoords.last()
 
-                    // look up speed limit (may be null)
-                    val limit = speedLimitStrategy.speedLimitKmhAt(current) ?: 50
-                    // driver model tries to hold exact speed limit
+                    val limit = fetchSpeedLimit(current) ?: 50
                     driverModelBySpeedLimit(limit)
                     vehiclePhysicsTick()
-
                     scoringModel(limit)
-                    publishSimTexts(limit)
+                    publishTexts(limit)
 
-                    // move along route based on current speed
-                    // distance to travel this tick:
                     val metersPerSec = speed / 3.6
-                    val metersThisTick = metersPerSec * 0.1 // 100ms
+                    val metersThisTick = metersPerSec * 0.1
                     advanceAlongRoute(metersThisTick)
 
-                    // destination reached?
                     val remaining = haversineMeters(routeCoords[routeIndex], dest)
                     if (routeIndex >= routeCoords.lastIndex || remaining < 10.0) {
-                        // stop simulation + final db update once
                         stopSimulationInternal(finalDbUpdate = true)
                         _uiState.update { it.copy(simulationStatus = "Arrived ✅ Simulation finished.") }
                         break
@@ -318,7 +195,6 @@ class BonusPointsViewModel : BaseViewModel() {
     }
 
     private fun stopSimulationInternal(finalDbUpdate: Boolean) {
-        // cancel loop job
         simJob?.cancel()
         simJob = null
 
@@ -327,22 +203,191 @@ class BonusPointsViewModel : BaseViewModel() {
                 val userId = cachedUserId
                 if (userId != null) {
                     val finalPoints = basePointsAtSimStart + simBonus
-                    // final write to DB
-                    userService.updateBonusPoints(userId, finalPoints)
-                    // refresh UI from DB next tick anyway, but update local quickly
+                    serviceFactory.userService.updateBonusPoints(userId, finalPoints)
                     serverPoints = finalPoints
                     _uiState.update { it.copy(bonusPoints = finalPoints) }
                 }
             }
-
             _uiState.update { it.copy(isSimulationRunning = false) }
         }
     }
 
-    // ============================
-    // SIMULATION helpers
-    // ============================
-    private fun resetSimulationState() {
+    fun logout() {
+        stopSimulationInternal(finalDbUpdate = false)
+        serviceFactory.userService.logout()
+        cachedUserId = null
+        _uiState.update { it.copy(isUnauthorized = true) }
+    }
+
+    // ==========================================================
+    // External APIs
+    // ==========================================================
+    private suspend fun geocodeNominatim(query: String): LatLon {
+        val text = http.get("https://nominatim.openstreetmap.org/search") {
+            parameter("q", query)
+            parameter("format", "json")
+            parameter("limit", "1")
+            header(HttpHeaders.UserAgent, "rmc-app/1.0 (student project)")
+        }.bodyAsText()
+
+        val root = json.parseToJsonElement(text)
+        val arr = root.jsonArray
+        val first = arr.firstOrNull()?.jsonObject
+            ?: throw IllegalStateException("Address not found: $query")
+
+        val lat = first["lat"]?.jsonPrimitive?.content?.toDoubleOrNull()
+            ?: throw IllegalStateException("Invalid geocode response (lat).")
+        val lon = first["lon"]?.jsonPrimitive?.content?.toDoubleOrNull()
+            ?: throw IllegalStateException("Invalid geocode response (lon).")
+
+        return LatLon(lat = lat, lon = lon)
+    }
+
+    /**
+     * ✅ Routing:
+     * - Try ORS only if the key seems present
+     * - If ORS responds 401/403, fallback to OSRM (free, no key)
+     */
+    private suspend fun fetchRouteWithFallback(start: LatLon, end: LatLon): List<LatLon> {
+        val hasOrsKey = ORS_API_KEY.isNotBlank()
+
+        if (hasOrsKey) {
+            try {
+                return fetchRouteORS(start, end)
+            } catch (e: Exception) {
+                // If ORS fails, fallback
+                _uiState.update {
+                    it.copy(simulationStatus = "ORS blocked (403). Using free OSRM routing...")
+                }
+            }
+        }
+
+        return fetchRouteOSRM(start, end)
+    }
+
+    /**
+     * ORS routing (can fail with 403 if key is wrong)
+     */
+    private suspend fun fetchRouteORS(start: LatLon, end: LatLon): List<LatLon> {
+        val bodyJson = buildJsonObject {
+            put("coordinates", buildJsonArray {
+                add(buildJsonArray { add(start.lon); add(start.lat) })
+                add(buildJsonArray { add(end.lon); add(end.lat) })
+            })
+        }
+
+        val response: HttpResponse = http.post("https://api.openrouteservice.org/v2/directions/driving-car") {
+            parameter("geometry_format", "geojson")
+            header(HttpHeaders.Authorization, ORS_API_KEY)
+            header(HttpHeaders.Accept, "application/json")
+            header(HttpHeaders.UserAgent, "rmc-app/1.0 (student project)")
+            contentType(ContentType.Application.Json)
+            setBody(bodyJson.toString())
+        }
+
+        val text = response.bodyAsText()
+        if (!response.status.isSuccess()) {
+            val msg = extractOrsErrorMessage(text)
+            // Throw to trigger fallback
+            throw IllegalStateException("ORS error ${response.status.value}: $msg")
+        }
+
+        val root = json.parseToJsonElement(text).jsonObject
+        val routes = root["routes"]?.jsonArray ?: throw IllegalStateException("ORS: no routes in response.")
+        val coords = routes.first().jsonObject["geometry"]!!.jsonObject["coordinates"]!!.jsonArray
+
+        return coords.mapNotNull { item ->
+            val pair = item.jsonArray
+            if (pair.size < 2) null
+            else LatLon(
+                lat = pair[1].jsonPrimitive.double,
+                lon = pair[0].jsonPrimitive.double
+            )
+        }
+    }
+
+    /**
+     * ✅ OSRM routing (FREE, no key)
+     * https://router.project-osrm.org/route/v1/driving/lon,lat;lon,lat?overview=full&geometries=geojson
+     */
+    private suspend fun fetchRouteOSRM(start: LatLon, end: LatLon): List<LatLon> {
+        val url =
+            "https://router.project-osrm.org/route/v1/driving/" +
+                    "${start.lon},${start.lat};${end.lon},${end.lat}"
+
+        val text = http.get(url) {
+            parameter("overview", "full")
+            parameter("geometries", "geojson")
+            header(HttpHeaders.UserAgent, "rmc-app/1.0 (student project)")
+        }.bodyAsText()
+
+        val root = json.parseToJsonElement(text).jsonObject
+
+        val code = root["code"]?.jsonPrimitive?.contentOrNull
+        if (code != null && code != "Ok") {
+            throw IllegalStateException("OSRM error: $code")
+        }
+
+        val routes = root["routes"]?.jsonArray ?: throw IllegalStateException("OSRM: no routes.")
+        val geometry = routes.first().jsonObject["geometry"]?.jsonObject
+            ?: throw IllegalStateException("OSRM: no geometry.")
+        val coords = geometry["coordinates"]?.jsonArray ?: throw IllegalStateException("OSRM: no coordinates.")
+
+        return coords.mapNotNull { item ->
+            val pair = item.jsonArray
+            if (pair.size < 2) null
+            else LatLon(
+                lat = pair[1].jsonPrimitive.double,
+                lon = pair[0].jsonPrimitive.double
+            )
+        }
+    }
+
+    private fun extractOrsErrorMessage(body: String): String {
+        return try {
+            val el = json.parseToJsonElement(body)
+            val obj = el.jsonObject
+            val errorObj = obj["error"]?.jsonObject
+            val msg1 = errorObj?.get("message")?.jsonPrimitive?.contentOrNull
+            val msg2 = obj["message"]?.jsonPrimitive?.contentOrNull
+            msg1 ?: msg2 ?: body.take(300)
+        } catch (_: Exception) {
+            body.take(300)
+        }
+    }
+
+    /**
+     * ✅ FIXED: Fetch speed limit using correct Overpass API query format
+     */
+    private suspend fun fetchSpeedLimit(point: LatLon): Int? {
+        return try {
+            val query = "[out:json];way(around:25,${point.lat},${point.lon})[highway][maxspeed];out tags 1;"
+
+            val text = http.post("https://overpass-api.de/api/interpreter") {
+                contentType(ContentType.Text.Plain)
+                setBody(query)
+                header(HttpHeaders.UserAgent, "rmc-app/1.0 (student project)")
+            }.bodyAsText()
+
+            val root = json.parseToJsonElement(text).jsonObject
+            val elements = root["elements"]?.jsonArray ?: return null
+
+            val raw = elements.firstNotNullOfOrNull { el ->
+                val tags = el.jsonObject["tags"]?.jsonObject
+                tags?.get("maxspeed")?.jsonPrimitive?.contentOrNull
+            }
+
+            parseMaxspeedKmh(raw)
+        } catch (e: Exception) {
+            // If speed limit lookup fails, return null (will use default 50)
+            null
+        }
+    }
+
+    // ---------------------------
+    // Simulation logic
+    // ---------------------------
+    private fun resetSim() {
         speed = 0.0
         engineRpm = 900.0
         currentGear = 1
@@ -350,21 +395,38 @@ class BonusPointsViewModel : BaseViewModel() {
         brake = 0.0
         acceleration = 0.0
         score = 100.0
+        targetSpeedOffset = Random.nextDouble(-5.0, -1.0)
+        ticksSinceLastChange = 0
     }
 
+    /**
+     * ✅ UPDATED: Dynamic driver behavior with random speed variations
+     * Driver aims for speed limit with a random offset between -5 and -1 km/h
+     * Changes target every 20-40 ticks (2-4 seconds) for realistic variation
+     */
     private fun driverModelBySpeedLimit(limitKmh: Int) {
-        val target = limitKmh.toDouble()
+        // Change target offset randomly every 2-4 seconds
+        ticksSinceLastChange++
+        if (ticksSinceLastChange > Random.nextInt(20, 41)) {
+            targetSpeedOffset = Random.nextDouble(-5.0, -1.0)
+            ticksSinceLastChange = 0
+        }
 
-        // simple controller: accelerate if below, brake if above
+        val target = limitKmh.toDouble() + targetSpeedOffset
         val diff = target - speed
+
+        // More aggressive driving for realistic behavior
         throttle = when {
-            diff > 15 -> 0.7
-            diff > 5 -> 0.4
-            diff > 1 -> 0.2
+            diff > 20 -> 0.9
+            diff > 10 -> 0.7
+            diff > 5 -> 0.5
+            diff > 2 -> 0.3
             else -> 0.0
         }
+
         brake = when {
-            diff < -10 -> 0.6
+            diff < -15 -> 0.7
+            diff < -8 -> 0.5
             diff < -3 -> 0.3
             else -> 0.0
         }
@@ -382,7 +444,7 @@ class BonusPointsViewModel : BaseViewModel() {
         val netForce = driveForce - dragForce - rollingResistance - brakeForce
         acceleration = netForce / vehicleMass
 
-        speed += acceleration * 0.36 // 100ms-ish tuning from your file
+        speed += acceleration * 0.36
         speed = speed.coerceIn(0.0, 160.0)
 
         engineRpm = max(900.0, speed * gearRatio * finalDrive * 40)
@@ -392,35 +454,22 @@ class BonusPointsViewModel : BaseViewModel() {
     }
 
     private fun scoringModel(limitKmh: Int) {
-        // reward staying near speed limit and smooth driving
         val diff = abs(speed - limitKmh.toDouble())
 
         when {
-            acceleration > 3.0 -> {
-                score -= 1.5
-            }
-            acceleration < -4.0 -> {
-                score -= 2.0
-            }
+            acceleration > 3.0 -> score -= 1.5
+            acceleration < -4.0 -> score -= 2.0
             abs(acceleration) < 1.0 -> {
                 score += 0.3
                 simBonus += 2
             }
         }
 
-        // extra: if within 3 km/h of limit, reward
-        if (diff <= 3.0) simBonus += 1
-
+        if (diff <= 5.0) simBonus += 1
         score = score.coerceIn(0.0, 100.0)
-
-        // push to DB once per second through the already-running refresh loop
-        // (we do final update on stop)
-        if (simBonus % 10 == 0) {
-            // nothing, avoid spamming
-        }
     }
 
-    private fun publishSimTexts(limitKmh: Int) {
+    private fun publishTexts(limitKmh: Int) {
         _uiState.update {
             it.copy(
                 speedText = "Speed: ${speed.toInt()} km/h",
@@ -447,89 +496,17 @@ class BonusPointsViewModel : BaseViewModel() {
                 remaining -= dist
                 routeIndex++
             } else {
-                // we don't interpolate mid-segment for display; move index when reached
-                // (simple + stable)
                 remaining = 0.0
             }
         }
     }
 
-    // ============================
-    // External API: Nominatim geocode
-    // ============================
-    private suspend fun geocodeNominatim(query: String): LatLon {
-        val url = "https://nominatim.openstreetmap.org/search"
-        val res: List<NominatimItem> = http.get(url) {
-            parameter("q", query)
-            parameter("format", "json")
-            parameter("limit", "1")
-            header(HttpHeaders.UserAgent, "rmc-app/1.0 (student project)") // required-ish
-        }.body()
-
-        val item = res.firstOrNull() ?: throw IllegalStateException("Address not found: $query")
-        return LatLon(lat = item.lat.toDouble(), lon = item.lon.toDouble())
-    }
-
-    // ============================
-    // Utilities + models
-    // ============================
-    @Serializable
-    private data class OrsRouteRequest(
-        val coordinates: List<List<Double>>
-    )
-
-    @Serializable
-    private data class OrsGeoJsonResponse(
-        val features: List<OrsFeature> = emptyList()
-    )
-
-    @Serializable
-    private data class OrsFeature(
-        val geometry: OrsGeometry? = null
-    )
-
-    @Serializable
-    private data class OrsGeometry(
-        val coordinates: List<List<Double>> = emptyList()
-    )
-
-    @Serializable
-    private data class NominatimItem(
-        val lat: String,
-        val lon: String
-    )
-
-    @Serializable
-    private data class OverpassResponse(
-        val elements: List<OverpassElement> = emptyList()
-    )
-
-    @Serializable
-    private data class OverpassElement(
-        val tags: OverpassTags? = null
-    )
-
-    @Serializable
-    private data class OverpassTags(
-        @SerialName("maxspeed") val maxspeed: String? = null
-    )
-
-    private data class LatLon(val lat: Double, val lon: Double)
-
     private fun parseMaxspeedKmh(raw: String?): Int? {
         if (raw.isNullOrBlank()) return null
-        // examples: "50", "50 km/h", "80 mph", "signals", "walk"
-        val digits = raw.trim().lowercase()
-            .replace("km/h", "")
-            .trim()
-
-        val value = digits.takeWhile { it.isDigit() }
-        val n = value.toIntOrNull() ?: return null
-
-        return if (raw.lowercase().contains("mph")) {
-            // mph -> km/h
-            (n * 1.60934).roundToInt()
-        } else n
+        val v = raw.trim().lowercase()
+        val digits = v.replace("km/h", "").trim()
+        val n = digits.takeWhile { it.isDigit() }.toIntOrNull() ?: return null
+        return if (v.contains("mph")) (n * 1.60934).roundToInt() else n
     }
 
     private fun haversineMeters(a: LatLon, b: LatLon): Double {
