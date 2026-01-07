@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.models.domain.RentalWithCarInfo
 import com.example.network.services.ApiResult
-import com.profgroep8.rmc_app.ui.screens.showRentals.ShowAllRentalsUIEvent
-import com.profgroep8.rmc_app.ui.screens.showRentals.ShowAllRentalsUIState
+import com.profgroep8.rmc_app.ui.screens.ShowRentals.ShowAllRentalsUIEvent
+import com.profgroep8.rmc_app.ui.screens.ShowRentals.ShowAllRentalsUIState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow

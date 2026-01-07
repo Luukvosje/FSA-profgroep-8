@@ -1,4 +1,4 @@
-package com.profgroep8.rmc_app.ui.screens.showRentals
+package com.profgroep8.rmc_app.ui.screens.ShowRentals
 
 import RmcScreen
 import androidx.activity.compose.BackHandler
