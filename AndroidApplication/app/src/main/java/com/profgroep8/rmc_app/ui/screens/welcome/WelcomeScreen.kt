@@ -1,4 +1,4 @@
-package com.digitalarchitects.rmc_app.presentation.screens.welcome
+package com.profgroep8.rmc_app.presentation.screens.welcome
 
 import LogoComponent
 import RmcFilledButton
