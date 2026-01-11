@@ -18,7 +18,7 @@
     <string name="home_add_car">Auto toevoegen</string>
     <string name="home_manage_cars">Auto\'s beheren</string>
     <string name="home_search_car">Auto\'s zoeken</string>
-    <string name="home_reservations">Reserveringen beheren</string>
+    <string name="home_rentals">Reserveringen beheren</string>
     <string name="home_view_route">Route bekijken</string>
     <string name="home_view_points">Punten bekijken</string>
     <string name="home_message">Hallo %s</string>
@@ -90,8 +90,8 @@
     <string name="invalid_time_format">Ongeldige tijd formaat (gebruik HH:mm)</string>
     <string name="invalid_address">Kan adres niet vinden</string>
     <string name="field_required">Dit veld is verplicht</string>
-    <string name="rental_created_successfully">Verhuur succesvol aangemaakt</string>
-    <string name="failed_to_create_rental">Kan verhuur niet aanmaken</string>
+    <string name="rental_created_successfully">Reservering succesvol aangemaakt</string>
+    <string name="failed_to_create_rental">Kan reservering niet aanmaken</string>
     <string name="location_permission_required">Locatie toestemming vereist</string>
     <string name="grant_location_permission">Geef locatie toestemming om de startlocatie te bepalen</string>
     <string name="getting_location">Locatie ophalen…</string>
