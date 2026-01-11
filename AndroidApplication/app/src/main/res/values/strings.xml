@@ -7,7 +7,7 @@
     <string name="register">Registeren</string>
     <string name="login">Inloggen</string>
     <string name="password">Wachtwoord</string>
-    <string name="logout">UitLoggen</string>
+    <string name="logout">Uitloggen</string>
     <string name="home">Home</string>
     <string name="email">Email</string>
     <string name="or">Of</string>
@@ -34,6 +34,7 @@
 
     <string name="button_next">Verder</string>
     <string name="button_ok">Oke</string>
+    <string name="button_yes">Ja</string>
     <string name="button_cancel">Annuleren</string>
     <string name="button_back">Terug</string>
 
@@ -62,19 +63,46 @@
     <string name="filter_cars">Auto\'s zoeken</string>
     <string name="filter_cars_sub">Zoek auto\'s met filters</string>
 
-    <string name="all_rentals">Alle huurauto\'s</string>
-    <string name="all_rentals_sub">Lijst van alle huurauto\'s</string>
-    <string name="no_rentals_found">Geen huurauto\'s gevonden</string>
+    <string name="all_rentals">Alle reserveringen</string>
+    <string name="all_rentals_sub">Lijst van alle reserveringen</string>
+    <string name="no_rentals_found">Geen reserveringen gevonden</string>
     <string name="renting">Gehuurd</string>
     <string name="renting_out">Verhuurd</string>
-    <string name="rental_information">Verhuur Informatie</string>
+    <string name="rental_information">Reservering Informatie</string>
     <string name="start_date">Startdatum</string>
     <string name="end_date">Einddatum</string>
     <string name="start_location">Startlocatie</string>
     <string name="end_location">Eindlocatie</string>
     <string name="status">Status</string>
+    <string name="end_rental">Reservering afronden</string>
+    <string name="end_rental_confirmation_title">Reservering afronden?</string>
+    <string name="end_rental_confirmation_message">Weet je zeker dat je deze reservering wilt afronden?</string>
+    <string name="create_rental">Reservering aanmaken</string>
+    <string name="create_rental_sub">Maak een nieuwe reservering aan</string>
+    <string name="start_time">Starttijd</string>
+    <string name="end_time">Eindtijd</string>
+    <string name="start_location_label">Startlocatie</string>
+    <string name="end_location_label">Eindlocatie</string>
+    <string name="end_address">Eindadres</string>
+    <string name="button_create">Aanmaken</string>
+    <string name="time_format_hint">HH:mm (bijv. 14:30)</string>
+    <string name="address_hint">Bijv. Hogeschoollaan 1, Breda</string>
+    <string name="invalid_time_format">Ongeldige tijd formaat (gebruik HH:mm)</string>
+    <string name="invalid_address">Kan adres niet vinden</string>
+    <string name="field_required">Dit veld is verplicht</string>
+    <string name="rental_created_successfully">Verhuur succesvol aangemaakt</string>
+    <string name="failed_to_create_rental">Kan verhuur niet aanmaken</string>
+    <string name="location_permission_required">Locatie toestemming vereist</string>
+    <string name="grant_location_permission">Geef locatie toestemming om de startlocatie te bepalen</string>
+    <string name="getting_location">Locatie ophalen…</string>
+    <string name="current_location">Huidige locatie</string>
+    <string name="search_address">Zoek adres</string>
+    <string name="select_date">Selecteer datum</string>
+    <string name="car_already_rented">Auto al verhuurd</string>
+    <string name="car_already_rented_message">Deze auto is momenteel verhuurd. Probeer een andere auto of probeer het later opnieuw.</string>
 
     <!-- Error messages -->
+    <string name="error">Fout</string>
     <string name="unknown_error">Er is een onverwachte fout opgetreden.</string>
     <string name="car_year">Bouwjaar</string>
     <string name="filters">Filteren</string>

@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,6 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,6 +74,48 @@ fun RentalInformationScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val loading by viewModel.isLoading.collectAsStateWithLifecycle()
+    
+    var showEndRentalDialog by remember { mutableStateOf(false) }
+    var errorDialogMessage by remember { mutableStateOf<String?>(null) }
+
+    if (showEndRentalDialog) {
+        AlertDialog(
+            onDismissRequest = { showEndRentalDialog = false },
+            title = { Text(stringResource(R.string.end_rental_confirmation_title)) },
+            text = { Text(stringResource(R.string.end_rental_confirmation_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showEndRentalDialog = false
+                        viewModel.endRental(
+                            onSuccess = { navigateToScreen(RmcScreen.Rentals.name) },
+                            onError = { error -> errorDialogMessage = error }
+                        )
+                    }
+                ) {
+                    Text(stringResource(R.string.button_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEndRentalDialog = false }) {
+                    Text(stringResource(R.string.button_cancel))
+                }
+            }
+        )
+    }
+
+    errorDialogMessage?.let { error ->
+        AlertDialog(
+            onDismissRequest = { errorDialogMessage = null },
+            title = { Text(stringResource(R.string.error)) },
+            text = { Text(error) },
+            confirmButton = {
+                TextButton(onClick = { errorDialogMessage = null }) {
+                    Text(stringResource(R.string.button_ok))
+                }
+            }
+        )
+    }
 
     BackHandler {
         navigateBack()
@@ -125,7 +171,8 @@ fun RentalInformationScreen(
                     RentalInformationContent(
                         rental = uiState.rental,
                         car = uiState.car,
-                        navigateToScreen = navigateToScreen
+                        navigateToScreen = navigateToScreen,
+                        onEndRental = { showEndRentalDialog = true }
                     )
                 }
             }
@@ -137,11 +184,13 @@ fun RentalInformationScreen(
 private fun RentalInformationContent(
     rental: com.example.network.models.domain.RentalWithLocations?,
     car: com.example.network.models.domain.Car?,
-    navigateToScreen: (String) -> Unit
+    navigateToScreen: (String) -> Unit,
+    onEndRental: () -> Unit
 ) {
     val currentUserId = UserProvider.user?.userID
     val isOwner = currentUserId != null && car?.userID == currentUserId
     val isRenter = currentUserId != null && rental?.userID == currentUserId
+    val isActiveRental = rental?.state == 1
 
     val roleLabel = when {
         isOwner -> stringResource(R.string.renting_out)
@@ -264,6 +313,14 @@ private fun RentalInformationContent(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            if (isRenter && isActiveRental) {
+                RmcFilledButton(
+                    value = stringResource(R.string.end_rental),
+                    onClick = onEndRental
+                )
+                RmcSpacer(8)
+            }
+            
             RmcFilledButton(
                 value = stringResource(R.string.button_back),
                 onClick = { navigateToScreen(RmcScreen.Rentals.name) }

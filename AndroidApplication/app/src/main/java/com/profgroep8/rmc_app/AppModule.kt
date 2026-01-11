@@ -1,6 +1,7 @@
 package com.profgroep8.rmc_app
 
 import com.profgroep8.rmc_app.viewmodel.AddCarViewModel
+import com.profgroep8.rmc_app.viewmodel.AddRentalViewModel
 import com.profgroep8.rmc_app.viewmodel.BonusPointsViewModel
 import com.profgroep8.rmc_app.viewmodel.CarInformationViewModel
 import com.profgroep8.rmc_app.viewmodel.FilterCarsViewModel
@@ -32,6 +33,12 @@ val viewModelModule = module {
         RentalInformationViewModel(
             serviceFactory = get(),
             rentalId = rentalId
+        )
+    }
+    viewModel { (carId: Int) ->
+        AddRentalViewModel(
+            serviceFactory = get(),
+            carId = carId
         )
     }
 }

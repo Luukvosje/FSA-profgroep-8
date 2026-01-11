@@ -8,14 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.digitalarchitects.rmc_app.presentation.screens.welcome.WelcomeScreen
 import com.profgroep8.rmc_app.R
-import com.profgroep8.rmc_app.ui.screens.AddCar.AddCarScreen
-import com.profgroep8.rmc_app.ui.screens.CarInformation.CarInformationScreen
-import com.profgroep8.rmc_app.ui.screens.home.HomeScreen
-import com.profgroep8.rmc_app.ui.screens.login.LoginScreen
-import com.profgroep8.rmc_app.ui.screens.register.RegisterScreen
-import com.profgroep8.rmc_app.ui.screens.showCars.AllCarsScreen
 import com.profgroep8.rmc_app.ui.theme.RMCappTheme
 
 enum class RmcScreen(@StringRes val title: Int){
@@ -29,7 +22,8 @@ enum class RmcScreen(@StringRes val title: Int){
     AllCars(R.string.home_manage_cars),
     ViewPoints(R.string.home_view_points),
     Rentals(R.string.home_reservations),
-    RentalInformation(R.string.rental_information)
+    RentalInformation(R.string.rental_information),
+    AddRental(R.string.create_rental)
 }
 
 @Composable
@@ -43,7 +37,7 @@ fun RmcApp(
         startDestination.name
     ) {
         composable(RmcScreen.Welcome.name) {
-            _root_ide_package_.com.digitalarchitects.rmc_app.presentation.screens.welcome.WelcomeScreen(
+            _root_ide_package_.com.profgroep8.rmc_app.presentation.screens.welcome.WelcomeScreen(
                 navigateToScreen = { route -> navController.navigate(route) }
             )
         }
@@ -111,6 +105,17 @@ fun RmcApp(
             val rentalId = backStackEntry.arguments?.getInt("rentalId")
             com.profgroep8.rmc_app.ui.screens.RentalInformation.RentalInformationScreen(
                 rentalId = rentalId,
+                navigateToScreen = { navController.navigate(it) }
+            )
+        }
+
+        composable(
+            route = "${RmcScreen.AddRental.name}/{carId}",
+            arguments = listOf(navArgument("carId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val carId = backStackEntry.arguments?.getInt("carId")
+            com.profgroep8.rmc_app.ui.screens.AddRental.AddRentalScreen(
+                carId = carId,
                 navigateToScreen = { navController.navigate(it) }
             )
         }
