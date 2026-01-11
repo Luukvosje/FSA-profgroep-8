@@ -1,10 +1,9 @@
 package com.profgroep8.rmc_app.ui.components
 
-import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,18 +42,14 @@ fun ClickableLoginTextComponent(tryingToLogin: Boolean = true, onTextSelected: (
         }
     }
 
-    ClickableText (
+    Text(
         style = MaterialTheme.typography.bodyLarge,
         text = annotatedString,
-        onClick = { offset ->
-            annotatedString.getStringAnnotations(offset, offset)
-                .firstOrNull()?.also { span ->
-                    Log.d("ClickableTextComponent", "{${span.item}}")
-
-                    if (span.item == loginText) {
-                        onTextSelected(span.item)
-                    }
-                }
-        },
-    )
+        color = MaterialTheme.colorScheme.inversePrimary,
+        modifier = Modifier.clickable(
+            onClick = {
+                onTextSelected(loginText)
+            },
+        )
+        )
 }
