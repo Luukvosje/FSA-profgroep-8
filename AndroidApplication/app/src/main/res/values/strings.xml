@@ -34,6 +34,7 @@
 
     <string name="button_next">Verder</string>
     <string name="button_ok">Oke</string>
+    <string name="button_yes">Ja</string>
     <string name="button_cancel">Annuleren</string>
     <string name="button_back">Terug</string>
 
@@ -73,6 +74,9 @@
     <string name="start_location">Startlocatie</string>
     <string name="end_location">Eindlocatie</string>
     <string name="status">Status</string>
+    <string name="end_rental">Reservering afronden</string>
+    <string name="end_rental_confirmation_title">Reservering afronden?</string>
+    <string name="end_rental_confirmation_message">Weet je zeker dat je deze reservering wilt afronden?</string>
     <string name="create_rental">Reservering aanmaken</string>
     <string name="create_rental_sub">Maak een nieuwe reservering aan</string>
     <string name="start_time">Starttijd</string>
@@ -98,6 +102,7 @@
     <string name="car_already_rented_message">Deze auto is momenteel verhuurd. Probeer een andere auto of probeer het later opnieuw.</string>
 
     <!-- Error messages -->
+    <string name="error">Fout</string>
     <string name="unknown_error">Er is een onverwachte fout opgetreden.</string>
     <string name="car_year">Bouwjaar</string>
     <string name="filters">Filteren</string>

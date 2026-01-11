@@ -81,5 +81,21 @@ class RentalInformationViewModel(
         _uiState.update { it.copy(errorMessage = null) }
         loadRentalInformation()
     }
+
+    fun endRental(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            withLoading {
+                when (val result = serviceFactory.rentalService.endRental(rentalId)) {
+                    is ApiResult.Success -> {
+                        _uiState.update { it.copy(rental = result.data) }
+                        onSuccess()
+                    }
+                    is ApiResult.Error -> {
+                        onError(result.exception.message ?: "Failed to end rental")
+                    }
+                }
+            }
+        }
+    }
 }
 
