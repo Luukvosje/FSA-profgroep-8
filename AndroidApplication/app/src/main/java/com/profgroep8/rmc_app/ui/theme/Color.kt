@@ -41,10 +41,6 @@ val OnSurfaceVariant = Color(0xFF454545)
 val Outline = Color(0xFF6E6E6E)
 val OutlineVariant = Color(0xFFC2C2C2)
 
-// Typography colors
-val TextPrimary = Color(0xFF124ACB)      // Your blue
-val TextSecondary = Color(0xFF6E6E6E)
-
 // ------------------------------
 // Error Colors
 // ------------------------------

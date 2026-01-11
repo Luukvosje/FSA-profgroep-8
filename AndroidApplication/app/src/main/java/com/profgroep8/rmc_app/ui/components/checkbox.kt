@@ -13,10 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-
-/**
- * Stateless CheckboxComponent which consists out of a CheckBox and HyperLinkTextComponent
- */
 @Composable
 fun CheckboxComponent(
     value: String,
