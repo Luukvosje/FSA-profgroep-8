@@ -99,7 +99,7 @@ fun RmcApp(
         }
 
         composable(RmcScreen.Rentals.name) {
-            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.showRentals.AllRentalsScreen(
+            _root_ide_package_.com.profgroep8.rmc_app.ui.screens.ShowRentals.AllRentalsScreen(
                 navigateToScreen = { navController.navigate(it)}
             )
         }

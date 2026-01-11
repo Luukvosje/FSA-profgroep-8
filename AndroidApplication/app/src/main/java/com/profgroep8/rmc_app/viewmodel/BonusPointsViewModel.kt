@@ -15,17 +15,19 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.*
 import kotlin.math.*
 import kotlin.random.Random
-
-/**
- * If ORS gives 403: we automatically fallback to OSRM (free, no key).
- * If you DO have a real ORS key, put it here (it usually looks like a long hex/string, not a JWT).
- */
 private const val ORS_API_KEY: String = ""
 
 private data class LatLon(val lat: Double, val lon: Double)
+private data class RoadSegment(
+    val startIndex: Int,
+    val endIndex: Int,
+    val roadType: String,
+    val speedLimit: Int
+)
 
 class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseViewModel() {
 
@@ -48,11 +50,16 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
 
     private var routeCoords: List<LatLon> = emptyList()
     private var routeIndex: Int = 0
+    private var totalRouteDistance: Double = 0.0
+    private var distanceTraveled: Double = 0.0
 
-    // ----- physics -----
-    private val vehicleMass = 1200.0  // Lighter car for faster acceleration
+    private var roadSegments = mutableListOf<RoadSegment>()
+    private var currentSpeedLimit = 50
+    private var currentRoadType = "unclassified"
+
+    private val vehicleMass = 1200.0
     private val wheelRadius = 0.32
-    private val maxEngineTorque = 500.0  // Much higher torque for realistic acceleration
+    private val maxEngineTorque = 500.0
     private val gearRatios = listOf(3.6, 2.1, 1.4, 1.0, 0.8)
     private val finalDrive = 3.4
 
@@ -64,9 +71,15 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
     private var acceleration = 0.0
     private var score = 100.0
 
-    // ✅ Dynamic speed target
     private var targetSpeedOffset = 0.0
     private var ticksSinceLastChange = 0
+    private var driverSkillFactor = Random.nextDouble(0.5, 0.85) // Most drivers are average
+    private var driverMistakeChance = Random.nextDouble(0.15, 0.35) // 15-35% chance of mistakes
+
+    private var performanceHistory = mutableListOf<Float>()
+    private var tickCounter = 0
+    private var tickScoreAccumulator = 0.0
+    private var tickCount = 0
 
     init {
         startApiRefresh()
@@ -75,9 +88,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
     fun onStartAddressChanged(v: String) = _uiState.update { it.copy(startAddress = v) }
     fun onEndAddressChanged(v: String) = _uiState.update { it.copy(endAddress = v) }
 
-    // ---------------------------
-    // refresh DB bonuspoints each second
-    // ---------------------------
     private fun startApiRefresh() {
         if (apiRefreshJob != null) return
         apiRefreshJob = viewModelScope.launch {
@@ -112,9 +122,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         }
     }
 
-    // ---------------------------
-    // Simulation
-    // ---------------------------
     fun startSimulation() {
         if (simJob != null) return
 
@@ -130,48 +137,57 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
                 _uiState.update { it.copy(isLoading = true, errorMessage = null, simulationStatus = "Geocoding...") }
 
                 val start = geocodeNominatim(startAddr)
-                delay(1100) // Nominatim politeness
+                delay(1100)
                 val end = geocodeNominatim(endAddr)
 
                 _uiState.update { it.copy(simulationStatus = "Routing...") }
 
-                // ✅ ORS (if key) -> fallback OSRM (free)
                 routeCoords = fetchRouteWithFallback(start, end)
                 if (routeCoords.size < 2) throw IllegalStateException("Route not found.")
 
+                totalRouteDistance = calculateTotalDistance(routeCoords)
+
+                _uiState.update { it.copy(simulationStatus = "Generating realistic route...") }
+                generateRealisticRoute()
+
                 resetSim()
                 routeIndex = 0
+                distanceTraveled = 0.0
                 basePointsAtSimStart = serverPoints
                 simBonus = 0
+                updateCurrentRoad()
 
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         isSimulationRunning = true,
-                        simulationStatus = "Driving route..."
+                        simulationStatus = "Driving ${String.format("%.1f", totalRouteDistance / 1000)} km route..."
                     )
                 }
 
                 while (true) {
                     if (!uiState.value.isSimulationRunning) break
 
-                    val current = routeCoords[routeIndex]
-                    val dest = routeCoords.last()
+                    updateCurrentRoad()
 
-                    val limit = fetchSpeedLimit(current) ?: 50
-                    driverModelBySpeedLimit(limit)
+                    driverModelBySpeedLimit(currentSpeedLimit)
                     vehiclePhysicsTick()
-                    scoringModel(limit)
-                    publishTexts(limit)
+                    scoringModel(currentSpeedLimit)
+                    publishTexts(currentSpeedLimit)
 
                     val metersPerSec = speed / 3.6
                     val metersThisTick = metersPerSec * 0.1
-                    advanceAlongRoute(metersThisTick)
+                    val actualMoved = advanceAlongRoute(metersThisTick)
+                    distanceTraveled += actualMoved
 
-                    val remaining = haversineMeters(routeCoords[routeIndex], dest)
-                    if (routeIndex >= routeCoords.lastIndex || remaining < 10.0) {
+                    // Check if arrived at destination
+                    if (routeIndex >= routeCoords.lastIndex) {
                         stopSimulationInternal(finalDbUpdate = true)
-                        _uiState.update { it.copy(simulationStatus = "Arrived ✅ Simulation finished.") }
+                        _uiState.update {
+                            it.copy(
+                                simulationStatus = "Arrived ✅ Total: ${String.format("%.1f", distanceTraveled / 1000)} km"
+                            )
+                        }
                         break
                     }
 
@@ -218,10 +234,129 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         cachedUserId = null
         _uiState.update { it.copy(isUnauthorized = true) }
     }
+    private suspend fun generateRealisticRoute() {
+        roadSegments.clear()
 
-    // ==========================================================
-    // External APIs
-    // ==========================================================
+        val samplePoints = listOf(0, routeCoords.size / 4, routeCoords.size / 2, (routeCoords.size * 3) / 4)
+        val detectedRoads = mutableMapOf<Int, Pair<String, Int>>()
+
+        for (idx in samplePoints) {
+            if (idx < routeCoords.size) {
+                val detection = detectRoadTypeWithTimeout(routeCoords[idx])
+                if (detection != null) {
+                    detectedRoads[idx] = detection
+                }
+                delay(500)
+            }
+        }
+
+        val routePhases = listOf(
+            RoutePhase(0.05, 0.10, listOf("residential", "living_street", "tertiary")),
+            RoutePhase(0.10, 0.20, listOf("tertiary", "secondary", "primary")),
+            RoutePhase(0.10, 0.15, listOf("primary", "trunk", "motorway_link")),
+            RoutePhase(0.40, 0.50, listOf("motorway", "trunk")),
+            RoutePhase(0.10, 0.15, listOf("motorway_link", "trunk", "primary")),
+            RoutePhase(0.10, 0.15, listOf("primary", "secondary", "tertiary")),
+            RoutePhase(0.05, 0.10, listOf("tertiary", "residential", "living_street"))
+        )
+
+        var currentIndex = 0
+
+        for (phase in routePhases) {
+            val phaseLength = Random.nextDouble(phase.minPercent, phase.maxPercent)
+            val phaseSegmentCount = Random.nextInt(1, 4) // 1-3 segments per phase
+            val segmentLength = ((routeCoords.size * phaseLength) / phaseSegmentCount).toInt()
+
+            repeat(phaseSegmentCount) {
+                if (currentIndex >= routeCoords.size) return@repeat
+
+                val roadType = phase.roadTypes.random()
+                val speedLimit = getDefaultSpeedForRoadType(roadType)
+
+                val endIndex = min(currentIndex + segmentLength, routeCoords.size - 1)
+
+                roadSegments.add(RoadSegment(
+                    startIndex = currentIndex,
+                    endIndex = endIndex,
+                    roadType = roadType,
+                    speedLimit = speedLimit
+                ))
+
+                currentIndex = endIndex + 1
+            }
+        }
+
+        if (currentIndex < routeCoords.size - 1) {
+            roadSegments.add(RoadSegment(
+                startIndex = currentIndex,
+                endIndex = routeCoords.size - 1,
+                roadType = "residential",
+                speedLimit = 30
+            ))
+        }
+    }
+
+    private data class RoutePhase(
+        val minPercent: Double,
+        val maxPercent: Double,
+        val roadTypes: List<String>
+    )
+
+    private suspend fun detectRoadTypeWithTimeout(point: LatLon): Pair<String, Int>? {
+        return withTimeoutOrNull(2000) {
+            try {
+                val query = "[out:json];way(around:100,${point.lat},${point.lon})[highway];out tags 1;"
+
+                val text = http.post("https://overpass-api.de/api/interpreter") {
+                    contentType(ContentType.Text.Plain)
+                    setBody(query)
+                    header(HttpHeaders.UserAgent, "rmc-app/1.0 (student project)")
+                }.bodyAsText()
+
+                val root = json.parseToJsonElement(text).jsonObject
+                val elements = root["elements"]?.jsonArray ?: return@withTimeoutOrNull null
+
+                val way = elements.firstOrNull()?.jsonObject ?: return@withTimeoutOrNull null
+                val tags = way["tags"]?.jsonObject ?: return@withTimeoutOrNull null
+
+                val highwayType = tags["highway"]?.jsonPrimitive?.contentOrNull ?: return@withTimeoutOrNull null
+                val maxspeed = tags["maxspeed"]?.jsonPrimitive?.contentOrNull?.let { parseMaxspeedKmh(it) }
+                    ?: getDefaultSpeedForRoadType(highwayType)
+
+                Pair(highwayType, maxspeed)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    private fun getDefaultSpeedForRoadType(roadType: String): Int {
+        return when (roadType) {
+            "motorway" -> Random.nextInt(120, 131)
+            "motorway_link" -> 80
+            "trunk" -> Random.nextInt(90, 101)
+            "trunk_link" -> 70
+            "primary" -> Random.nextInt(70, 81)
+            "primary_link" -> 60
+            "secondary" -> Random.nextInt(50, 61)
+            "tertiary" -> 50
+            "residential" -> 30
+            "living_street" -> 15
+            else -> 50
+        }
+    }
+
+    private fun updateCurrentRoad() {
+        val segment = roadSegments.firstOrNull {
+            routeIndex >= it.startIndex && routeIndex <= it.endIndex
+        }
+
+        if (segment != null) {
+            currentSpeedLimit = segment.speedLimit
+            currentRoadType = segment.roadType
+        }
+    }
+
     private suspend fun geocodeNominatim(query: String): LatLon {
         val text = http.get("https://nominatim.openstreetmap.org/search") {
             parameter("q", query)
@@ -243,11 +378,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         return LatLon(lat = lat, lon = lon)
     }
 
-    /**
-     * ✅ Routing:
-     * - Try ORS only if the key seems present
-     * - If ORS responds 401/403, fallback to OSRM (free, no key)
-     */
     private suspend fun fetchRouteWithFallback(start: LatLon, end: LatLon): List<LatLon> {
         val hasOrsKey = ORS_API_KEY.isNotBlank()
 
@@ -255,9 +385,8 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
             try {
                 return fetchRouteORS(start, end)
             } catch (e: Exception) {
-                // If ORS fails, fallback
                 _uiState.update {
-                    it.copy(simulationStatus = "ORS blocked (403). Using free OSRM routing...")
+                    it.copy(simulationStatus = "ORS blocked. Using free OSRM routing...")
                 }
             }
         }
@@ -265,9 +394,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         return fetchRouteOSRM(start, end)
     }
 
-    /**
-     * ORS routing (can fail with 403 if key is wrong)
-     */
     private suspend fun fetchRouteORS(start: LatLon, end: LatLon): List<LatLon> {
         val bodyJson = buildJsonObject {
             put("coordinates", buildJsonArray {
@@ -288,7 +414,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         val text = response.bodyAsText()
         if (!response.status.isSuccess()) {
             val msg = extractOrsErrorMessage(text)
-            // Throw to trigger fallback
             throw IllegalStateException("ORS error ${response.status.value}: $msg")
         }
 
@@ -306,10 +431,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         }
     }
 
-    /**
-     * ✅ OSRM routing (FREE, no key)
-     * https://router.project-osrm.org/route/v1/driving/lon,lat;lon,lat?overview=full&geometries=geojson
-     */
     private suspend fun fetchRouteOSRM(start: LatLon, end: LatLon): List<LatLon> {
         val url =
             "https://router.project-osrm.org/route/v1/driving/" +
@@ -356,37 +477,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         }
     }
 
-    /**
-     * ✅ FIXED: Fetch speed limit using correct Overpass API query format
-     */
-    private suspend fun fetchSpeedLimit(point: LatLon): Int? {
-        return try {
-            val query = "[out:json];way(around:25,${point.lat},${point.lon})[highway][maxspeed];out tags 1;"
-
-            val text = http.post("https://overpass-api.de/api/interpreter") {
-                contentType(ContentType.Text.Plain)
-                setBody(query)
-                header(HttpHeaders.UserAgent, "rmc-app/1.0 (student project)")
-            }.bodyAsText()
-
-            val root = json.parseToJsonElement(text).jsonObject
-            val elements = root["elements"]?.jsonArray ?: return null
-
-            val raw = elements.firstNotNullOfOrNull { el ->
-                val tags = el.jsonObject["tags"]?.jsonObject
-                tags?.get("maxspeed")?.jsonPrimitive?.contentOrNull
-            }
-
-            parseMaxspeedKmh(raw)
-        } catch (e: Exception) {
-            // If speed limit lookup fails, return null (will use default 50)
-            null
-        }
-    }
-
-    // ---------------------------
-    // Simulation logic
-    // ---------------------------
     private fun resetSim() {
         speed = 0.0
         engineRpm = 900.0
@@ -394,39 +484,51 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         throttle = 0.0
         brake = 0.0
         acceleration = 0.0
-        score = 100.0
-        targetSpeedOffset = Random.nextDouble(-5.0, -1.0)
+        score = Random.nextDouble(70.0, 85.0)
+
+        targetSpeedOffset = Random.nextDouble(-8.0, 2.0)
         ticksSinceLastChange = 0
+        driverSkillFactor = Random.nextDouble(0.65, 0.9) // Better average skill
+        driverMistakeChance = Random.nextDouble(0.1, 0.25) // Lower mistake chance
+
+        performanceHistory.clear()
+        performanceHistory.addAll(List(100) { 0f }) // 100 points = 100 seconds of data
+        tickCounter = 0
+        tickScoreAccumulator = 0.0
+        tickCount = 0
     }
 
-    /**
-     * ✅ FIXED: Realistic driver behavior that actually reaches speed limit
-     * Target speed is (limit - 1 to 5) km/h, changes every 2-4 seconds
-     */
     private fun driverModelBySpeedLimit(limitKmh: Int) {
-        // Change target offset randomly every 2-4 seconds
         ticksSinceLastChange++
-        if (ticksSinceLastChange > Random.nextInt(20, 41)) {
-            targetSpeedOffset = Random.nextDouble(-5.0, -1.0)
+        if (ticksSinceLastChange > Random.nextInt(15, 35)) {
+            // Driver makes mistakes - sometimes speeds, sometimes too slow
+            val mistake = if (Random.nextDouble() < driverMistakeChance) {
+                Random.nextDouble(-15.0, 10.0) // Big mistake!
+            } else {
+                Random.nextDouble(-8.0, 5.0) * driverSkillFactor
+            }
+            targetSpeedOffset = mistake
             ticksSinceLastChange = 0
         }
 
-        // Target is speed limit minus 1-5 km/h
         val target = limitKmh.toDouble() + targetSpeedOffset
         val diff = target - speed
 
-        // Full throttle until close to target - like a real driver
+        val imperfection = Random.nextDouble(-0.3, 0.3)
+
         throttle = when {
-            diff > 3 -> 1.0       // Full throttle when far from target
-            diff > 1 -> 0.6       // Ease off when getting close
-            diff > 0.3 -> 0.3     // Gentle throttle to maintain
-            else -> 0.0           // Coast when at speed
+            diff > 10 -> (1.0 + imperfection).coerceIn(0.0, 1.0)
+            diff > 5 -> (0.8 + imperfection).coerceIn(0.0, 1.0)
+            diff > 2 -> (0.6 + imperfection).coerceIn(0.0, 1.0)
+            diff > 0.5 -> (0.3 + imperfection).coerceIn(0.0, 1.0)
+            else -> 0.0
         }
 
-        // Only brake if significantly over target
         brake = when {
-            diff < -5 -> 0.7
-            diff < -2 -> 0.4
+            diff < -15 -> (0.9 + imperfection).coerceIn(0.0, 1.0)
+            diff < -8 -> (0.7 + imperfection).coerceIn(0.0, 1.0)
+            diff < -4 -> (0.5 + imperfection).coerceIn(0.0, 1.0)
+            diff < -1 -> (0.2 + imperfection).coerceIn(0.0, 1.0)
             else -> 0.0
         }
     }
@@ -436,7 +538,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         val wheelTorque = throttle * maxEngineTorque * gearRatio * finalDrive
         val driveForce = wheelTorque / wheelRadius
 
-        // Reduced drag for faster acceleration
         val dragForce = 0.5 * 1.2 * 0.25 * (speed / 3.6).pow(2)
         val rollingResistance = 0.01 * vehicleMass * 9.81
         val brakeForce = brake * 10000
@@ -444,7 +545,6 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         val netForce = driveForce - dragForce - rollingResistance - brakeForce
         acceleration = netForce / vehicleMass
 
-        // Much faster speed increase - realistic car acceleration
         speed += acceleration * 1.2
         speed = speed.coerceIn(0.0, 160.0)
 
@@ -455,22 +555,108 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
     }
 
     private fun scoringModel(limitKmh: Int) {
-        val diff = abs(speed - limitKmh.toDouble())
+        val diff = speed - limitKmh.toDouble()
 
+        var instantScore = Random.nextDouble(70.0, 85.0)
+
+        // Harsh acceleration penalty
         when {
-            acceleration > 3.0 -> score -= 1.5
-            acceleration < -4.0 -> score -= 2.0
-            abs(acceleration) < 1.0 -> {
-                score += 0.3
+            acceleration > 5.0 -> {
+                score -= 3.0
+                instantScore -= 40.0
+            }
+            acceleration > 3.5 -> {
+                score -= 1.5
+                instantScore -= 25.0
+            }
+            acceleration > 2.0 -> {
+                score -= 0.8
+                instantScore -= 10.0
+            }
+            abs(acceleration) < 0.8 -> {
+                score += 0.5
                 simBonus += 2
+                instantScore += 15.0
             }
         }
 
-        if (diff <= 5.0) simBonus += 1
-        score = score.coerceIn(0.0, 100.0)
+        when {
+            acceleration < -6.0 -> {
+                score -= 4.0
+                instantScore -= 50.0
+            }
+            acceleration < -4.0 -> {
+                score -= 2.0
+                instantScore -= 30.0
+            }
+            acceleration < -2.5 -> {
+                score -= 1.0
+                instantScore -= 15.0
+            }
+        }
+
+        when {
+            diff > 20 -> {
+                score -= 4.0
+                instantScore -= 60.0
+            }
+            diff > 12 -> {
+                score -= 2.5
+                instantScore -= 40.0
+            }
+            diff > 7 -> {
+                score -= 1.5
+                instantScore -= 25.0
+            }
+            diff > 3 -> {
+                score -= 0.8
+                instantScore -= 10.0
+            }
+            diff >= -2 && diff <= 2 -> {
+                simBonus += 1
+                instantScore += 10.0
+            }
+            diff < -12 -> {
+                score -= 1.5
+                instantScore -= 20.0
+            }
+        }
+
+        if (Random.nextDouble() < 0.03) {
+            score -= Random.nextDouble(1.0, 5.0)
+            instantScore -= Random.nextDouble(10.0, 30.0)
+        }
+
+        instantScore = instantScore.coerceIn(0.0, 100.0)
+
+        tickScoreAccumulator += instantScore
+        tickCount++
+        tickCounter++
+
+        if (tickCounter >= 10) {
+            val averageScore = (tickScoreAccumulator / tickCount).toFloat()
+
+            performanceHistory.removeAt(0)
+            performanceHistory.add(averageScore)
+
+            // Reset counters
+            tickCounter = 0
+            tickScoreAccumulator = 0.0
+            tickCount = 0
+        }
+
+        score = score.coerceIn(50.0, 100.0)
+
+        if (score > 90) score -= 0.3
+        if (score < 65) score += 0.3
     }
 
     private fun publishTexts(limitKmh: Int) {
+        val progress = if (totalRouteDistance > 0) (distanceTraveled / totalRouteDistance * 100).toInt() else 0
+        val remainingKm = if (totalRouteDistance > 0) {
+            ((totalRouteDistance - distanceTraveled) / 1000).coerceAtLeast(0.0)
+        } else 0.0
+
         _uiState.update {
             it.copy(
                 speedText = "Speed: ${speed.toInt()} km/h",
@@ -478,34 +664,51 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
                 gearText = "Gear: $currentGear",
                 scoreText = "Driver Score: ${score.toInt()}",
                 simBonusText = "Bonus Points: $simBonus",
-                modeText = "Mode: Speedlimit $limitKmh km/h"
+                modeText = "$currentRoadType: $limitKmh km/h | ${String.format("%.1f", remainingKm)} km remaining",
+                performanceGraph = performanceHistory.toList()
             )
         }
     }
 
-    private fun advanceAlongRoute(metersToMove: Double) {
+    private fun advanceAlongRoute(metersToMove: Double): Double {
         var remaining = metersToMove
+        var totalMoved = 0.0
+
         while (remaining > 0 && routeIndex < routeCoords.lastIndex) {
             val a = routeCoords[routeIndex]
             val b = routeCoords[routeIndex + 1]
             val dist = haversineMeters(a, b)
+
             if (dist <= 0.1) {
                 routeIndex++
                 continue
             }
+
             if (remaining >= dist) {
                 remaining -= dist
+                totalMoved += dist
                 routeIndex++
             } else {
+                totalMoved += remaining
                 remaining = 0.0
             }
         }
+
+        return totalMoved
+    }
+
+    private fun calculateTotalDistance(coords: List<LatLon>): Double {
+        var total = 0.0
+        for (i in 0 until coords.size - 1) {
+            total += haversineMeters(coords[i], coords[i + 1])
+        }
+        return total
     }
 
     private fun parseMaxspeedKmh(raw: String?): Int? {
         if (raw.isNullOrBlank()) return null
         val v = raw.trim().lowercase()
-        val digits = v.replace("km/h", "").trim()
+        val digits = v.replace("km/h", "").replace("mph", "").trim()
         val n = digits.takeWhile { it.isDigit() }.toIntOrNull() ?: return null
         return if (v.contains("mph")) (n * 1.60934).roundToInt() else n
     }
