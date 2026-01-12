@@ -1,6 +1,5 @@
 package com.profgroep8.rmc_app.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.models.remote.LoginUserDTO
@@ -24,7 +23,6 @@ class LoginViewModel(
 
     fun onEvent(event: LoginUIEvent) {
         when (event) {
-
             is LoginUIEvent.EmailChanged ->
                 _uiState.update { it.copy(email = event.email) }
 
@@ -61,7 +59,6 @@ class LoginViewModel(
 
             when (result) {
                 is ApiResult.Success -> {
-                    // Save token and email
                     result.data.token?.let { token ->
                         tokenManager.saveToken(token)
                         tokenManager.saveUserEmail(state.email)
@@ -72,7 +69,7 @@ class LoginViewModel(
                     }
                 }
 
-                is ApiResult.Error ->
+                is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -80,6 +77,7 @@ class LoginViewModel(
                                 ?: "Invalid email or password"
                         )
                     }
+                }
             }
         }
     }

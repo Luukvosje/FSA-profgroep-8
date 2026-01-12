@@ -1,6 +1,5 @@
 package com.profgroep8.rmc_app.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
@@ -29,9 +28,8 @@ class WelcomeViewModel(
             _uiState.update { it.copy(isLoading = true) }
 
             val token = tokenManager.getToken()
-            val hasLocalToken = token != null
-            if (hasLocalToken) {
-                serviceFactory.userService.logout()
+
+            if (token != null && tokenManager.hasValidSession()) {
                 serviceFactory.userService.loginWithToken(token)
 
                 _uiState.update {
@@ -42,6 +40,8 @@ class WelcomeViewModel(
                     )
                 }
             } else {
+                tokenManager.clearSession()
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
