@@ -11,20 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
 import com.profgroep8.rmc_app.viewmodel.HomeViewModel
 import org.koin.compose.viewmodel.koinViewModel
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen(
-        navigateToScreen = {}
-    )
-}
 
 @Composable
 fun HomeScreen(
@@ -36,6 +27,7 @@ fun HomeScreen(
     LaunchedEffect(uiState.isLoggedOut) {
         if (uiState.isLoggedOut) {
             navigateToScreen(RmcScreen.Welcome.name)
+            viewModel.onLogoutHandled()
         }
     }
 
@@ -83,34 +75,28 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-
                         RmcFilledButton(
-                            value = stringResource(id = R.string.home_add_car),
+                            value = stringResource(R.string.home_add_car),
                             onClick = { navigateToScreen(RmcScreen.AddCar.name) }
                         )
 
                         RmcFilledButton(
-                            value = stringResource(id = R.string.home_manage_cars),
+                            value = stringResource(R.string.home_manage_cars),
                             onClick = { navigateToScreen(RmcScreen.AllCars.name) }
                         )
 
                         RmcFilledButton(
-                            value = stringResource(id = R.string.home_search_car),
-                            onClick = { navigateToScreen(RmcScreen.FilterCars.name) } // keep placeholder
+                            value = stringResource(R.string.home_search_car),
+                            onClick = { navigateToScreen(RmcScreen.FilterCars.name) }
                         )
 
                         RmcFilledButton(
-                            value = stringResource(id = R.string.home_rentals),
+                            value = stringResource(R.string.home_rentals),
                             onClick = { navigateToScreen(RmcScreen.Rentals.name) }
                         )
 
                         RmcFilledButton(
-                            value = stringResource(id = R.string.home_view_route),
-                            onClick = { navigateToScreen(RmcScreen.Home.name) } // keep placeholder
-                        )
-
-                        RmcFilledButton(
-                            value = stringResource(id = R.string.home_view_points),
+                            value = stringResource(R.string.home_view_points),
                             onClick = { navigateToScreen(RmcScreen.ViewPoints.name) }
                         )
                     }

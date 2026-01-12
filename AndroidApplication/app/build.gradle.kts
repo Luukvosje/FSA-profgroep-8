@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(libs.coil.compose)
 
     implementation(platform(libs.koin.bom))

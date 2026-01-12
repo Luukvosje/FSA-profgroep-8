@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
 import com.example.network.models.remote.LoginUserDTO
 import com.example.network.services.ApiResult
+import com.profgroep8.rmc_app.data.TokenManager
 import com.profgroep8.rmc_app.ui.screens.login.LoginUIEvent
 import com.profgroep8.rmc_app.ui.screens.login.LoginUIState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val serviceFactory: ServiceFactory) : BaseViewModel() {
+class LoginViewModel(
+    private val serviceFactory: ServiceFactory,
+    private val tokenManager: TokenManager
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUIState())
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
@@ -56,10 +60,17 @@ class LoginViewModel(private val serviceFactory: ServiceFactory) : BaseViewModel
             )
 
             when (result) {
-                is ApiResult.Success ->
+                is ApiResult.Success -> {
+                    // Save token and email
+                    result.data.token?.let { token ->
+                        tokenManager.saveToken(token)
+                        tokenManager.saveUserEmail(state.email)
+                    }
+
                     _uiState.update {
                         it.copy(isLoading = false, isSuccess = true)
                     }
+                }
 
                 is ApiResult.Error ->
                     _uiState.update {

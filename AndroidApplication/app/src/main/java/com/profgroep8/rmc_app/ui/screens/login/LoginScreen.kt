@@ -4,13 +4,7 @@ import RmcFilledButton
 import RmcScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -18,29 +12,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.profgroep8.rmc_app.R
-import com.profgroep8.rmc_app.ui.components.ClickableLoginTextComponent
-import com.profgroep8.rmc_app.ui.components.DividerTextComponent
-import com.profgroep8.rmc_app.ui.components.RmcAppBar
-import com.profgroep8.rmc_app.ui.components.RmcSpacer
-import com.profgroep8.rmc_app.ui.components.RmcTextField
+import com.profgroep8.rmc_app.ui.components.*
 import com.profgroep8.rmc_app.viewmodel.LoginViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -163,7 +145,7 @@ fun LoginScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background.copy(alpha =0.7f )),
+                            .background(Color.White.copy(alpha = 0.7f)),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()

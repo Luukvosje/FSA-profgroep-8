@@ -1,5 +1,6 @@
 package com.profgroep8.rmc_app
 
+import com.profgroep8.rmc_app.data.TokenManager
 import com.profgroep8.rmc_app.viewmodel.AddCarViewModel
 import com.profgroep8.rmc_app.viewmodel.AddRentalViewModel
 import com.profgroep8.rmc_app.viewmodel.BonusPointsViewModel
@@ -11,13 +12,16 @@ import com.profgroep8.rmc_app.viewmodel.RentalInformationViewModel
 import com.profgroep8.rmc_app.viewmodel.RegisterViewModel
 import com.profgroep8.rmc_app.viewmodel.ShowAllCarsViewModel
 import com.profgroep8.rmc_app.viewmodel.ShowAllRentalsViewModel
+import com.profgroep8.rmc_app.viewmodel.WelcomeViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val viewModelModule = module {
-    viewModel { LoginViewModel(get()) }
+    single { TokenManager(get()) }
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { RegisterViewModel(get()) }
-    viewModel { HomeViewModel(get()) }
+    viewModel { WelcomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get(), get()) }
     viewModel { BonusPointsViewModel(get()) }
     viewModel { ShowAllCarsViewModel(get()) }
     viewModel { (carId: Int) ->
