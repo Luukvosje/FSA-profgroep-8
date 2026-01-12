@@ -61,7 +61,7 @@ class HomeViewModel(
     }
 
     fun logout() {
-        tokenManager.clearToken()
+        tokenManager.clearSession()
         serviceFactory.userService.logout()
         _uiState.update { it.copy(isLoggedOut = true, userName = "") }
     }
