@@ -50,6 +50,7 @@ fun HomeScreen(
                 onClick = { viewModel.logout() },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    .padding(top = 24.dp)
                     .width(150.dp)
                     .height(40.dp)
             )
