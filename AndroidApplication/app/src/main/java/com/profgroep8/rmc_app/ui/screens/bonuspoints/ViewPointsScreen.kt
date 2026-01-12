@@ -67,7 +67,7 @@ fun BonusPointsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Bonuspunten",
+                        text = "Bonus Points",
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center
                     )
@@ -95,14 +95,14 @@ fun BonusPointsScreen(
                     RmcSpacer(20)
 
                     RmcTextField(
-                        label = "Startadres",
+                        label = "Start address",
                         value = uiState.startAddress,
                         onValueChange = { viewModel.onStartAddressChanged(it) }
                     )
                     RmcSpacer(8)
 
                     RmcTextField(
-                        label = "Bestemmingsadres",
+                        label = "Destination address",
                         value = uiState.endAddress,
                         onValueChange = { viewModel.onEndAddressChanged(it) }
                     )
@@ -110,7 +110,7 @@ fun BonusPointsScreen(
                     RmcSpacer(16)
 
                     RmcFilledButton(
-                        value = if (!uiState.isSimulationRunning) "Simulatie starten" else "Simulatie stoppen",
+                        value = if (!uiState.isSimulationRunning) "Start simulation" else "Stop simulation",
                         onClick = {
                             if (!uiState.isSimulationRunning) viewModel.startSimulation()
                             else viewModel.stopSimulation()
@@ -134,7 +134,7 @@ fun BonusPointsScreen(
                                     .padding(16.dp)
                             ) {
                                 Text(
-                                    text = "🚗 Live Rijstatistieken",
+                                    text = "🚗 Live Driving Stats",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -208,13 +208,13 @@ fun ProfessionalPerformanceGraph(
             ) {
                 Column {
                     Text(
-                        text = "Prestatie-analyse",
+                        text = "Performance Analytics",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                     Text(
-                        text = "Laatste 100 seconden rijden",
+                        text = "Last 100 seconds of driving",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.6f)
                     )
@@ -263,12 +263,12 @@ fun ProfessionalPerformanceGraph(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "100s geleden",
+                    text = "100s ago",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.5f)
                 )
                 Text(
-                    text = "Nu",
+                    text = "Now",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.5f)
                 )
@@ -280,9 +280,9 @@ fun ProfessionalPerformanceGraph(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                LegendItem(color = Color(0xFF4CAF50), label = "Verbeterend", icon = "↗")
-                LegendItem(color = Color(0xFF9E9E9E), label = "Stabiel", icon = "→")
-                LegendItem(color = Color(0xFFF44336), label = "Dalend", icon = "↘")
+                LegendItem(color = Color(0xFF4CAF50), label = "Improving", icon = "↗")
+                LegendItem(color = Color(0xFF9E9E9E), label = "Stable", icon = "→")
+                LegendItem(color = Color(0xFFF44336), label = "Declining", icon = "↘")
             }
         }
     }

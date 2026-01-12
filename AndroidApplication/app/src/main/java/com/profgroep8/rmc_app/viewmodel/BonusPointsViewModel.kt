@@ -73,8 +73,8 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
 
     private var targetSpeedOffset = 0.0
     private var ticksSinceLastChange = 0
-    private var driverSkillFactor = Random.nextDouble(0.5, 0.85)
-    private var driverMistakeChance = Random.nextDouble(0.15, 0.35)
+    private var driverSkillFactor = Random.nextDouble(0.5, 0.85) // Most drivers are average
+    private var driverMistakeChance = Random.nextDouble(0.15, 0.35) // 15-35% chance of mistakes
 
     private var performanceHistory = mutableListOf<Float>()
     private var tickCounter = 0
@@ -128,26 +128,26 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         val startAddr = uiState.value.startAddress.trim()
         val endAddr = uiState.value.endAddress.trim()
         if (startAddr.isBlank() || endAddr.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Vul alstublieft het start- en bestemmingsadres in.") }
+            _uiState.update { it.copy(errorMessage = "Please fill in Start and Destination addresses.") }
             return
         }
 
         simJob = viewModelScope.launch {
             try {
-                _uiState.update { it.copy(isLoading = true, errorMessage = null, simulationStatus = "Adressen opzoeken...") }
+                _uiState.update { it.copy(isLoading = true, errorMessage = null, simulationStatus = "Geocoding...") }
 
                 val start = geocodeNominatim(startAddr)
                 delay(1100)
                 val end = geocodeNominatim(endAddr)
 
-                _uiState.update { it.copy(simulationStatus = "Route berekenen...") }
+                _uiState.update { it.copy(simulationStatus = "Routing...") }
 
                 routeCoords = fetchRouteWithFallback(start, end)
-                if (routeCoords.size < 2) throw IllegalStateException("Route niet gevonden.")
+                if (routeCoords.size < 2) throw IllegalStateException("Route not found.")
 
                 totalRouteDistance = calculateTotalDistance(routeCoords)
 
-                _uiState.update { it.copy(simulationStatus = "Realistische route genereren...") }
+                _uiState.update { it.copy(simulationStatus = "Generating realistic route...") }
                 generateRealisticRoute()
 
                 resetSim()
@@ -161,7 +161,7 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
                     it.copy(
                         isLoading = false,
                         isSimulationRunning = true,
-                        simulationStatus = "Rijden over ${String.format("%.1f", totalRouteDistance / 1000)} km route..."
+                        simulationStatus = "Driving ${String.format("%.1f", totalRouteDistance / 1000)} km route..."
                     )
                 }
 
@@ -180,11 +180,12 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
                     val actualMoved = advanceAlongRoute(metersThisTick)
                     distanceTraveled += actualMoved
 
+                    // Check if arrived at destination
                     if (routeIndex >= routeCoords.lastIndex) {
                         stopSimulationInternal(finalDbUpdate = true)
                         _uiState.update {
                             it.copy(
-                                simulationStatus = "Aangekomen ✅ Totaal: ${String.format("%.1f", distanceTraveled / 1000)} km"
+                                simulationStatus = "Arrived ✅ Total: ${String.format("%.1f", distanceTraveled / 1000)} km"
                             )
                         }
                         break
@@ -263,7 +264,7 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
 
         for (phase in routePhases) {
             val phaseLength = Random.nextDouble(phase.minPercent, phase.maxPercent)
-            val phaseSegmentCount = Random.nextInt(1, 4)
+            val phaseSegmentCount = Random.nextInt(1, 4) // 1-3 segments per phase
             val segmentLength = ((routeCoords.size * phaseLength) / phaseSegmentCount).toInt()
 
             repeat(phaseSegmentCount) {
@@ -367,12 +368,12 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         val root = json.parseToJsonElement(text)
         val arr = root.jsonArray
         val first = arr.firstOrNull()?.jsonObject
-            ?: throw IllegalStateException("Adres niet gevonden: $query")
+            ?: throw IllegalStateException("Address not found: $query")
 
         val lat = first["lat"]?.jsonPrimitive?.content?.toDoubleOrNull()
-            ?: throw IllegalStateException("Ongeldige geocode-reactie (lat).")
+            ?: throw IllegalStateException("Invalid geocode response (lat).")
         val lon = first["lon"]?.jsonPrimitive?.content?.toDoubleOrNull()
-            ?: throw IllegalStateException("Ongeldige geocode-reactie (lon).")
+            ?: throw IllegalStateException("Invalid geocode response (lon).")
 
         return LatLon(lat = lat, lon = lon)
     }
@@ -385,7 +386,7 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
                 return fetchRouteORS(start, end)
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(simulationStatus = "ORS geblokkeerd. Gratis OSRM-routing gebruiken...")
+                    it.copy(simulationStatus = "ORS blocked. Using free OSRM routing...")
                 }
             }
         }
@@ -413,11 +414,11 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
         val text = response.bodyAsText()
         if (!response.status.isSuccess()) {
             val msg = extractOrsErrorMessage(text)
-            throw IllegalStateException("ORS-fout ${response.status.value}: $msg")
+            throw IllegalStateException("ORS error ${response.status.value}: $msg")
         }
 
         val root = json.parseToJsonElement(text).jsonObject
-        val routes = root["routes"]?.jsonArray ?: throw IllegalStateException("ORS: geen routes in reactie.")
+        val routes = root["routes"]?.jsonArray ?: throw IllegalStateException("ORS: no routes in response.")
         val coords = routes.first().jsonObject["geometry"]!!.jsonObject["coordinates"]!!.jsonArray
 
         return coords.mapNotNull { item ->
@@ -445,13 +446,13 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
 
         val code = root["code"]?.jsonPrimitive?.contentOrNull
         if (code != null && code != "Ok") {
-            throw IllegalStateException("OSRM-fout: $code")
+            throw IllegalStateException("OSRM error: $code")
         }
 
-        val routes = root["routes"]?.jsonArray ?: throw IllegalStateException("OSRM: geen routes.")
+        val routes = root["routes"]?.jsonArray ?: throw IllegalStateException("OSRM: no routes.")
         val geometry = routes.first().jsonObject["geometry"]?.jsonObject
-            ?: throw IllegalStateException("OSRM: geen geometrie.")
-        val coords = geometry["coordinates"]?.jsonArray ?: throw IllegalStateException("OSRM: geen coördinaten.")
+            ?: throw IllegalStateException("OSRM: no geometry.")
+        val coords = geometry["coordinates"]?.jsonArray ?: throw IllegalStateException("OSRM: no coordinates.")
 
         return coords.mapNotNull { item ->
             val pair = item.jsonArray
@@ -557,6 +558,7 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
 
         var instantScore = Random.nextDouble(70.0, 85.0)
 
+        // Harsh acceleration penalty
         when {
             acceleration > 5.0 -> {
                 score -= 3.0
@@ -636,6 +638,7 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
             performanceHistory.removeAt(0)
             performanceHistory.add(averageScore)
 
+            // Reset counters
             tickCounter = 0
             tickScoreAccumulator = 0.0
             tickCount = 0
@@ -655,12 +658,12 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
 
         _uiState.update {
             it.copy(
-                speedText = "Snelheid: ${speed.toInt()} km/u",
-                rpmText = "Toeren: ${engineRpm.toInt()}",
-                gearText = "Versnelling: $currentGear",
-                scoreText = "Rijscore: ${score.toInt()}",
-                simBonusText = "Bonuspunten: $simBonus",
-                modeText = "$currentRoadType: $limitKmh km/u | ${String.format("%.1f", remainingKm)} km te gaan",
+                speedText = "Speed: ${speed.toInt()} km/h",
+                rpmText = "RPM: ${engineRpm.toInt()}",
+                gearText = "Gear: $currentGear",
+                scoreText = "Driver Score: ${score.toInt()}",
+                simBonusText = "Bonus Points: $simBonus",
+                modeText = "$currentRoadType: $limitKmh km/h | ${String.format("%.1f", remainingKm)} km remaining",
                 performanceGraph = performanceHistory.toList()
             )
         }
