@@ -3,6 +3,7 @@ package com.profgroep8.rmc_app.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
+import com.example.network.services.ApiResult
 import com.profgroep8.rmc_app.data.TokenManager
 import com.profgroep8.rmc_app.ui.screens.welcome.WelcomeUIState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,14 +31,28 @@ class WelcomeViewModel(
             val token = tokenManager.getToken()
 
             if (token != null && tokenManager.hasValidSession()) {
-                serviceFactory.userService.loginWithToken(token)
+                val result = serviceFactory.userService.restoreSession(token)
 
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        navigateToHome = true,
-                        hasCheckedLogin = true
-                    )
+                when (result) {
+                    is ApiResult.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                navigateToHome = true,
+                                hasCheckedLogin = true
+                            )
+                        }
+                    }
+                    is ApiResult.Error -> {
+                        tokenManager.clearSession()
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                navigateToHome = false,
+                                hasCheckedLogin = true
+                            )
+                        }
+                    }
                 }
             } else {
                 tokenManager.clearSession()

@@ -68,4 +68,13 @@ internal final class UserServiceImpl : BaseServiceImpl(), UserService {
     override fun loginWithToken(token: String) {
         updateToken(token)
     }
+
+    override suspend fun restoreSession(token: String): ApiResult<User> {
+        return safeExecute {
+            updateToken(token)
+            val user = get<RemoteUser>("users/me").toDomainUser(token)
+            UserProvider.user = user
+            user
+        }
+    }
 }

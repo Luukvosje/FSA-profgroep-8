@@ -13,4 +13,5 @@ interface UserService {
     suspend fun getBonusPoints(userId: Int): ApiResult<Int>
     suspend fun updateBonusPoints(userId: Int, points: Int): ApiResult<User>
     fun loginWithToken(token: String)
+    suspend fun restoreSession(token: String): ApiResult<User>
 }
