@@ -26,12 +26,12 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import java.io.File
 
-public abstract class BaseServiceImpl {
+abstract class BaseServiceImpl {
     protected var token: String?
         get() = TokenProvider.token
         set(value) { TokenProvider.token = value }
 
-    protected val client = HttpClient(OkHttp) {
+    var client = HttpClient(OkHttp) {
         defaultRequest {
             url("http://10.0.2.2:8080/")
             header("Content-Type", "application/json")
@@ -48,12 +48,13 @@ public abstract class BaseServiceImpl {
             })
         }
     }
-        init {
-            client.plugin(HttpSend).intercept { request ->
-                token?.let { request.headers.append("Authorization", "Bearer $it") }
-                execute(request)
-            }
+
+    init {
+        client.plugin(HttpSend).intercept { request ->
+            token?.let { request.headers.append("Authorization", "Bearer $it") }
+            execute(request)
         }
+    }
 
     protected suspend inline fun <reified TResult> get(url: String): TResult {
         return client.get(url).body<TResult>()
