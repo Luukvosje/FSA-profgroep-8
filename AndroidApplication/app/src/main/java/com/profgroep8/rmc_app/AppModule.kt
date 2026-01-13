@@ -1,19 +1,19 @@
 package com.profgroep8.rmc_app
 
 import com.profgroep8.rmc_app.data.TokenManager
-import com.profgroep8.rmc_app.viewmodel.AddCarViewModel
-import com.profgroep8.rmc_app.viewmodel.AddRentalViewModel
-import com.profgroep8.rmc_app.viewmodel.BonusPointsViewModel
-import com.profgroep8.rmc_app.viewmodel.CarInformationViewModel
-import com.profgroep8.rmc_app.viewmodel.FilterCarsViewModel
+import com.profgroep8.rmc_app.viewmodel.car.AddCarViewModel
+import com.profgroep8.rmc_app.viewmodel.rental.AddRentalViewModel
+import com.profgroep8.rmc_app.viewmodel.user.BonusPointsViewModel
+import com.profgroep8.rmc_app.viewmodel.car.CarInformationViewModel
+import com.profgroep8.rmc_app.viewmodel.car.FilterCarsViewModel
 import com.profgroep8.rmc_app.viewmodel.HomeViewModel
-import com.profgroep8.rmc_app.viewmodel.LoginViewModel
-import com.profgroep8.rmc_app.viewmodel.RentalInformationViewModel
-import com.profgroep8.rmc_app.viewmodel.RegisterViewModel
-import com.profgroep8.rmc_app.viewmodel.ShowAllCarsViewModel
-import com.profgroep8.rmc_app.viewmodel.ShowAllRentalsViewModel
-import com.profgroep8.rmc_app.viewmodel.UserInfoViewModel
-import com.profgroep8.rmc_app.viewmodel.WelcomeViewModel
+import com.profgroep8.rmc_app.viewmodel.user.LoginViewModel
+import com.profgroep8.rmc_app.viewmodel.rental.RentalInformationViewModel
+import com.profgroep8.rmc_app.viewmodel.user.RegisterViewModel
+import com.profgroep8.rmc_app.viewmodel.car.ShowAllCarsViewModel
+import com.profgroep8.rmc_app.viewmodel.rental.ShowAllRentalsViewModel
+import com.profgroep8.rmc_app.viewmodel.user.UserInfoViewModel
+import com.profgroep8.rmc_app.viewmodel.user.WelcomeViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
