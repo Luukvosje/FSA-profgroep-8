@@ -18,11 +18,12 @@
     <string name="home_add_car">Auto toevoegen</string>
     <string name="home_manage_cars">Auto\'s beheren</string>
     <string name="home_search_car">Auto\'s zoeken</string>
-    <string name="home_reservations">Reserveringen beheren</string>
+    <string name="home_rentals">Reserveringen beheren</string>
     <string name="home_view_route">Route bekijken</string>
     <string name="home_view_points">Punten bekijken</string>
     <string name="home_message">Hallo %s</string>
     <string name="user">Gebruiker</string>
+    <string name="phone">Telefoonnummer</string>
     <string name="add_car">Auto toevoegen</string>
     <string name="add_car_sub">Auto toevoegen via kenteken</string>
     <string name="license_plate">Kenteken</string>
@@ -31,6 +32,10 @@
     <string name="year">Bouwjaar</string>
     <string name="fuelType">Brandstof type</string>
     <string name="address">Adres</string>
+    <string name="zipcode">Postcode</string>
+    <string name="city">Woonplaats</string>
+    <string name="country">Land</string>
+    <string name="bonus_points">Bonus Punten</string>
 
     <string name="button_next">Verder</string>
     <string name="button_ok">Oke</string>
@@ -79,6 +84,7 @@
     <string name="end_rental_confirmation_message">Weet je zeker dat je deze reservering wilt afronden?</string>
     <string name="create_rental">Reservering aanmaken</string>
     <string name="create_rental_sub">Maak een nieuwe reservering aan</string>
+    <string name="user_information">Account Bekijken</string>
     <string name="start_time">Starttijd</string>
     <string name="end_time">Eindtijd</string>
     <string name="start_location_label">Startlocatie</string>
@@ -90,8 +96,8 @@
     <string name="invalid_time_format">Ongeldige tijd formaat (gebruik HH:mm)</string>
     <string name="invalid_address">Kan adres niet vinden</string>
     <string name="field_required">Dit veld is verplicht</string>
-    <string name="rental_created_successfully">Verhuur succesvol aangemaakt</string>
-    <string name="failed_to_create_rental">Kan verhuur niet aanmaken</string>
+    <string name="rental_created_successfully">Reservering succesvol aangemaakt</string>
+    <string name="failed_to_create_rental">Kan reservering niet aanmaken</string>
     <string name="location_permission_required">Locatie toestemming vereist</string>
     <string name="grant_location_permission">Geef locatie toestemming om de startlocatie te bepalen</string>
     <string name="getting_location">Locatie ophalen…</string>

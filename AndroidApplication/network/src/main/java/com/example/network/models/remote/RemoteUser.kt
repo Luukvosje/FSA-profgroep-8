@@ -13,10 +13,10 @@ data class RemoteUser(
     val zipcode: String,
     val city: String,
     val countryISO: String,
-    val points: Int,
+    val points: Int
 )
 
-fun RemoteUser.toDomainUser(): User {
+fun RemoteUser.toDomainUser(token: String = ""): User {
     return User(
         userID = userID,
         fullName = fullName,
@@ -27,6 +27,7 @@ fun RemoteUser.toDomainUser(): User {
         city = city,
         countryISO = countryISO,
         bonusPoints = points,
+        token = token
     )
 }
 
@@ -55,7 +56,7 @@ data class RemoteLoginResponse(
 )
 
 fun RemoteLoginResponse.toDomain(): Pair<User, String> {
-    return user.toDomainUser() to token
+    return user.toDomainUser(token) to token
 }
 
 @Serializable

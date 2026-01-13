@@ -56,6 +56,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.network.models.domain.Car
+import com.example.network.services.UserProvider
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.CarInfoItem
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
@@ -98,6 +99,8 @@ fun CarInformationScreenUI(
     viewModel: CarInformationViewModel,
 ) {
     val context = LocalContext.current
+    val userId = UserProvider.user?.userID
+    val isOwner = userId != null && car != null && userId == car.userID
 
     val photoPermissionHandler = remember {
         PhotoPermissionHandler(
@@ -213,6 +216,13 @@ fun CarInformationScreenUI(
             )
 
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
+                if (car != null && !isOwner) {
+                    RmcFilledButton(
+                        value = stringResource(R.string.create_rental),
+                        onClick = { navigateToScreen("${RmcScreen.AddRental.name}/${car.carID}") }
+                    )
+                    RmcSpacer(height = 16)
+                }
                 RmcFilledButton(
                     value = stringResource(R.string.button_back),
                     onClick = { navigateToScreen(RmcScreen.Home.name) }

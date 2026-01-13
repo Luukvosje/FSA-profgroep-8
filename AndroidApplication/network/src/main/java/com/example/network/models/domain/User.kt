@@ -9,5 +9,6 @@ data class User(
     val zipcode: String,
     val city: String,
     val countryISO: String,
-    val bonusPoints: Int
+    val bonusPoints: Int,
+    val token: String
 )

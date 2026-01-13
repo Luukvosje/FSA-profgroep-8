@@ -488,11 +488,11 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
 
         targetSpeedOffset = Random.nextDouble(-8.0, 2.0)
         ticksSinceLastChange = 0
-        driverSkillFactor = Random.nextDouble(0.65, 0.9) // Better average skill
-        driverMistakeChance = Random.nextDouble(0.1, 0.25) // Lower mistake chance
+        driverSkillFactor = Random.nextDouble(0.65, 0.9)
+        driverMistakeChance = Random.nextDouble(0.1, 0.25)
 
         performanceHistory.clear()
-        performanceHistory.addAll(List(100) { 0f }) // 100 points = 100 seconds of data
+        performanceHistory.addAll(List(100) { 0f })
         tickCounter = 0
         tickScoreAccumulator = 0.0
         tickCount = 0
@@ -501,9 +501,8 @@ class BonusPointsViewModel(private val serviceFactory: ServiceFactory) : BaseVie
     private fun driverModelBySpeedLimit(limitKmh: Int) {
         ticksSinceLastChange++
         if (ticksSinceLastChange > Random.nextInt(15, 35)) {
-            // Driver makes mistakes - sometimes speeds, sometimes too slow
             val mistake = if (Random.nextDouble() < driverMistakeChance) {
-                Random.nextDouble(-15.0, 10.0) // Big mistake!
+                Random.nextDouble(-15.0, 10.0)
             } else {
                 Random.nextDouble(-8.0, 5.0) * driverSkillFactor
             }

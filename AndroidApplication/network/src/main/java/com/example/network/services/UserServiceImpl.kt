@@ -35,8 +35,8 @@ internal final class UserServiceImpl : BaseServiceImpl(), UserService {
                 request
             )
             updateToken(response.token)
-            UserProvider.user = response.user.toDomainUser()
-            response.user.toDomainUser()
+            UserProvider.user = response.user.toDomainUser(response.token)
+            response.user.toDomainUser(response.token)
         }
     }
 
@@ -63,5 +63,18 @@ internal final class UserServiceImpl : BaseServiceImpl(), UserService {
 
     override fun logout() {
         updateToken(null)
+    }
+
+    override fun loginWithToken(token: String) {
+        updateToken(token)
+    }
+
+    override suspend fun restoreSession(token: String): ApiResult<User> {
+        return safeExecute {
+            updateToken(token)
+            val user = get<RemoteUser>("users/me").toDomainUser(token)
+            UserProvider.user = user
+            user
+        }
     }
 }
