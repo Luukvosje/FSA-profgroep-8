@@ -23,6 +23,7 @@
     <string name="home_view_points">Punten bekijken</string>
     <string name="home_message">Hallo %s</string>
     <string name="user">Gebruiker</string>
+    <string name="phone">Telefoonnummer</string>
     <string name="add_car">Auto toevoegen</string>
     <string name="add_car_sub">Auto toevoegen via kenteken</string>
     <string name="license_plate">Kenteken</string>
@@ -31,6 +32,10 @@
     <string name="year">Bouwjaar</string>
     <string name="fuelType">Brandstof type</string>
     <string name="address">Adres</string>
+    <string name="zipcode">Postcode</string>
+    <string name="city">Woonplaats</string>
+    <string name="country">Land</string>
+    <string name="bonus_points">Bonus Punten</string>
 
     <string name="button_next">Verder</string>
     <string name="button_ok">Oke</string>
@@ -79,6 +84,7 @@
     <string name="end_rental_confirmation_message">Weet je zeker dat je deze reservering wilt afronden?</string>
     <string name="create_rental">Reservering aanmaken</string>
     <string name="create_rental_sub">Maak een nieuwe reservering aan</string>
+    <string name="user_information">Account Bekijken</string>
     <string name="start_time">Starttijd</string>
     <string name="end_time">Eindtijd</string>
     <string name="start_location_label">Startlocatie</string>

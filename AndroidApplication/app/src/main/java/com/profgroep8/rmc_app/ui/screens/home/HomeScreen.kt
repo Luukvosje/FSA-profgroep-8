@@ -77,6 +77,11 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         RmcFilledButton(
+                            value = stringResource(R.string.user_information),
+                            onClick = { navigateToScreen(RmcScreen.UserInformation.name) }
+                        )
+
+                        RmcFilledButton(
                             value = stringResource(R.string.home_add_car),
                             onClick = { navigateToScreen(RmcScreen.AddCar.name) }
                         )

@@ -12,6 +12,7 @@ import com.profgroep8.rmc_app.viewmodel.RentalInformationViewModel
 import com.profgroep8.rmc_app.viewmodel.RegisterViewModel
 import com.profgroep8.rmc_app.viewmodel.ShowAllCarsViewModel
 import com.profgroep8.rmc_app.viewmodel.ShowAllRentalsViewModel
+import com.profgroep8.rmc_app.viewmodel.UserInfoViewModel
 import com.profgroep8.rmc_app.viewmodel.WelcomeViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -24,6 +25,7 @@ val viewModelModule = module {
     viewModel { HomeViewModel(get(), get()) }
     viewModel { BonusPointsViewModel(get()) }
     viewModel { ShowAllCarsViewModel(get()) }
+    viewModel { UserInfoViewModel(get()) }
     viewModel { (carId: Int) ->
         CarInformationViewModel(
             sf = get(),
