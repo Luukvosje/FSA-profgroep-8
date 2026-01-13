@@ -3,7 +3,38 @@ package com.example.network.models.remote
 import com.example.network.models.domain.Car
 import com.example.network.models.domain.CarFuelType
 import com.example.network.models.domain.CarTCOResult
+import kotlinx.datetime.LocalDate
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+
+
+object LocalDateFromDateTimeStringSerializer : KSerializer<LocalDate> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("LocalDateFromDateTimeString", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: LocalDate) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): LocalDate {
+        val str = decoder.decodeString()
+        return str.substringBefore("T").let { LocalDate.parse(it) }
+    }
+}
+
+@Serializable
+data class RemoteAvailableCar(
+    val car: RemoteCar,
+    @Serializable(with = LocalDateFromDateTimeStringSerializer::class)
+    val availableFrom: LocalDate?,
+    @Serializable(with = LocalDateFromDateTimeStringSerializer::class)
+    val availableUntill: LocalDate?,
+)
 
 @Serializable
 data class RemoteCar(

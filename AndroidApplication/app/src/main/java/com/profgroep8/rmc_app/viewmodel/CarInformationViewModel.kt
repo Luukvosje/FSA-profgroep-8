@@ -24,7 +24,7 @@ data class CarInformationUiState(
 
 class CarInformationViewModel(
     private val sf : ServiceFactory,
-    val carId: Int
+    val carId: Int,
 ): BaseViewModel() {
 
     private val _uiState = MutableStateFlow(CarInformationUiState())

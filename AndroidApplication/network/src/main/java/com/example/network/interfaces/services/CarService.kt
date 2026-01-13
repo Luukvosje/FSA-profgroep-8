@@ -1,5 +1,6 @@
 package com.example.network.interfaces.services
 
+import com.example.network.models.domain.AvailableCar
 import com.example.network.models.domain.Car
 import com.example.network.models.domain.CarTCOResult
 import com.example.network.models.domain.FilterCar
@@ -7,12 +8,12 @@ import com.example.network.models.remote.CalculateCarRequestDTO
 import com.example.network.models.remote.CreateCarDTO
 import com.example.network.models.remote.UpdateCarDTO
 import com.example.network.services.ApiResult
+import kotlinx.datetime.LocalDate
 import java.io.File
-import java.util.Date
 
 interface CarService {
     suspend fun getAllCars(): ApiResult<List<Car>>
-    suspend fun getAllAvailableCars(date: Date): ApiResult<List<Car>>
+    suspend fun getAllAvailableCars(date: LocalDate): ApiResult<List<AvailableCar>>
     suspend fun getUserCars(userID: Int): ApiResult<List<Car>>
     suspend fun searchCars(keyword: String): ApiResult<List<Car>>
     suspend fun filterCars(request: FilterCar): ApiResult<List<Car>>

@@ -71,6 +71,7 @@ import org.koin.core.parameter.parametersOf
 fun CarInformationScreen(
     carId: Int?,
     navigateToScreen: (route: String) -> Unit,
+    available: Boolean?,
     viewModel: CarInformationViewModel = koinViewModel(parameters = { parametersOf(carId) }),
 ){
     if (carId == null) {
@@ -86,7 +87,8 @@ fun CarInformationScreen(
         navigateToScreen = navigateToScreen,
         loading = loading,
         uistate = uiState,
-        viewModel = viewModel
+        viewModel = viewModel,
+        available = available?: false
     )
 }
 
@@ -97,6 +99,7 @@ fun CarInformationScreenUI(
     navigateToScreen: (route: String)-> Unit,
     uistate: CarInformationUiState,
     viewModel: CarInformationViewModel,
+    available: Boolean = false
 ) {
     val context = LocalContext.current
     val userId = UserProvider.user?.userID
@@ -216,7 +219,7 @@ fun CarInformationScreenUI(
             )
 
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-                if (car != null && !isOwner) {
+                if (car != null && !isOwner && available) {
                     RmcFilledButton(
                         value = stringResource(R.string.create_rental),
                         onClick = { navigateToScreen("${RmcScreen.AddRental.name}/${car.carID}") }

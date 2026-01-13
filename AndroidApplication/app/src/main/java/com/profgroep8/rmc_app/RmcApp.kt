@@ -65,12 +65,18 @@ fun RmcApp(
         }
 
         composable(
-            route = "${RmcScreen.CarInformation.name}/{carId}",
-            arguments = listOf(navArgument("carId") { type = NavType.IntType })
+            route = "${RmcScreen.CarInformation.name}/{carId}/{available}",
+            arguments = listOf(
+                navArgument("carId") { type = NavType.IntType },
+                navArgument("available") { type = NavType.BoolType }
+            )
         ) { backStackEntry ->
-            val carId = backStackEntry.arguments?.getInt("carId");
+            val carId = backStackEntry.arguments?.getInt("carId") ?: 0
+            val available = backStackEntry.arguments?.getBoolean("available") ?: false
+
             _root_ide_package_.com.profgroep8.rmc_app.ui.screens.CarInformation.CarInformationScreen(
                 carId = carId,
+                available = available,
                 navigateToScreen = { navController.navigate(it) }
             )
         }

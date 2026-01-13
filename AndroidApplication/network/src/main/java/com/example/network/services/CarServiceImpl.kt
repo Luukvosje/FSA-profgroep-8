@@ -1,11 +1,13 @@
 package com.example.network.services
 
 import com.example.network.interfaces.services.CarService
+import com.example.network.models.domain.AvailableCar
 import com.example.network.models.domain.Car
 import com.example.network.models.domain.CarTCOResult
 import com.example.network.models.domain.FilterCar
 import com.example.network.models.remote.CalculateCarRequestDTO
 import com.example.network.models.remote.CreateCarDTO
+import com.example.network.models.remote.RemoteAvailableCar
 import com.example.network.models.remote.RemoteCalculateCar
 import com.example.network.models.remote.RemoteCar
 import com.example.network.models.remote.RemoteImage
@@ -13,8 +15,9 @@ import com.example.network.models.remote.UpdateCarDTO
 import com.example.network.models.remote.toBoolean
 import com.example.network.models.remote.toDomainCar
 import com.example.network.models.remote.toDomainCarTCOResult
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 import java.io.File
-import java.util.Date
 
 internal class CarServiceImpl : BaseServiceImpl(), CarService {
     override suspend fun getAllCars(): ApiResult<List<Car>> {
@@ -23,9 +26,18 @@ internal class CarServiceImpl : BaseServiceImpl(), CarService {
         }
     }
 
-    override suspend fun getAllAvailableCars(date: Date): ApiResult<List<Car>> {
+    override suspend fun getAllAvailableCars(date: LocalDate): ApiResult<List<AvailableCar>> {
         return safeExecute {
-            get<List<RemoteCar>>("cars/available/$date").map{ it.toDomainCar() }
+            val dateTimeString = date.toString() + "T00:00:00"
+            get<List<RemoteAvailableCar>>("cars/available/${dateTimeString}")
+                .map { remote ->
+                    AvailableCar(
+                        car = remote.car.toDomainCar(),
+                        availableFrom =  remote.availableFrom ,
+                        availableUntill = remote.availableUntill
+                    )
+                }
+
         }
     }
 

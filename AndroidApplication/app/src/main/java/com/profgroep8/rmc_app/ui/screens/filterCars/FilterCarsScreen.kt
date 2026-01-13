@@ -5,6 +5,7 @@ import RmcScreen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,16 +18,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -42,7 +48,11 @@ import com.profgroep8.rmc_app.ui.components.RmcSpacer
 import com.profgroep8.rmc_app.ui.components.RmcTextField
 import com.profgroep8.rmc_app.ui.screens.showCars.CarItem
 import com.profgroep8.rmc_app.viewmodel.FilterCarsViewModel
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Instant
 
 @Composable
 fun FilterCarsScreen(
@@ -56,6 +66,7 @@ fun FilterCarsScreen(
         state = state,
         isLoading = isLoading,
         onFilterChange = viewModel::updateFilter,
+        onDateChange = viewModel::updateDate,
         onSearch = viewModel::searchCars,
         onReset = viewModel::resetFilters,
         navigateToScreen = navigateToScreen
@@ -67,6 +78,7 @@ fun FilterCarsContent(
     state: FilterCarsUiState,
     isLoading: Boolean,
     onFilterChange: (FilterCar) -> Unit,
+    onDateChange: (LocalDate) -> Unit,
     onSearch: () -> Unit,
     onReset: () -> Unit,
     navigateToScreen: (String) -> Unit
@@ -81,6 +93,12 @@ fun FilterCarsContent(
     LaunchedEffect(Unit) {
         search()
     }
+    LaunchedEffect(state.date) {
+        if (state.date != null) {
+            onSearch()
+        }
+    }
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -191,6 +209,15 @@ fun FilterCarsContent(
                                 )
                             }
                         }
+                        item {
+                            DatePickerField(
+                                label = stringResource(R.string.rent_from_date),
+                                date = state.date,
+                                onDateSelected = {
+                                    onDateChange(it)
+                                }
+                            )
+                        }
                     }
                     RmcSpacer()
                     Row(
@@ -227,15 +254,15 @@ fun FilterCarsContent(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         if (state.cars.isNotEmpty()) {
-                            items(state.cars) { car ->
+                            items(state.cars) { carAvailability ->
                                 CarItem(
-                                    car = car,
+                                    car = carAvailability.car,
+                                    carAvailability = carAvailability,
                                     onClick = {
                                         navigateToScreen(
-                                            "${RmcScreen.CarInformation.name}/${car.carID}"
+                                            "${RmcScreen.CarInformation.name}/${carAvailability.car.carID}/${carAvailability.isAvailable}"
                                         )
                                     },
-                                    onDeleteClick = {}
                                 )
                             }
                         } else if (state.hasSearched) {
@@ -252,5 +279,54 @@ fun FilterCarsContent(
                     }
                 }
             }
+    }
+}
+
+@Composable
+fun DatePickerField(
+    label: String,
+    date: LocalDate?,
+    onDateSelected: (LocalDate) -> Unit
+) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    val formattedDate = date?.toString() ?: ""
+
+    Column {
+        RmcTextField(
+            value = formattedDate,
+            label = label,
+            readOnly = true,
+            enabled = false,
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth().clickable { showDialog = true },
+                    trailingIcon = Icons.Filled.CalendarToday,
+        )
+
+        if (showDialog) {
+            val datePickerState = rememberDatePickerState()
+
+            DatePickerDialog(
+                onDismissRequest = { showDialog = false },
+                confirmButton = {
+                    RmcFilledButton(
+                        value = stringResource(R.string.confirm),
+                        onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val localDate: LocalDate =
+                                    Instant.fromEpochMilliseconds(millis)
+                                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                                        .date
+
+                                onDateSelected(localDate)
+                            }
+                            showDialog = false
+                        }
+                    )
+                }
+            ) {
+                DatePicker(state = datePickerState)
+            }
+        }
     }
 }

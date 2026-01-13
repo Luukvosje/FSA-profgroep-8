@@ -195,8 +195,8 @@ class CarRepositoryImpl() : CarRepository, GenericRepository<Car> by GenericRepo
 
                     CarAvailability(
                         car = carDTO,
-                        availableFrom = from,
-                        availableUntill = until
+                        availableFrom = from.let {LocalDateTime.parse(it.toString())  },
+                        availableUntill = until?.let {LocalDateTime.parse(it.toString()) }
                     )
                 }.sortedBy { it.availableFrom }
         }

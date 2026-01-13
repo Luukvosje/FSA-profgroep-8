@@ -3,14 +3,16 @@ package com.profgroep8.rmc_app.viewmodel
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.network.interfaces.services.ServiceFactory
-import com.example.network.models.domain.Car
+import com.example.network.models.domain.CarAvailabilityUi
 import com.example.network.models.domain.FilterCar
 import com.profgroep8.rmc_app.ui.screens.filterCars.FilterCarsUiState
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 
 class FilterCarsViewModel(
     private val sf: ServiceFactory
@@ -23,22 +25,76 @@ class FilterCarsViewModel(
         _uiState.update { it.copy(filter = filter) }
     }
 
+    fun updateDate(date: LocalDate) {
+        _uiState.update {
+            it.copy(date = date)
+        }
+    }
+
     fun resetFilters() {
         _uiState.update { it.copy(filter = FilterCar(), cars = emptyList(), hasSearched = false) }
     }
 
     fun searchCars() {
-        val filter = _uiState.value.filter
+        val state = _uiState.value
+        val selectedDate = state.date
+
         viewModelScope.launch {
             withLoading {
-                val response = sf.carService.filterCars(_uiState.value.filter)
-                response.onSuccess { cars ->
-                    _uiState.update { it.copy(cars = cars, hasSearched = true) }
+                val availabilityDeferred = async {
+                    sf.carService.getAllAvailableCars(selectedDate)
                 }
-                response.onError { error ->
-                    Log.e("FilterCarsVM", "API error: $error")
+
+                val carsDeferred = async {
+                    sf.carService.filterCars(state.filter)
+                }
+
+                val availabilityResponse = availabilityDeferred.await()
+                val carsResponse = carsDeferred.await()
+
+                carsResponse.onSuccess { cars ->
+                    availabilityResponse.onSuccess { availabilityList ->
+                        val availabilityMap = availabilityList.associateBy(
+                            keySelector = { it.car.carID },
+                            valueTransform = { it.availableFrom }
+                        )
+
+                        val untilMap =availabilityList.associateBy(
+                            keySelector = { it.car.carID },
+                            valueTransform = { it.availableUntill }
+                        )
+
+                        val uiCars = cars.map { car ->
+                            val availableFrom = availabilityMap[car.carID]
+                            val availableUntil = untilMap[car.carID]
+                            val isAvailable = (availableFrom == null || availableFrom <= selectedDate) && (availableUntil == null || availableUntil >= selectedDate)
+
+                            CarAvailabilityUi(
+                                car = car,
+                                availableFrom = availableFrom,
+                                availableUntil = availableUntil,
+                                isAvailable = isAvailable
+                            )
+                        }
+
+                        _uiState.update {
+                            it.copy(
+                                cars = uiCars,
+                                hasSearched = true
+                            )
+                        }
+                    }
+                }
+
+                carsResponse.onError {
+                    Log.e("FilterCarsVM", "Filter error: $it")
+                }
+
+                availabilityResponse.onError {
+                    Log.e("FilterCarsVM", "Availability error: $it")
                 }
             }
         }
     }
+
 }

@@ -10,16 +10,12 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 
 
-/**
- * Text field composable
- */
 @Composable
 fun RmcTextField(
     label: String,
@@ -29,27 +25,44 @@ fun RmcTextField(
     onTrailingIconButtonClick: () -> Unit = {},
     placeholder: String? = null,
     isPassword: Boolean = false,
+    readOnly: Boolean = false,
     maxLines: Int = 1,
-    value: String? = null,
+    value: String = "",
     isError: Boolean = false,
     enabled: Boolean = true,
     onValueChange: (String) -> Unit,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(
-        keyboardType = KeyboardType.Text,
-        imeAction = ImeAction.None
-    )
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     OutlinedTextField(
-        shape = MaterialTheme.shapes.small,
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.fillMaxWidth(),
+        textStyle = MaterialTheme.typography.bodyLarge,
+        singleLine = maxLines == 1,
+        maxLines = maxLines,
+        readOnly = readOnly,
+        enabled = enabled,
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        keyboardOptions = keyboardOptions,
         label = {
             Text(
                 text = label,
                 style = if (isError) MaterialTheme.typography.bodyLarge.copy(
                     color = MaterialTheme.colorScheme.error
-                ) else MaterialTheme.typography.bodyLarge,
+                ) else MaterialTheme.typography.bodyLarge
             )
         },
-        textStyle = MaterialTheme.typography.bodyLarge,
+        leadingIcon = leadingIcon?.let {
+            { Icon(imageVector = leadingIcon, contentDescription = null) }
+        },
+        trailingIcon = trailingIcon?.let {
+            {
+                IconButton(onClick = onTrailingIconButtonClick) {
+                    Icon(imageVector = trailingIcon, contentDescription = null)
+                }
+            }
+        },
+        placeholder = placeholder?.let { { Text(text = it, color = MaterialTheme.colorScheme.primary) } },
         colors = OutlinedTextFieldDefaults.colors(
             cursorColor = MaterialTheme.colorScheme.primary,
             focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
@@ -59,44 +72,11 @@ fun RmcTextField(
             errorContainerColor = MaterialTheme.colorScheme.error,
             errorBorderColor = MaterialTheme.colorScheme.error,
             errorTextColor = MaterialTheme.colorScheme.error,
-            unfocusedTextColor = MaterialTheme.colorScheme.scrim,
-            focusedTrailingIconColor = MaterialTheme.colorScheme.primary
-        ),
-        keyboardOptions = keyboardOptions,
-        modifier = modifier.fillMaxWidth(),
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        maxLines = maxLines,
-        singleLine = maxLines == 1,
-        value = value ?: "",
-        enabled = enabled,
-        onValueChange = onValueChange,
-        leadingIcon = leadingIcon?.let {
-            {
-                Icon(
-                    imageVector = leadingIcon,
-                    contentDescription = null
-                )
-            }
-        },
-        trailingIcon = trailingIcon?.let {
-            {
-                IconButton(onClick = {
-                    onTrailingIconButtonClick()
-                }) {
-                    Icon(
-                        imageVector = trailingIcon,
-                        contentDescription = null
-                    )
-                }
-            }
-        },
-        placeholder = placeholder?.let {
-            {
-                Text(
-                    text = placeholder,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
+            unfocusedTextColor = MaterialTheme.colorScheme.inversePrimary,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            disabledBorderColor = if(readOnly && !enabled) MaterialTheme.colorScheme.primary else Color.Unspecified,
+            disabledLabelColor = if(readOnly && !enabled) MaterialTheme.colorScheme.primary else Color.Unspecified,
+        )
     )
 }
+

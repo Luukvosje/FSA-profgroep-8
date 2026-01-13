@@ -19,3 +19,18 @@ data class FilterCar(
         model = this.model?.lowercase()?.trim(),
     )
 }
+enum class FilterSortOrder(val sortString: String) {
+    Year("year"),
+    FuelType("fuelType"),
+    Model("model"),
+    Brand("brand"),
+    price("price"),
+    nothing("");
+
+    companion object {
+        fun fromString(sortString: String): FilterSortOrder {
+            return values().find { it.sortString == sortString }
+                ?: nothing
+        }
+    }
+}

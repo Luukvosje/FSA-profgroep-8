@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.network.models.domain.Car
+import com.example.network.models.domain.CarAvailabilityUi
 import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.RmcAppBar
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
@@ -141,8 +142,9 @@ fun CarScreenContent(
 @Composable
 fun CarItem(
     car: Car,
+    carAvailability: CarAvailabilityUi? = null,
     onClick: (Car) -> Unit,
-    onDeleteClick: (Car) -> Unit,
+    onDeleteClick: ((Car) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -160,37 +162,38 @@ fun CarItem(
         )
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            Text(
-                text = car.licensePlate,
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = "${car.brand} ${car.model}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1.5f)
-            )
-            Text(
-                text = car.year.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(0.8f)
-            )
-            Text(
-                text = car.fuelType.displayName,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = "€${car.price}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "${car.brand} ${car.model}",
+                    style = MaterialTheme.typography.titleSmall
+                )
 
+                Text(
+                    text = "${car.licensePlate} • ${car.year} • ${car.fuelType.displayName}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = "€${car.price}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            carAvailability?.let {
+                AvailabilityBadge(it)
+            }
+    if(onDeleteClick != null){
             IconButton(
                 onClick = { onDeleteClick(car) }
             ) {
@@ -202,5 +205,44 @@ fun CarItem(
             }
         }
     }
+    }
 }
+
+
+@Composable
+private fun AvailabilityBadge(
+    availability: CarAvailabilityUi
+) {
+    val (text, color) = if (availability.isAvailable) {
+        "Beschikbaar" to MaterialTheme.colorScheme.primary
+    } else {
+        "Niet beschikbaar" to MaterialTheme.colorScheme.error
+    }
+
+    Column(
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.small,
+            color = color.copy(alpha = 0.12f)
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelSmall,
+                color = color,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+        }
+
+        if (!availability.isAvailable && availability.availableFrom != null) {
+            Text(
+                text = "vanaf ${availability.availableFrom}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
 

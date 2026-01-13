@@ -112,4 +112,6 @@
     <string name="unknown_error">Er is een onverwachte fout opgetreden.</string>
     <string name="car_year">Bouwjaar</string>
     <string name="filters">Filteren</string>
+    <string name="confirm">Bevestigen</string>
+    <string name="rent_from_date">Start datum huren</string>
 </resources>
