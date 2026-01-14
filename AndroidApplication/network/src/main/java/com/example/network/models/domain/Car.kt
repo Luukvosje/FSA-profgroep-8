@@ -2,6 +2,7 @@ package com.example.network.models.domain
 
 import kotlinx.datetime.LocalDate
 
+
 data class AvailableCar(
     val car: Car,
     val availableFrom: LocalDate?,

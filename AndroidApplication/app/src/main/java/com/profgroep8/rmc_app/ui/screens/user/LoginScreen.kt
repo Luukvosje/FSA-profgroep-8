@@ -42,6 +42,7 @@ import com.profgroep8.rmc_app.ui.components.DividerTextComponent
 import com.profgroep8.rmc_app.ui.components.RmcAppBar
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
 import com.profgroep8.rmc_app.ui.components.RmcTextField
+import com.profgroep8.rmc_app.ui.events.LoginUIEvent
 import com.profgroep8.rmc_app.viewmodel.user.LoginViewModel
 import org.koin.compose.viewmodel.koinViewModel
 

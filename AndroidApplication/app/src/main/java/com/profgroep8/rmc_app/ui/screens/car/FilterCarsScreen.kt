@@ -46,7 +46,7 @@ import com.profgroep8.rmc_app.R
 import com.profgroep8.rmc_app.ui.components.RmcAppBar
 import com.profgroep8.rmc_app.ui.components.RmcSpacer
 import com.profgroep8.rmc_app.ui.components.RmcTextField
-import com.profgroep8.rmc_app.ui.screens.filterCars.FilterCarsUiState
+import com.profgroep8.rmc_app.viewmodel.car.FilterCarsUiState
 import com.profgroep8.rmc_app.viewmodel.car.FilterCarsViewModel
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
