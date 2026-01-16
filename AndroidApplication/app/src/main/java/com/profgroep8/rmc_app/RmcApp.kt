@@ -17,6 +17,7 @@ import com.profgroep8.rmc_app.ui.screens.car.FilterCarsScreen
 import com.profgroep8.rmc_app.ui.screens.rental.AddRentalScreen
 import com.profgroep8.rmc_app.ui.screens.rental.AllRentalsScreen
 import com.profgroep8.rmc_app.ui.screens.rental.RentalInformationScreen
+import com.profgroep8.rmc_app.ui.screens.rental.RentalMapScreen
 import com.profgroep8.rmc_app.ui.screens.user.BonusPointsScreen
 import com.profgroep8.rmc_app.ui.screens.user.LoginScreen
 import com.profgroep8.rmc_app.ui.screens.user.RegisterScreen
@@ -35,6 +36,7 @@ enum class RmcScreen(@StringRes val title: Int){
     Rentals(R.string.home_rentals),
     RentalInformation(R.string.rental_information),
     AddRental(R.string.create_rental),
+    RentalMap(R.string.rental_map),
     UserInformation(R.string.user_information)
 }
 
@@ -137,6 +139,13 @@ fun RmcApp(
                 navigateToScreen = { navController.navigate(it) }
             )
         }
+
+        composable(RmcScreen.RentalMap.name) {
+            RentalMapScreen(
+                navigateToScreen = { navController.navigate(it) }
+            )
+        }
+
         composable(RmcScreen.UserInformation.name) {
             com.profgroep8.rmc_app.ui.screens.userinfo.UserInfoScreen(
                 navigateToScreen = { navController.navigate(it) }

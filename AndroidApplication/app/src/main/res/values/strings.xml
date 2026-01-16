@@ -71,8 +71,13 @@
     <string name="all_rentals">Alle reserveringen</string>
     <string name="all_rentals_sub">Lijst van alle reserveringen</string>
     <string name="no_rentals_found">Geen reserveringen gevonden</string>
+    <string name="rental_map">Kaart</string>
+    <string name="rental_map_sub">Bekijk je gereserveerde auto\'s op de kaart</string>
+    <string name="no_rentals_on_map">Geen reserveringen om weer te geven op de kaart</string>
+    <string name="car_number">Auto #%d</string>
     <string name="renting">Gehuurd</string>
     <string name="renting_out">Verhuurd</string>
+    <string name="tap_for_details">Tik voor meer informatie</string>
     <string name="rental_information">Reservering Informatie</string>
     <string name="start_date">Startdatum</string>
     <string name="end_date">Einddatum</string>
@@ -110,6 +115,7 @@
     <!-- Error messages -->
     <string name="error">Fout</string>
     <string name="unknown_error">Er is een onverwachte fout opgetreden.</string>
+    <string name="failed_rental_loading_error">Het laden van de reserveringen is mislukt</string>
     <string name="car_year">Bouwjaar</string>
     <string name="filters">Filteren</string>
     <string name="confirm">Bevestigen</string>

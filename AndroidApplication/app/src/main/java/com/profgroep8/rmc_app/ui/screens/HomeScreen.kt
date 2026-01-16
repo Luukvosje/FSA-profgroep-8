@@ -115,6 +115,11 @@ fun HomeScreen(
                         )
 
                         RmcFilledButton(
+                            value = stringResource(R.string.rental_map),
+                            onClick = { navigateToScreen(RmcScreen.RentalMap.name) }
+                        )
+
+                        RmcFilledButton(
                             value = stringResource(R.string.home_view_points),
                             onClick = { navigateToScreen(RmcScreen.ViewPoints.name) }
                         )

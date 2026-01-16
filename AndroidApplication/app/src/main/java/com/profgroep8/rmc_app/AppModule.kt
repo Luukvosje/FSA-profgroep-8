@@ -14,6 +14,7 @@ import com.profgroep8.rmc_app.viewmodel.car.ShowAllCarsViewModel
 import com.profgroep8.rmc_app.viewmodel.rental.ShowAllRentalsViewModel
 import com.profgroep8.rmc_app.viewmodel.user.UserInfoViewModel
 import com.profgroep8.rmc_app.viewmodel.user.WelcomeViewModel
+import com.profgroep8.rmc_app.viewmodel.rental.RentalMapViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -47,5 +48,6 @@ val viewModelModule = module {
             carId = carId
         )
     }
+    viewModel { RentalMapViewModel(get()) }
 }
 

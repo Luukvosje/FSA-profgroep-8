@@ -16,6 +16,8 @@ coil = "2.7.0"
 koin-bom = "4.2.0-beta2"
 material3 = "1.4.0"
 kotlinxDatetime = "0.7.1"
+maplibre = "11.5.1"
+maplibreCompose = "0.12.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +46,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
+maplibre = { group = "org.maplibre.gl", name = "android-sdk", version.ref = "maplibre" }
+maplibre-compose = { group = "org.maplibre.compose", name = "maplibre-compose-android", version.ref = "maplibreCompose" }
+maplibre-compose-material3 = { group = "org.maplibre.compose", name = "maplibre-compose-material3", version.ref = "maplibreCompose" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }
